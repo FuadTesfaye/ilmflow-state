@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-display), "Cinzel", Georgia, serif;
+  --font-arabic: var(--font-arabic), "Amiri", "Traditional Arabic", serif;
+
+  --color-ivory-50: #faf8f5;
+  --color-ivory-100: #f4f0e6;
+  --color-ivory-200: #e8e1d2;
+  
+  --color-emerald-deep: #064e3b;
+  --color-emerald-primary: #047857;
+  --color-emerald-light: #10b981;
+  
+  --color-gold-burnished: #9e782f;
+  --color-gold-light: #b89243;
+  --color-gold-champagne: #d4a94b;
+
+  --color-slate-ink: #111827;
+  --color-slate-body: #374151;
+  --color-slate-muted: #6b7280;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-page: #faf8f5;
+  --bg-card: #ffffff;
+  --border-subtle: #e7e2d6;
+  --border-accent: rgba(158, 120, 47, 0.35);
+  
+  --text-title: #111827;
+  --text-body: #374151;
+  --text-muted: #6b7280;
+  --color-primary: #064e3b;
+  --color-gold: #9e782f;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-title);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Luxury hairline borders */
+.border-hairline {
+  border: 1px solid var(--border-subtle);
+}
+
+.border-accent {
+  border: 1px solid var(--border-accent);
+}
+
+/* Subtle architectural watermark pattern */
+.pattern-archival {
+  background-image: radial-gradient(rgba(158, 120, 47, 0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Typography utilities */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-arabic {
+  font-family: var(--font-arabic);
+}
+
+/* Luxury metadata tags */
+.meta-tag {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.meta-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom dignified scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f4f0e6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4ccbd;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9e782f;
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
 }
