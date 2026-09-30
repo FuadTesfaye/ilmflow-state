@@ -2,8 +2,11 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { IslamicStarIcon } from '../../../components/common/IslamicPattern';
-import { ShieldCheck, ArrowLeft, Clock, User, Filter, Search } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../../../components/ui/table';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
 
 export default function AdminAuditLogsPage() {
   const auditLogs = [
@@ -11,7 +14,7 @@ export default function AdminAuditLogsPage() {
       id: 'aud-001',
       actor: 'Sheikh Dr. Tariq Al-Hashimi',
       role: 'superadmin',
-      action: 'PUBLISH_CONVOCATION',
+      action: 'PUBLISH_EVENT',
       entity: 'Event: Global Quran & Sunnah Summit 2026',
       ip: '194.165.22.4',
       timestamp: '2026-09-27 11:30:15 UTC',
@@ -21,7 +24,7 @@ export default function AdminAuditLogsPage() {
       id: 'aud-002',
       actor: 'Dr. Sheikh Ahmad Al-Mansoor',
       role: 'judge',
-      action: 'SUBMIT_RUBRIC_GRADE',
+      action: 'SUBMIT_GRADE',
       entity: 'Submission: sub-quran-01 (Zayd Al-Ansari)',
       ip: '197.234.18.9',
       timestamp: '2026-09-27 10:14:02 UTC',
@@ -31,92 +34,76 @@ export default function AdminAuditLogsPage() {
       id: 'aud-003',
       actor: 'Bilal Qureshi',
       role: 'staff',
-      action: 'CHECKIN_ATTENDEE',
-      entity: 'Attendee: Zayd Al-Ansari (TKT-1448-8842)',
+      action: 'CHECK_IN',
+      entity: 'Attendee: Zayd Al-Ansari (TKT-001)',
       ip: '185.190.140.2',
       timestamp: '2026-09-27 09:45:00 UTC',
-      detail: 'Optical QR barcode scan verified at Gate A (Musalla Ground Floor).'
+      detail: 'QR scan verified at Gate A.'
     },
     {
       id: 'aud-004',
       actor: 'Ustadha Fatima Al-Zahra',
       role: 'admin',
-      action: 'UPDATE_FORM_SCHEMA',
+      action: 'UPDATE_FORM',
       entity: 'Form: form-summit-standard',
       ip: '194.165.22.8',
       timestamp: '2026-09-26 16:20:00 UTC',
-      detail: 'Released Form Version 2 with minor parental consent conditional rules.'
+      detail: 'Released Form Version 2 with minor consent conditional rules.'
     }
   ];
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6 text-[#0f172a]">
-      {/* Header */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 text-slate-900">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2">
-            <IslamicStarIcon size={16} className="text-[#064e3b]" />
-            <span className="text-[10px] font-bold tracking-[0.14em] text-[#064e3b] uppercase">
-              IMMUTABLE AUDIT TRAIL &amp; GOVERNANCE LEDGER
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#0f172a] mt-1 tracking-tight">
-            Security &amp; Administrative Audit Logs
-          </h1>
-          <p className="text-xs text-[#475569]">
-            Cryptographically indexed historical record of every grading change, user permission update, and test publication.
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Administrative Audit Logs</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Cryptographic ledger of administrator dispatches, rubric grades, and gate check-in scans.
           </p>
         </div>
-
-        <Link
-          href="/admin"
-          className="px-4 py-2 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs font-semibold text-[#0f172a] hover:border-[#064e3b] flex items-center gap-1.5 self-start sm:self-center"
-        >
-          <ArrowLeft size={14} />
-          <span>Back to Console</span>
+        <Link href="/admin">
+          <Button variant="outline" size="sm" className="gap-1.5">
+            <ArrowLeft size={14} />
+            <span>Back to Admin</span>
+          </Button>
         </Link>
       </div>
 
-      {/* Audit Log Table */}
-      <div className="rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#faf8f5] border-b border-[#e7e2d6] text-[10px] font-bold tracking-wider uppercase text-[#6b7280]">
-              <tr>
-                <th className="py-3 px-4">Timestamp (UTC)</th>
-                <th className="py-3 px-4">Actor</th>
-                <th className="py-3 px-4">Action</th>
-                <th className="py-3 px-4">Target Entity</th>
-                <th className="py-3 px-4">Operational Detail</th>
-                <th className="py-3 px-4">IP Address</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#f4f0e6]">
-              {auditLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-[#faf8f5]/60 transition-colors">
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-[#6b7280] whitespace-nowrap">
-                    {log.timestamp}
-                  </td>
-                  <td className="py-3.5 px-4 font-semibold text-[#0f172a] whitespace-nowrap">
-                    <div>{log.actor}</div>
-                    <span className="text-[10px] font-bold tracking-wider uppercase text-[#064e3b]">
-                      {log.role}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 whitespace-nowrap">
-                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#f4f0e6] text-[#064e3b] border border-[#e7e2d6]">
-                      {log.action}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 text-[#0f172a] font-medium">{log.entity}</td>
-                  <td className="py-3.5 px-4 text-[#475569] max-w-xs">{log.detail}</td>
-                  <td className="py-3.5 px-4 font-mono text-[11px] text-[#6b7280]">{log.ip}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <Card className="overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Timestamp</TableHead>
+              <TableHead>Operator</TableHead>
+              <TableHead>Action</TableHead>
+              <TableHead>Target Entity</TableHead>
+              <TableHead>Event Details</TableHead>
+              <TableHead className="text-right">IP Address</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {auditLogs.map((log) => (
+              <TableRow key={log.id}>
+                <TableCell className="font-mono text-xs text-slate-500 whitespace-nowrap">
+                  {log.timestamp}
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <div className="font-semibold text-slate-900">{log.actor}</div>
+                  <span className="text-[11px] text-slate-400 capitalize">{log.role}</span>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <Badge variant="secondary" className="font-mono text-[10px]">
+                    {log.action}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-xs text-slate-700">{log.entity}</TableCell>
+                <TableCell className="text-xs text-slate-500 max-w-xs">{log.detail}</TableCell>
+                <TableCell className="text-right font-mono text-xs text-slate-400">{log.ip}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }

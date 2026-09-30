@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, Cinzel, Amiri } from 'next/font/google';
+import { Lexend, Amiri } from 'next/font/google';
 import './globals.css';
 import { AppProvider } from '../context/AppContext';
 import { Navbar } from '../components/layout/Navbar';
@@ -7,18 +7,11 @@ import { Footer } from '../components/layout/Footer';
 import { RoleSwitcher } from '../components/common/RoleSwitcher';
 import { ToastContainer } from '../components/common/ToastContainer';
 
-const sansFont = Plus_Jakarta_Sans({
+const sansFont = Lexend({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
-  weight: ['400', '500', '600', '700', '800']
-});
-
-const displayFont = Cinzel({
-  subsets: ['latin'],
-  variable: '--font-display',
-  display: 'swap',
-  weight: ['500', '600', '700', '800']
+  weight: ['300', '400', '500', '600', '700', '800']
 });
 
 const arabicFont = Amiri({
@@ -29,9 +22,9 @@ const arabicFont = Amiri({
 });
 
 export const metadata: Metadata = {
-  title: 'IlmFlow State — Global Islamic Convocations & Competition System',
+  title: 'Hejrat Foundation Masjid Al-Nabi — Islamic Community & Learning Hub',
   description:
-    'Enterprise platform for international Islamic summits, Holy Quran recitation championships, Hadith mastery tournaments, and accredited certificates.',
+    'Dedicated to congregational prayers, Islamic education, youth programs, and community services at Masjid Al-Nabi in West Covina, California.',
   icons: {
     icon: '/favicon.ico'
   }
@@ -45,9 +38,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sansFont.variable} ${displayFont.variable} ${arabicFont.variable}`}
+      className={`${sansFont.variable} ${arabicFont.variable}`}
     >
-      <body className="min-h-screen bg-[#faf8f5] text-[#111827] flex flex-col font-sans antialiased selection:bg-[#064e3b] selection:text-[#faf8f5]">
+      <body className="min-h-screen bg-[#f4f8f5] text-slate-900 flex flex-col font-sans antialiased">
         <AppProvider>
           <Navbar />
           <main className="flex-1 w-full">{children}</main>

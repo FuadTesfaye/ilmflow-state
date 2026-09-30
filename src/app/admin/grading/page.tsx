@@ -5,24 +5,13 @@ import Link from 'next/link';
 import { useApp } from '../../../context/AppContext';
 import { ManualSubmission, RubricCriterion } from '../../../types';
 import { ManualGradingModal } from '../../../components/competition/ManualGradingModal';
-import { IslamicStarIcon } from '../../../components/common/IslamicPattern';
-import {
-  Award,
-  Clock,
-  CheckCircle,
-  Volume2,
-  FileText,
-  Sliders,
-  Filter,
-  UserCheck,
-  Search,
-  ArrowRight,
-  ShieldCheck,
-  AlertCircle
-} from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { Sliders, ArrowLeft } from 'lucide-react';
 
 export default function AdminGradingQueuePage() {
-  const { manualSubmissions, competitions, currentUser } = useApp();
+  const { manualSubmissions, competitions } = useApp();
 
   const [selectedSubmission, setSelectedSubmission] = useState<ManualSubmission | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'pending' | 'graded'>('all');
@@ -33,7 +22,6 @@ export default function AdminGradingQueuePage() {
       filterType === 'all' ||
       (filterType === 'pending' && s.status === 'pending_review') ||
       (filterType === 'graded' && s.status === 'graded');
-
     const matchesComp = selectedCompFilter === 'all' || s.competitionId === selectedCompFilter;
     return matchesStatus && matchesComp;
   });
@@ -46,152 +34,136 @@ export default function AdminGradingQueuePage() {
     const round = comp?.rounds.find((r) => r.id === sub.roundId) || comp?.rounds[0];
     return (
       round?.rubric || [
-        { id: 'rub-tajweed', name: 'Tajweed Rules & Characteristics', description: 'Application of Ghunnah, Madd, Ikhfa, Idgham, and Qalqalah.', maxScore: 30 },
-        { id: 'rub-memorization', name: 'Memorization & Fluency', description: 'Fluency without hesitation or stumble.', maxScore: 30 },
-        { id: 'rub-makharij', name: 'Articulation Points (Makharij)', description: 'Pristine phoneme clarity.', maxScore: 20 },
-        { id: 'rub-voice', name: 'Vocal Quality & Melody', description: 'Natural resonance and melodic cadence.', maxScore: 10 },
-        { id: 'rub-overall', name: 'Adab & Waqf / Ibtida', description: 'Respecting Quranic thematic pauses.', maxScore: 10 }
+        { id: 'rub-tajweed', name: 'Tajweed Rules', description: 'Application of Ghunnah, Madd, Ikhfa, Idgham, and Qalqalah.', maxScore: 30 },
+        { id: 'rub-memorization', name: 'Memorization & Fluency', description: 'Fluency without hesitation.', maxScore: 30 },
+        { id: 'rub-makharij', name: 'Articulation (Makharij)', description: 'Phoneme clarity.', maxScore: 20 },
+        { id: 'rub-voice', name: 'Vocal Quality', description: 'Natural resonance and melody.', maxScore: 10 },
+        { id: 'rub-overall', name: 'Adab & Waqf', description: 'Respecting thematic pauses.', maxScore: 10 }
       ]
     );
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6 text-[#0f172a]">
-      {/* Header */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 text-slate-900">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2">
-            <IslamicStarIcon size={16} className="text-[#064e3b]" />
-            <span className="text-[10px] font-bold tracking-[0.14em] text-[#064e3b] uppercase">
-              JUDICIAL SECRETARIAT &amp; ADJUDICATION BENCH
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#0f172a] mt-1 tracking-tight">
-            Central Grading Queue &amp; Evaluation Backlog
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Adjudication &amp; Grading Queue
           </h1>
-          <p className="text-xs text-[#475569]">
-            Assign audio recitations and written treatises to certified Qira’at judges and track 100-point rubric marks.
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Audit candidate audio recitations and essay treatises using standardized rubrics.
           </p>
         </div>
 
-        {/* Stats */}
         <div className="flex items-center gap-3">
-          <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-center min-w-[120px]">
-            <span className="text-[10px] font-bold tracking-wider text-[#9e782f] uppercase block">
-              AWAITING SCORE
-            </span>
-            <span className="text-2xl font-bold text-[#9e782f] block mt-0.5">{pendingCount}</span>
+          <div className="px-4 py-2 rounded-xl bg-amber-50 border border-amber-200 text-center">
+            <span className="text-[10px] font-semibold text-amber-900 uppercase block">Pending</span>
+            <span className="text-xl font-bold text-amber-700 block tabular-nums">{pendingCount}</span>
           </div>
-          <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-center min-w-[120px]">
-            <span className="text-[10px] font-bold tracking-wider text-[#064e3b] uppercase block">
-              GRADED ENTRIES
-            </span>
-            <span className="text-2xl font-bold text-[#064e3b] block mt-0.5">{gradedCount}</span>
+          <div className="px-4 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
+            <span className="text-[10px] font-semibold text-emerald-900 uppercase block">Graded</span>
+            <span className="text-xl font-bold text-emerald-700 block tabular-nums">{gradedCount}</span>
           </div>
+          <Link href="/admin">
+            <Button variant="outline" size="sm" className="gap-1.5 ml-2">
+              <ArrowLeft size={14} />
+              <span>Back</span>
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Filter Row */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-3 rounded-xl bg-white border border-slate-200 shadow-2xs">
+        <div className="flex items-center gap-1.5">
           {(['all', 'pending', 'graded'] as const).map((t) => (
             <button
               key={t}
               onClick={() => setFilterType(t)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors cursor-pointer ${
                 filterType === t
-                  ? 'bg-[#064e3b] text-[#ffffff] shadow-xs'
-                  : 'bg-[#faf8f5] border border-[#e7e2d6] text-[#6b7280] hover:text-[#0f172a]'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              {t === 'all' ? 'All Submissions' : t === 'pending' ? 'Pending Review' : 'Completed Grades'}
+              {t === 'all' ? 'All Submissions' : t === 'pending' ? 'Pending Review' : 'Graded'}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs text-[#6b7280]">Filter Tournament:</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500">Filter Competition:</span>
           <select
             value={selectedCompFilter}
             onChange={(e) => setSelectedCompFilter(e.target.value)}
-            className="px-3 py-1.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a]"
+            className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-800"
           >
-            <option value="all">All Tournaments</option>
+            <option value="all">All Competitions</option>
             {competitions.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title}
-              </option>
+              <option key={c.id} value={c.id}>{c.title}</option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Submissions List */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {filtered.length === 0 ? (
-          <div className="p-12 text-center rounded-3xl bg-[#ffffff] border border-[#e7e2d6] text-xs text-[#6b7280]">
-            No submissions matching this filter criterion.
-          </div>
+          <Card className="p-12 text-center text-xs text-slate-500">
+            No submissions found matching this filter criteria.
+          </Card>
         ) : (
           filtered.map((sub) => {
             const comp = competitions.find((c) => c.id === sub.competitionId);
 
             return (
-              <div
+              <Card
                 key={sub.id}
-                className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs hover:border-[#064e3b]/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
+                className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-emerald-300 transition-colors"
               >
-                <div className="space-y-2 max-w-2xl">
+                <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span
-                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                        sub.status === 'graded'
-                          ? 'bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]'
-                          : 'bg-[#fef3c7] text-[#92400e] border border-[#fde68a]'
-                      }`}
-                    >
-                      {sub.status === 'graded' ? 'Graded & Approved' : 'Awaiting Judge Evaluation'}
-                    </span>
-                    <span className="text-xs text-[#6b7280]">•</span>
-                    <span className="text-xs font-semibold text-[#064e3b]">
-                      {comp?.title || 'Quran & Sunnah Contest'}
+                    <Badge variant={sub.status === 'graded' ? 'success' : 'warning'} className="text-[10px]">
+                      {sub.status === 'graded' ? 'Graded' : 'Pending Review'}
+                    </Badge>
+                    <span className="text-xs text-slate-400">•</span>
+                    <span className="text-xs font-semibold text-slate-600">
+                      {comp?.title || 'Competition'}
                     </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-[#0f172a]">{sub.title}</h3>
+                  <h3 className="text-sm font-bold text-slate-900">{sub.title}</h3>
 
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-[#6b7280]">
-                    <span className="font-semibold text-[#0f172a]">Delegate: {sub.participantName}</span>
-                    <span>Email: {sub.participantEmail}</span>
-                    <span>Submitted: {new Date(sub.submittedAt).toLocaleDateString()}</span>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <span className="font-semibold text-slate-800">{sub.participantName}</span>
+                    <span>{sub.participantEmail}</span>
+                    <span className="font-mono text-slate-400">{new Date(sub.submittedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-4 shrink-0">
                   {sub.status === 'graded' && sub.grades?.[0] && (
-                    <div className="text-right pr-2">
-                      <span className="text-[10px] text-[#6b7280] block">Final Score</span>
-                      <span className="text-xl font-bold text-[#064e3b]">
-                        {sub.grades[0].totalScore} / 100
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Total Score</span>
+                      <span className="text-base font-extrabold text-emerald-700 font-mono">
+                        {sub.grades[0].totalScore}/100
                       </span>
                     </div>
                   )}
 
-                  <button
+                  <Button
+                    size="sm"
                     onClick={() => setSelectedSubmission(sub)}
-                    className="px-4 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    className="gap-1.5 text-xs"
                   >
-                    <Sliders size={14} />
-                    <span>{sub.status === 'graded' ? 'Review / Edit Grade' : 'Open Rubric Scoring'}</span>
-                  </button>
+                    <Sliders size={13} />
+                    <span>{sub.status === 'graded' ? 'Review Grade' : 'Grade Entry'}</span>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             );
           })
         )}
       </div>
 
-      {/* Manual Grading Modal */}
       {selectedSubmission && (
         <ManualGradingModal
           submission={selectedSubmission}

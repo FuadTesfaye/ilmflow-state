@@ -3,21 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { CompetitionItem, CompetitionQuestion } from '../../types';
-import { IslamicStarIcon } from '../common/IslamicPattern';
 import {
   Clock,
   Flag,
   CheckCircle,
-  AlertCircle,
+  ShieldAlert,
   ChevronLeft,
   ChevronRight,
-  ShieldAlert,
-  Award,
   BookOpen,
-  Sparkles,
-  Layers
+  Award,
+  AlertTriangle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Progress } from '../ui/progress';
 
 interface QuizEngineProps {
   competition: CompetitionItem;
@@ -176,275 +177,292 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ competition, questions, 
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 select-none text-[#111827]">
-      {/* Enterprise Proctored Header */}
-      <div className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col md:flex-row items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="meta-tag px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
-              PROCTORED ACADEMIC BENCH
-            </span>
-            <span className="text-[#e7e2d6]">•</span>
-            <span className="text-xs text-[#6b7280]">
-              Candidate: <strong className="text-[#111827]">{currentUser.name}</strong>
-            </span>
+    <div className="w-full max-w-5xl mx-auto space-y-6 select-none text-stone-900">
+      {/* Session Top Bar */}
+      <Card>
+        <CardContent className="p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <Badge variant="info">Active Exam</Badge>
+              <span className="text-xs text-stone-500">
+                Candidate: <strong className="text-stone-900">{currentUser.name}</strong>
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-stone-900 mt-1">
+              {competition.title}
+            </h3>
           </div>
-          <h3 className="font-display text-xl text-[#111827] font-bold mt-1">
-            {competition.title}
-          </h3>
-        </div>
 
-        {/* Time Remaining & Anti-Cheat Monitor */}
-        <div className="flex items-center gap-3">
-          {antiCheatWarnings > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold">
-              <ShieldAlert size={14} className="text-red-600" />
-              <span>{antiCheatWarnings} Tab Alert Logged</span>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {antiCheatWarnings > 0 && (
+              <Badge variant="destructive" className="gap-1.5 py-1 px-2.5">
+                <ShieldAlert size={14} />
+                <span>{antiCheatWarnings} Tab switch detected</span>
+              </Badge>
+            )}
 
-          {!isSubmitted && (
-            <div
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-mono font-bold tabular-nums ${
-                timeLeft < 180
-                  ? 'bg-red-50 border-red-300 text-red-700'
-                  : 'bg-[#faf8f5] border-[#e7e2d6] text-[#064e3b]'
-              }`}
-            >
-              <Clock size={15} />
-              <span>{formatMinutes(timeLeft)}</span>
-            </div>
-          )}
-        </div>
-      </div>
+            {!isSubmitted && (
+              <div
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg border text-sm font-mono font-bold ${
+                  timeLeft < 180
+                    ? 'bg-red-50 border-red-200 text-red-700 animate-pulse'
+                    : 'bg-stone-50 border-stone-200 text-stone-900'
+                }`}
+              >
+                <Clock size={15} className={timeLeft < 180 ? 'text-red-600' : 'text-stone-500'} />
+                <span>{formatMinutes(timeLeft)}</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Main Testing Canvas */}
+      {/* Main Testing View */}
       {!isSubmitted ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left 8 Cols: Question Canvas */}
+          {/* Left Question Canvas */}
           <div className="lg:col-span-8 space-y-4">
-            <div className="p-7 sm:p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] space-y-6 relative">
-              {/* Question Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
+            <Card>
+              <CardHeader className="pb-4 border-b border-stone-100 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="meta-tag px-2.5 py-1 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
-                    QUESTION {currentIndex + 1} OF {questions.length}
-                  </span>
-                  <span className="text-xs text-[#6b7280]">
-                    ({activeQuestion?.marks} Marks{activeQuestion?.negativeMarks ? `, -${activeQuestion.negativeMarks} Negative` : ''})
+                  <Badge variant="secondary" className="font-semibold">
+                    Question {currentIndex + 1} of {questions.length}
+                  </Badge>
+                  <span className="text-xs text-stone-500">
+                    ({activeQuestion?.marks} marks{activeQuestion?.negativeMarks ? `, -${activeQuestion.negativeMarks} penalty` : ''})
                   </span>
                 </div>
 
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleToggleFlag(activeQuestion?.id || '')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs transition-all border cursor-pointer ${
+                  className={`gap-1.5 text-xs ${
                     flagged[activeQuestion?.id || '']
-                      ? 'bg-[#fefce8] border-[#fef08a] text-[#854d0e] font-semibold'
-                      : 'bg-[#faf8f5] border-[#e7e2d6] text-[#6b7280] hover:text-[#111827]'
+                      ? 'border-amber-400 bg-amber-50 text-amber-800'
+                      : 'text-stone-600'
                   }`}
                 >
-                  <Flag size={12} fill={flagged[activeQuestion?.id || ''] ? 'currentColor' : 'none'} />
-                  <span>{flagged[activeQuestion?.id || ''] ? 'Flagged' : 'Flag'}</span>
-                </button>
-              </div>
+                  <Flag size={13} fill={flagged[activeQuestion?.id || ''] ? 'currentColor' : 'none'} />
+                  <span>Flag for review</span>
+                </Button>
+              </CardHeader>
 
-              {/* Question Prompt */}
-              <div className="space-y-3">
-                {activeQuestion?.arabicText && (
-                  <p
-                    className="font-arabic text-2xl text-[#9e782f] leading-relaxed text-right font-normal"
-                    dir="rtl"
-                  >
-                    {activeQuestion.arabicText}
-                  </p>
-                )}
-                <h4 className="text-base sm:text-lg font-bold text-[#111827] leading-relaxed">
-                  {activeQuestion?.questionText}
-                </h4>
-              </div>
-
-              {/* Multiple Choice Options */}
-              <div className="space-y-3 pt-2">
-                {activeQuestion?.options?.map((option, optIdx) => {
-                  const isMulti = activeQuestion.type === 'multiple-select';
-                  const isSelected = isMulti
-                    ? ((answers[activeQuestion.id] as string[]) || []).includes(option.id)
-                    : answers[activeQuestion.id] === option.id;
-
-                  const letters = ['A', 'B', 'C', 'D', 'E'];
-
-                  return (
-                    <div
-                      key={option.id}
-                      onClick={() => handleSelectOption(activeQuestion.id, option.id, isMulti)}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                        isSelected
-                          ? 'bg-[#f4f0e6] border-2 border-[#064e3b] text-[#111827] shadow-xs'
-                          : 'bg-[#ffffff] border border-[#e7e2d6] text-[#4b5563] hover:border-[#064e3b]/40'
-                      }`}
+              <CardContent className="p-6 space-y-6">
+                {/* Question Prompt */}
+                <div className="space-y-4">
+                  {activeQuestion?.arabicText && (
+                    <p
+                      className="font-arabic text-2xl text-stone-800 leading-relaxed text-right p-4 rounded-lg bg-stone-50/70 border border-stone-200/60"
+                      dir="rtl"
                     >
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`w-7 h-7 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 border ${
-                            isSelected
-                              ? 'bg-[#064e3b] text-[#ffffff] border-[#064e3b]'
-                              : 'bg-[#faf8f5] text-[#6b7280] border-[#e7e2d6]'
-                          }`}
-                        >
-                          {letters[optIdx] || optIdx + 1}
-                        </span>
-                        <span className="text-xs sm:text-sm font-semibold text-[#111827]">{option.text}</span>
-                      </div>
-                      {option.arabicText && (
-                        <span className="font-arabic text-base text-[#9e782f] shrink-0" dir="rtl">
-                          {option.arabicText}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      {activeQuestion.arabicText}
+                    </p>
+                  )}
+                  <h4 className="text-lg font-semibold text-stone-900 leading-snug">
+                    {activeQuestion?.questionText}
+                  </h4>
+                </div>
 
-              {/* Navigation Controls */}
-              <div className="flex items-center justify-between border-t border-[#e7e2d6] pt-5">
-                <button
+                {/* Multiple Choice Options */}
+                <div className="space-y-3">
+                  {activeQuestion?.options?.map((option, optIdx) => {
+                    const isMulti = activeQuestion.type === 'multiple-select';
+                    const isSelected = isMulti
+                      ? ((answers[activeQuestion.id] as string[]) || []).includes(option.id)
+                      : answers[activeQuestion.id] === option.id;
+
+                    const letters = ['A', 'B', 'C', 'D', 'E'];
+
+                    return (
+                      <div
+                        key={option.id}
+                        onClick={() => handleSelectOption(activeQuestion.id, option.id, isMulti)}
+                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                          isSelected
+                            ? 'bg-emerald-50/50 border-emerald-600 ring-2 ring-emerald-500/20 shadow-sm'
+                            : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center shrink-0 border ${
+                              isSelected
+                                ? 'bg-emerald-700 text-white border-emerald-700'
+                                : 'bg-stone-100 text-stone-600 border-stone-200'
+                            }`}
+                          >
+                            {letters[optIdx] || optIdx + 1}
+                          </span>
+                          <span className={`text-sm font-medium ${isSelected ? 'text-stone-900' : 'text-stone-700'}`}>
+                            {option.text}
+                          </span>
+                        </div>
+                        {option.arabicText && (
+                          <span className="font-arabic text-lg text-stone-800 shrink-0" dir="rtl">
+                            {option.arabicText}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+
+              <CardFooter className="flex items-center justify-between border-t border-stone-100 pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
                   disabled={currentIndex === 0}
                   onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs font-semibold text-[#6b7280] hover:text-[#111827] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  className="gap-1.5"
                 >
-                  <ChevronLeft size={14} />
+                  <ChevronLeft size={15} />
                   <span>Previous</span>
-                </button>
+                </Button>
 
                 {currentIndex < questions.length - 1 ? (
-                  <button
+                  <Button
+                    size="sm"
                     onClick={() => setCurrentIndex((prev) => Math.min(questions.length - 1, prev + 1))}
-                    className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs transition-all"
+                    className="gap-1.5 bg-stone-900 hover:bg-stone-800 text-white"
                   >
                     <span>Next Question</span>
-                    <ChevronRight size={14} />
-                  </button>
+                    <ChevronRight size={15} />
+                  </Button>
                 ) : (
-                  <button
+                  <Button
+                    size="sm"
                     onClick={handleSubmitQuiz}
-                    className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-bold hover:bg-[#043c2e] cursor-pointer shadow-md transition-all"
+                    className="gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white"
                   >
-                    <span>Complete &amp; Submit</span>
+                    <span>Submit Exam</span>
                     <CheckCircle size={15} />
-                  </button>
+                  </Button>
                 )}
-              </div>
-            </div>
+              </CardFooter>
+            </Card>
           </div>
 
-          {/* Right 4 Cols: Question Navigator */}
+          {/* Right Question Palette */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
-              <span className="meta-tag text-[#064e3b] block font-bold">QUESTION MATRIX</span>
+            <Card>
+              <CardHeader className="pb-3 border-b border-stone-100">
+                <CardTitle className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                  Question Palette
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  {Object.keys(answers).length} of {questions.length} answered
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                <div className="grid grid-cols-5 gap-2">
+                  {questions.map((q, idx) => {
+                    const isAnswered =
+                      answers[q.id] &&
+                      (!Array.isArray(answers[q.id]) || (answers[q.id] as string[]).length > 0);
+                    const isFlagged = flagged[q.id];
+                    const isCurrent = currentIndex === idx;
 
-              <div className="grid grid-cols-4 gap-2">
-                {questions.map((q, idx) => {
-                  const isAnswered =
-                    answers[q.id] &&
-                    (!Array.isArray(answers[q.id]) || (answers[q.id] as string[]).length > 0);
-                  const isFlagged = flagged[q.id];
-                  const isCurrent = currentIndex === idx;
-
-                  return (
-                    <button
-                      key={q.id}
-                      onClick={() => setCurrentIndex(idx)}
-                      className={`h-9 rounded-xl text-xs font-mono font-bold transition-all relative cursor-pointer ${
-                        isCurrent
-                          ? 'ring-2 ring-[#064e3b] bg-[#064e3b] text-[#ffffff]'
-                          : isAnswered
-                          ? 'bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]'
-                          : 'bg-[#faf8f5] text-[#6b7280] border border-[#e7e2d6] hover:border-[#064e3b]/40'
-                      }`}
-                    >
-                      {idx + 1}
-                      {isFlagged && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#9e782f]" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="border-t border-[#e7e2d6] pt-3.5 space-y-2 text-[11px] text-[#6b7280]">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded bg-[#ecfdf5] border border-[#a7f3d0]" />
-                  <span>Answered Question</span>
+                    return (
+                      <button
+                        key={q.id}
+                        onClick={() => setCurrentIndex(idx)}
+                        className={`h-9 rounded-lg text-xs font-semibold transition-all relative cursor-pointer border ${
+                          isCurrent
+                            ? 'ring-2 ring-emerald-600 bg-emerald-700 text-white border-emerald-700'
+                            : isAnswered
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                            : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300'
+                        }`}
+                      >
+                        {idx + 1}
+                        {isFlagged && (
+                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 border-2 border-white ring-1 ring-amber-400" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded bg-[#faf8f5] border border-[#e7e2d6]" />
-                  <span>Unanswered Question</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded bg-[#fefce8] border border-[#fef08a]" />
-                  <span>Flagged for Review</span>
-                </div>
-              </div>
 
-              <button
-                onClick={handleSubmitQuiz}
-                className="w-full mt-4 py-3 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-bold hover:bg-[#043c2e] transition-all cursor-pointer shadow-xs"
-              >
-                Submit Examination
-              </button>
-            </div>
+                <div className="border-t border-stone-100 pt-3 space-y-2 text-xs text-stone-600">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded bg-emerald-100 border border-emerald-300" />
+                    <span>Answered ({Object.keys(answers).length})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded bg-white border border-stone-300" />
+                    <span>Unanswered ({questions.length - Object.keys(answers).length})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-amber-500" />
+                    <span>Flagged for Review</span>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={handleSubmitQuiz}
+                  className="w-full mt-2 text-stone-800 border-stone-300 hover:bg-stone-50"
+                >
+                  Finish & Submit Test
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       ) : (
-        /* Results & Scholarly Explanations */
+        /* Results View */
         <div className="space-y-6">
-          <div className="p-8 sm:p-10 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] text-center space-y-4 relative shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)]">
-            <span className="meta-tag px-3 py-1 rounded-full bg-[#ecfdf5] text-[#065f46] font-bold">
-              EXAMINATION CONCLUDED • AUTO-GRADING REPORT
-            </span>
-
-            <h3 className="font-display text-3xl sm:text-4xl text-[#111827] font-bold">
-              Official Assessment Results
-            </h3>
-
-            <p className="text-xs text-[#6b7280]">
-              Candidate: <strong>{currentUser.name}</strong> • Recorded in Academic Ledger
-            </p>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto my-6 text-left">
-              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6]">
-                <span className="meta-tag text-[#6b7280] block text-[9px]">TOTAL MARKS</span>
-                <span className="font-display text-2xl font-bold text-[#064e3b] tabular-nums">
-                  {scoreResult?.score} / {scoreResult?.totalMarks}
-                </span>
+          <Card className="text-center overflow-hidden">
+            <div className="h-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-amber-600" />
+            <CardHeader className="pt-8 pb-4">
+              <Badge variant="success" className="mx-auto">
+                Exam Completed
+              </Badge>
+              <CardTitle className="text-2xl sm:text-3xl font-bold mt-2">
+                Official Examination Results
+              </CardTitle>
+              <CardDescription>
+                Candidate: <strong className="text-stone-900 font-semibold">{currentUser.name}</strong>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 block">Total Score</span>
+                  <span className="text-2xl font-bold text-stone-900 mt-1 block">
+                    {scoreResult?.score} / {scoreResult?.totalMarks}
+                  </span>
+                </div>
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 block">Percentage</span>
+                  <span className="text-2xl font-bold text-emerald-700 mt-1 block">
+                    {scoreResult?.percentage}%
+                  </span>
+                </div>
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 block">Correct Answers</span>
+                  <span className="text-2xl font-bold text-stone-900 mt-1 block">
+                    {scoreResult?.correctCount} / {questions.length}
+                  </span>
+                </div>
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-200">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-500 block">Academic Status</span>
+                  <span className="text-sm font-bold text-stone-900 block mt-2">
+                    {(scoreResult?.percentage || 0) >= 80 ? 'Distinction Pass' : 'Completed'}
+                  </span>
+                </div>
               </div>
-              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6]">
-                <span className="meta-tag text-[#6b7280] block text-[9px]">PERCENTAGE</span>
-                <span className="font-display text-2xl font-bold text-[#065f46] tabular-nums">
-                  {scoreResult?.percentage}%
-                </span>
-              </div>
-              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6]">
-                <span className="meta-tag text-[#6b7280] block text-[9px]">CORRECT ITEMS</span>
-                <span className="font-display text-2xl font-bold text-[#111827] tabular-nums">
-                  {scoreResult?.correctCount} / {questions.length}
-                </span>
-              </div>
-              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6]">
-                <span className="meta-tag text-[#6b7280] block text-[9px]">ACADEMIC HONORS</span>
-                <span className="font-display text-sm font-bold text-[#064e3b] block mt-1">
-                  {(scoreResult?.percentage || 0) >= 80 ? 'Distinction (Mumtaz)' : 'Qualified'}
-                </span>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Scholarly Explanations List */}
+          {/* Explanations List */}
           <div className="space-y-4">
-            <h4 className="font-display text-xl text-[#111827] font-bold flex items-center gap-2">
-              <BookOpen size={18} className="text-[#064e3b]" />
-              <span>Scholarly Commentary &amp; Authentic Citations</span>
-            </h4>
+            <div className="flex items-center gap-2">
+              <BookOpen size={18} className="text-emerald-700" />
+              <h4 className="text-lg font-bold text-stone-900">Review & Explanations</h4>
+            </div>
 
             {questions.map((q, i) => {
               const userAns = answers[q.id];
@@ -458,57 +476,53 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ competition, questions, 
               }
 
               return (
-                <div
+                <Card
                   key={q.id}
-                  className={`p-6 rounded-3xl border bg-[#ffffff] shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)] ${
-                    isCorrect ? 'border-[#a7f3d0]' : 'border-red-200'
+                  className={`border-l-4 ${
+                    isCorrect ? 'border-l-emerald-600' : 'border-l-red-500'
                   }`}
                 >
-                  <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
-                    <span className="meta-tag text-[#064e3b] font-bold">
-                      ITEM {i + 1} ({q.marks} MARKS)
-                    </span>
-                    <span
-                      className={`meta-tag px-2.5 py-0.5 rounded-full font-bold ${
-                        isCorrect
-                          ? 'bg-[#ecfdf5] text-[#065f46]'
-                          : 'bg-red-50 text-red-600'
-                      }`}
-                    >
-                      {isCorrect ? 'CORRECT' : 'INCORRECT'}
-                    </span>
-                  </div>
-
-                  <p className="text-sm sm:text-base font-bold text-[#111827] mt-3">
-                    {q.questionText}
-                  </p>
-
-                  <div className="mt-3.5 p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-xs space-y-1">
-                    <span className="meta-tag text-[#064e3b] block font-bold">
-                      Scholarly Commentary &amp; Hadith Reference:
-                    </span>
-                    <p className="text-[#4b5563] leading-relaxed">{q.explanation}</p>
-                    {q.sourceReference && (
-                      <span className="meta-tag text-[#6b7280] block pt-1">
-                        Primary Source: {q.sourceReference}
+                  <CardContent className="p-5 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                      <span className="text-sm font-semibold text-stone-900">
+                        Question {i + 1} ({q.marks} marks)
                       </span>
-                    )}
-                  </div>
-                </div>
+                      <Badge variant={isCorrect ? 'success' : 'destructive'}>
+                        {isCorrect ? 'Correct' : 'Incorrect'}
+                      </Badge>
+                    </div>
+
+                    <p className="text-base font-medium text-stone-900">
+                      {q.questionText}
+                    </p>
+
+                    <div className="p-3.5 rounded-lg bg-stone-50 border border-stone-200 text-sm space-y-1.5">
+                      <span className="font-semibold text-stone-900 block text-xs uppercase tracking-wide">
+                        Scholarly Explanation:
+                      </span>
+                      <p className="text-stone-700 leading-relaxed text-xs">{q.explanation}</p>
+                      {q.sourceReference && (
+                        <span className="text-[11px] text-stone-500 block pt-1 font-mono">
+                          Source Reference: {q.sourceReference}
+                        </span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               );
             })}
           </div>
 
-          <div className="flex justify-center pt-4">
-            <button
+          <div className="flex justify-center pt-4 pb-10">
+            <Button
               onClick={() => {
                 if (onFinish) onFinish();
                 window.location.href = '/portal';
               }}
-              className="px-6 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs"
+              className="gap-2 bg-stone-900 hover:bg-stone-800 text-white"
             >
-              Return to Participant Portal
-            </button>
+              <span>Return to Participant Portal</span>
+            </Button>
           </div>
         </div>
       )}

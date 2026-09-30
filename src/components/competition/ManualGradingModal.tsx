@@ -3,18 +3,12 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ManualSubmission, RubricCriterion } from '../../types';
-import { IslamicStarIcon } from '../common/IslamicPattern';
 import {
   X,
   Play,
   Pause,
-  Award,
   CheckCircle,
-  FileText,
-  Volume2,
-  Sliders,
-  RotateCcw,
-  Sparkles
+  Volume2
 } from 'lucide-react';
 
 interface ManualGradingModalProps {
@@ -90,66 +84,62 @@ export const ManualGradingModal: React.FC<ManualGradingModalProps> = ({
       currentUser.name,
       scores,
       totalCalculatedScore,
-      comments || 'MashaAllah, pristine recitation with exemplary adherence to the rules of Tajweed.'
+      comments || 'Good submission.'
     );
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#111827]/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 select-none">
-      <div className="relative w-full max-w-3xl rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-2xl text-[#111827] overflow-hidden">
-        {/* Modal Header */}
-        <div className="p-6 sm:p-7 border-b border-[#e7e2d6] bg-[#faf8f5] relative">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="relative w-full max-w-2xl rounded-xl bg-white border border-stone-200 shadow-sm text-stone-900 flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="p-6 border-b border-stone-200 shrink-0 relative">
           <button
             onClick={onClose}
-            className="absolute top-6 right-6 p-2 rounded-xl bg-[#ffffff] border border-[#e7e2d6] text-[#6b7280] hover:text-[#111827] cursor-pointer transition-colors"
+            className="absolute top-6 right-6 p-2 rounded-md hover:bg-stone-100 text-stone-500 transition-colors"
           >
             <X size={16} />
           </button>
 
           <div className="flex items-center justify-between pr-10">
             <div>
-              <div className="flex items-center gap-2">
-                <IslamicStarIcon size={14} className="text-[#064e3b]" />
-                <span className="meta-tag text-[#064e3b] font-bold">
-                  JUDICIAL EVALUATION BENCH
-                </span>
-              </div>
-              <h3 className="font-display text-2xl text-[#111827] font-bold mt-1">
+              <span className="text-xs font-bold uppercase tracking-wide text-stone-500 block mb-1">
+                Grading
+              </span>
+              <h3 className="text-xl font-bold text-stone-900 tracking-tight">
                 {submission.title}
               </h3>
-              <p className="text-xs text-[#6b7280] mt-0.5">
-                Candidate: <strong className="text-[#111827]">{submission.participantName}</strong> ({submission.participantEmail})
+              <p className="text-sm text-stone-500 mt-1">
+                Candidate: <strong className="text-stone-900">{submission.participantName}</strong>
               </p>
             </div>
 
             <div className="text-right">
-              <span className="meta-tag text-[#6b7280] block text-[9px]">TOTAL EVALUATION</span>
-              <span className="font-display text-3xl font-bold text-[#064e3b] tabular-nums">
-                {totalCalculatedScore} <span className="text-xs text-[#6b7280] font-normal">/ 100</span>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-stone-500 block">Total Score</span>
+              <span className="text-3xl font-bold text-stone-900 tabular-nums block mt-1">
+                {totalCalculatedScore} <span className="text-sm text-stone-400 font-medium">/ 100</span>
               </span>
             </div>
           </div>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-6 sm:p-7 max-h-[60vh] overflow-y-auto space-y-6">
-          {/* Audio Recitation Player Box */}
+        {/* Body */}
+        <div className="p-6 overflow-y-auto flex-1 space-y-8">
+          {/* Audio Player or Essay Viewer */}
           {submission.type === 'audio' ? (
-            <div className="p-5 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-3">
+            <div className="p-5 rounded-xl bg-stone-50 border border-stone-200 space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#064e3b]">
-                  <Volume2 size={16} />
+                <div className="flex items-center gap-2 text-sm font-semibold text-stone-900">
+                  <Volume2 size={18} className="text-stone-500" />
                   <span>
-                    Audio Recitation: {submission.surahInfo?.surahName} (Ayah {submission.surahInfo?.ayahStart}–{submission.surahInfo?.ayahEnd})
+                    Audio: {submission.surahInfo?.surahName} (Ayah {submission.surahInfo?.ayahStart}–{submission.surahInfo?.ayahEnd})
                   </span>
                 </div>
-                <span className="meta-tag text-[#6b7280] bg-[#ffffff] px-2.5 py-0.5 rounded-full border border-[#e7e2d6]">
-                  Riwayah: {submission.surahInfo?.qiraatStyle}
+                <span className="text-xs font-medium text-stone-600 bg-white px-2 py-1 rounded border border-stone-200">
+                  Style: {submission.surahInfo?.qiraatStyle}
                 </span>
               </div>
 
-              {/* Real Audio Element */}
               <audio
                 ref={audioRef}
                 src={submission.audioUrl}
@@ -157,16 +147,14 @@ export const ManualGradingModal: React.FC<ManualGradingModalProps> = ({
                 className="hidden"
               />
 
-              {/* Master Audio Controller */}
-              <div className="p-4 rounded-xl bg-[#ffffff] border border-[#e7e2d6] flex items-center gap-4">
+              <div className="p-4 rounded-lg bg-white border border-stone-200 flex items-center gap-4">
                 <button
                   onClick={toggleAudio}
-                  className="w-10 h-10 rounded-full bg-[#064e3b] text-[#ffffff] flex items-center justify-center hover:bg-[#043c2e] transition-colors shrink-0 cursor-pointer shadow-xs"
+                  className="w-10 h-10 rounded-full bg-stone-900 text-white flex items-center justify-center hover:bg-stone-800 transition-colors shrink-0"
                 >
-                  {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                  {isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
                 </button>
 
-                {/* Animated Waveform Bars */}
                 <div className="flex-1 flex items-center gap-1 h-8">
                   {Array.from({ length: 32 }).map((_, i) => {
                     const h = Math.sin(i * 0.3) * 14 + 16;
@@ -175,23 +163,22 @@ export const ManualGradingModal: React.FC<ManualGradingModalProps> = ({
                         key={i}
                         style={{ height: `${h}px` }}
                         className={`w-1 rounded-full transition-all ${
-                          isPlaying && i < 18 ? 'bg-[#064e3b]' : 'bg-[#e7e2d6]'
+                          isPlaying && i < 18 ? 'bg-stone-900' : 'bg-stone-200'
                         }`}
                       />
                     );
                   })}
                 </div>
 
-                {/* Playback speed selector */}
-                <div className="flex items-center gap-1 border border-[#e7e2d6] rounded-lg p-0.5 text-[10px] font-mono">
+                <div className="flex items-center gap-1 border border-stone-200 rounded-md p-1 text-xs font-medium">
                   {[0.75, 1.0, 1.25].map((spd) => (
                     <button
                       key={spd}
                       onClick={() => handleSpeedChange(spd)}
-                      className={`px-2 py-0.5 rounded cursor-pointer transition-colors ${
+                      className={`px-2 py-1 rounded transition-colors ${
                         playbackSpeed === spd
-                          ? 'bg-[#064e3b] text-[#ffffff] font-bold'
-                          : 'text-[#6b7280] hover:text-[#111827]'
+                          ? 'bg-stone-900 text-white'
+                          : 'text-stone-600 hover:bg-stone-100'
                       }`}
                     >
                       {spd}x
@@ -201,37 +188,36 @@ export const ManualGradingModal: React.FC<ManualGradingModalProps> = ({
               </div>
             </div>
           ) : (
-            <div className="p-5 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-2">
-              <span className="meta-tag text-[#064e3b] block font-bold">WRITTEN TREATISE EXCERPT</span>
-              <div className="p-4 rounded-xl bg-[#ffffff] border border-[#e7e2d6] text-xs text-[#4b5563] leading-relaxed max-h-36 overflow-y-auto">
-                {submission.essayContent ||
-                  'The diplomatic covenants established by the Prophet ﷺ in the Charter of Madinah (Sahifat al-Madinah) constitute an indelible foundation for contractual governance and religious pluralism in Islamic constitutional thought.'}
+            <div className="space-y-3">
+              <span className="text-xs font-bold uppercase tracking-wide text-stone-900 block">Submission Content</span>
+              <div className="p-4 rounded-lg bg-stone-50 border border-stone-200 text-sm text-stone-700 leading-relaxed max-h-48 overflow-y-auto">
+                {submission.essayContent || 'Submission text goes here.'}
               </div>
             </div>
           )}
 
-          {/* 100-Point Scoring Rubric */}
-          <div className="space-y-3">
-            <span className="meta-tag text-[#064e3b] block font-bold">100-POINT FORMAL RUBRIC</span>
+          {/* Rubric */}
+          <div className="space-y-4">
+            <span className="text-xs font-bold uppercase tracking-wide text-stone-900 block">Scoring Rubric</span>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {rubric.map((criterion) => {
                 const currentVal = scores[criterion.id] ?? Math.round(criterion.maxScore * 0.9);
                 return (
                   <div
                     key={criterion.id}
-                    className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-2.5"
+                    className="p-4 rounded-lg border border-stone-200 space-y-4"
                   >
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-start justify-between">
                       <div>
-                        <span className="font-bold text-[#111827]">{criterion.name}</span>
-                        <p className="text-[11px] text-[#6b7280] mt-0.5">{criterion.description}</p>
+                        <span className="font-semibold text-stone-900 text-sm block">{criterion.name}</span>
+                        <p className="text-xs text-stone-500 mt-1">{criterion.description}</p>
                       </div>
-                      <div className="text-right shrink-0 ml-3">
-                        <span className="font-display text-base font-bold text-[#064e3b] tabular-nums">
+                      <div className="text-right shrink-0 ml-4">
+                        <span className="text-lg font-bold text-stone-900 tabular-nums">
                           {currentVal}
                         </span>
-                        <span className="text-[10px] text-[#6b7280]"> / {criterion.maxScore} pts</span>
+                        <span className="text-xs text-stone-500"> / {criterion.maxScore} pts</span>
                       </div>
                     </div>
 
@@ -243,7 +229,7 @@ export const ManualGradingModal: React.FC<ManualGradingModalProps> = ({
                       onChange={(e) =>
                         handleScoreChange(criterion.id, Number(e.target.value), criterion.maxScore)
                       }
-                      className="w-full accent-[#064e3b] bg-[#e7e2d6] h-1.5 rounded-lg cursor-pointer"
+                      className="w-full accent-stone-900 h-1.5 rounded-lg cursor-pointer bg-stone-200 appearance-none"
                     />
                   </div>
                 );
@@ -251,36 +237,36 @@ export const ManualGradingModal: React.FC<ManualGradingModalProps> = ({
             </div>
           </div>
 
-          {/* Judge Comments */}
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-[#111827]">
-              Judicial Commentary &amp; Scholarly Recommendations
+          {/* Comments */}
+          <div className="space-y-3">
+            <label className="block text-xs font-bold uppercase tracking-wide text-stone-900">
+              Comments & Feedback
             </label>
             <textarea
-              rows={3}
+              rows={4}
               value={comments}
               onChange={(e) => setComments(e.target.value)}
-              placeholder="Cite notes on Ghunnah length, letter articulation, or academic citations..."
-              className="w-full p-3.5 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#111827] focus:border-[#064e3b] focus:outline-none"
+              placeholder="Add feedback for the candidate..."
+              className="w-full p-3 rounded-lg border border-stone-200 text-sm focus:border-stone-900 focus:ring-1 focus:ring-stone-900 outline-none"
             />
           </div>
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-5 sm:p-6 border-t border-[#e7e2d6] bg-[#faf8f5] flex items-center justify-between">
+        {/* Footer */}
+        <div className="p-6 border-t border-stone-200 bg-stone-50 flex items-center justify-between shrink-0 rounded-b-xl">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs text-[#6b7280] hover:text-[#111827] cursor-pointer"
+            className="px-4 py-2 rounded-lg text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
           >
             Cancel
           </button>
 
           <button
             onClick={handleSaveGrade}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] transition-all cursor-pointer shadow-md"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-stone-900 text-white text-sm font-medium hover:bg-stone-800 transition-colors"
           >
-            <span>Endorse &amp; Publish Score ({totalCalculatedScore}/100)</span>
-            <CheckCircle size={15} />
+            <span>Save Grade</span>
+            <CheckCircle size={16} />
           </button>
         </div>
       </div>

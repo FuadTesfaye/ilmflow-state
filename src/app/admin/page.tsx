@@ -1,9 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
 import { FormBuilder } from '../../components/forms/FormBuilder';
-import { IslamicStarIcon } from '../../components/common/IslamicPattern';
+import { Button } from '../../components/ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Input } from '../../components/ui/input';
+import { Progress } from '../../components/ui/progress';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../../components/ui/table';
 import {
   Users,
   Calendar,
@@ -11,7 +17,6 @@ import {
   FileCheck,
   CheckCircle,
   Clock,
-  Shield,
   Plus,
   Search,
   Download,
@@ -19,8 +24,10 @@ import {
   Settings,
   BookOpen,
   Sliders,
-  Sparkles,
-  ExternalLink
+  ExternalLink,
+  ChevronRight,
+  TrendingUp,
+  X
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -44,7 +51,7 @@ export default function AdminDashboardPage() {
     'overview' | 'events' | 'competitions' | 'questions' | 'forms' | 'registrations' | 'announcements' | 'settings'
   >('overview');
 
-  // Question bank form state
+  // Question bank state
   const [newQText, setNewQText] = useState('');
   const [newQArabic, setNewQArabic] = useState('');
   const [newQExplanation, setNewQExplanation] = useState('');
@@ -58,12 +65,12 @@ export default function AdminDashboardPage() {
   const [newAncContent, setNewAncContent] = useState('');
   const [newAncCategory, setNewAncCategory] = useState<'urgent' | 'schedule' | 'competition' | 'general'>('general');
 
-  // Event creation form state
+  // Event modal state
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [eventFormTitle, setEventFormTitle] = useState('');
   const [eventFormCategory, setEventFormCategory] = useState<any>('conference');
   const [eventFormCapacity, setEventFormCapacity] = useState(500);
-  const [eventFormVenue, setEventFormVenue] = useState('Grand Sanctuary Hall');
+  const [eventFormVenue, setEventFormVenue] = useState('Main Hall');
 
   const pendingGradingCount = manualSubmissions.filter((s) => s.status === 'pending_review').length;
   const checkedInCount = registrations.filter((r) => r.status === 'checked_in').length;
@@ -80,7 +87,7 @@ export default function AdminDashboardPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `IlmFlow_Attendees_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `Attendees_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
   };
 
@@ -99,7 +106,7 @@ export default function AdminDashboardPage() {
       explanation: newQExplanation || 'Verified against authentic source materials.',
       sourceReference: newQSource || 'Sahih Collection',
       options: [
-        { id: 'opt_1', text: 'Primary scholarly opinion', arabicText: 'القول المعتمد' },
+        { id: 'opt_1', text: 'Primary opinion', arabicText: 'القول المعتمد' },
         { id: 'opt_2', text: 'Secondary variant opinion', arabicText: 'القول المرجوح' }
       ],
       correctAnswer: 'opt_1'
@@ -120,7 +127,7 @@ export default function AdminDashboardPage() {
       arabicTitle: newAncArabic || undefined,
       content: newAncContent,
       category: newAncCategory,
-      author: 'Academic Secretariat',
+      author: 'Administration',
       isPinned: true
     });
 
@@ -130,54 +137,48 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6 select-none text-[#111827]">
-      {/* Admin Header */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] flex flex-col md:flex-row items-center justify-between gap-6">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 text-slate-900">
+      {/* Admin Masthead Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2">
-            <IslamicStarIcon size={16} className="text-[#064e3b]" />
-            <span className="meta-tag px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
-              CENTRAL SECRETARIAT ADMINISTRATION
-            </span>
+            <Badge variant="outline" className="text-xs font-semibold">
+              Admin Console
+            </Badge>
+            <span className="text-xs text-slate-400">•</span>
+            <span className="text-xs font-medium text-emerald-700">Platform Health Normal</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl text-[#0f172a] font-bold mt-1 tracking-tight">
-            Global Academic &amp; Operations Console
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 mt-1">
+            System Administration
           </h1>
-          <p className="text-xs text-[#475569]">
-            Comprehensive control over conferences, Holy Quran competitions, question banks, attendee gates, and accredited certificates.
+          <p className="text-sm text-slate-500">
+            Manage summits, proctored question banks, attendee registries, and platform settings.
           </p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs font-semibold text-[#111827] hover:border-[#064e3b] cursor-pointer transition-colors shadow-2xs"
-          >
+        <div className="flex items-center gap-2.5">
+          <Button variant="outline" size="sm" onClick={handleExportCSV} className="gap-1.5">
             <Download size={14} />
             <span>Export CSV</span>
-          </button>
-          <button
-            onClick={() => setShowCreateEventModal(true)}
-            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs transition-all"
-          >
+          </Button>
+          <Button size="sm" onClick={() => setShowCreateEventModal(true)} className="gap-1.5">
             <Plus size={15} />
             <span>Create Event</span>
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs */}
-      <div className="flex flex-wrap gap-1.5 p-1.5 rounded-2xl bg-[#f4f0e6] border border-[#e7e2d6] text-xs font-semibold">
+      {/* Modern Horizontal Navigation Tabs */}
+      <div className="flex overflow-x-auto gap-1 p-1 rounded-xl bg-slate-100 text-sm font-medium border border-slate-200/80">
         {[
           { id: 'overview', label: 'Overview', icon: Sliders },
           { id: 'events', label: `Events (${events.length})`, icon: Calendar },
           { id: 'competitions', label: `Competitions (${competitions.length})`, icon: Award },
-          { id: 'questions', label: `Question Bank (${questions.length})`, icon: BookOpen },
-          { id: 'forms', label: 'Form Builder', icon: FileCheck },
+          { id: 'questions', label: `Questions (${questions.length})`, icon: BookOpen },
+          { id: 'forms', label: 'Forms', icon: FileCheck },
           { id: 'registrations', label: `Attendees (${registrations.length})`, icon: Users },
           { id: 'announcements', label: `Broadcasts (${announcements.length})`, icon: Bell },
-          { id: 'settings', label: 'System Settings', icon: Settings }
+          { id: 'settings', label: 'Settings', icon: Settings }
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -185,106 +186,142 @@ export default function AdminDashboardPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer ${
+              className={`px-3.5 py-2 rounded-lg flex items-center gap-2 text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? 'bg-[#ffffff] text-[#064e3b] shadow-xs font-bold'
-                  : 'text-[#6b7280] hover:text-[#111827]'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
               }`}
             >
-              <Icon size={14} />
+              <Icon size={14} className={isActive ? 'text-emerald-700' : 'text-slate-400'} />
               <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* TAB 1: Executive Overview & KPIs */}
+      {/* TAB 1: Overview */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
           {/* KPI Stat Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)]">
-              <span className="meta-tag text-[#6b7280] block text-[9px]">TOTAL REGISTRATIONS</span>
-              <span className="font-display text-3xl font-bold text-[#111827] mt-1 block">
-                {registrations.length}
-              </span>
-              <span className="text-[11px] text-[#065f46] mt-1 block font-medium">Active across all summits</span>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="p-5 pb-2">
+                <CardDescription className="text-xs font-medium uppercase tracking-wider">
+                  Total Registrations
+                </CardDescription>
+                <CardTitle className="text-3xl font-extrabold text-slate-900 tabular-nums">
+                  {registrations.length}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 pt-0 text-xs text-slate-500">
+                Active passes issued across summits
+              </CardContent>
+            </Card>
 
-            <div className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)]">
-              <span className="meta-tag text-[#6b7280] block text-[9px]">GATE CHECK-IN RATE</span>
-              <span className="font-display text-3xl font-bold text-[#064e3b] mt-1 block">
-                {checkedInCount} / {registrations.length}
-              </span>
-              <span className="text-[11px] text-[#6b7280] mt-1 block">Arrival marshal verified</span>
-            </div>
+            <Card>
+              <CardHeader className="p-5 pb-2">
+                <CardDescription className="text-xs font-medium uppercase tracking-wider">
+                  Gate Check-In Rate
+                </CardDescription>
+                <CardTitle className="text-3xl font-extrabold text-emerald-700 tabular-nums">
+                  {checkedInCount} / {registrations.length}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 pt-0 text-xs text-slate-500">
+                {registrations.length > 0
+                  ? Math.round((checkedInCount / registrations.length) * 100)
+                  : 0}% verified arrivals
+              </CardContent>
+            </Card>
 
-            <div className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)]">
-              <span className="meta-tag text-[#6b7280] block text-[9px]">AWAITING JUDICIAL GRADE</span>
-              <span className="font-display text-3xl font-bold text-[#9e782f] mt-1 block">
-                {pendingGradingCount}
-              </span>
-              <span className="text-[11px] text-[#6b7280] mt-1 block">Quran &amp; essay submissions</span>
-            </div>
+            <Card>
+              <CardHeader className="p-5 pb-2">
+                <CardDescription className="text-xs font-medium uppercase tracking-wider">
+                  Awaiting Grading
+                </CardDescription>
+                <CardTitle className="text-3xl font-extrabold text-amber-700 tabular-nums">
+                  {pendingGradingCount}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 pt-0 text-xs text-slate-500">
+                Submissions in judicial queue
+              </CardContent>
+            </Card>
 
-            <div className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)]">
-              <span className="meta-tag text-[#6b7280] block text-[9px]">CERTIFICATES ISSUED</span>
-              <span className="font-display text-3xl font-bold text-[#065f46] mt-1 block">
-                {certificates.length}
-              </span>
-              <span className="text-[11px] text-[#065f46] mt-1 block font-medium">Cryptographically verifiable</span>
-            </div>
+            <Card>
+              <CardHeader className="p-5 pb-2">
+                <CardDescription className="text-xs font-medium uppercase tracking-wider">
+                  Certificates Issued
+                </CardDescription>
+                <CardTitle className="text-3xl font-extrabold text-teal-700 tabular-nums">
+                  {certificates.length}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5 pt-0 text-xs text-slate-500">
+                SHA-256 verified diplomas
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Quick Operational Shortcuts */}
+          {/* Operational Quick Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] space-y-3">
-              <h4 className="font-display text-lg font-bold text-[#111827] flex items-center gap-2">
-                <Calendar size={18} className="text-[#064e3b]" />
-                <span>Flagship Summit Capacity</span>
-              </h4>
-              <p className="text-xs text-[#4b5563]">
-                Global Quran &amp; Sunnah Summit 2026: <strong>{events[0]?.registeredCount} / {events[0]?.capacity}</strong> spots reserved.
-              </p>
-              <div className="w-full bg-[#f4f0e6] h-2.5 rounded-full overflow-hidden">
-                <div
-                  className="bg-[#064e3b] h-full rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(100, ((events[0]?.registeredCount || 0) / (events[0]?.capacity || 1)) * 100)}%` }}
-                />
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-sm text-slate-900">Event Capacity Tracker</h4>
+                <Calendar size={16} className="text-slate-400" />
               </div>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] space-y-3">
-              <h4 className="font-display text-lg font-bold text-[#111827] flex items-center gap-2">
-                <Award size={18} className="text-[#9e782f]" />
-                <span>Active Competitions</span>
-              </h4>
-              <p className="text-xs text-[#4b5563]">
-                {competitions.length} international categories active (Hadith Mastery, Quran Hifdh, Prophetic Ethics).
+              <p className="text-xs text-slate-600">
+                {events[0]?.title}: <strong>{events[0]?.registeredCount} / {events[0]?.capacity}</strong> spots filled.
               </p>
-              <button
+              <Progress
+                value={
+                  events[0]
+                    ? Math.round((events[0].registeredCount / events[0].capacity) * 100)
+                    : 0
+                }
+              />
+              <Link href="/admin/analytics">
+                <Button variant="outline" size="sm" className="w-full text-xs">
+                  View Psychometrics &amp; Attendance
+                </Button>
+              </Link>
+            </Card>
+
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-sm text-slate-900">Tournaments &amp; Contests</h4>
+                <Award size={16} className="text-slate-400" />
+              </div>
+              <p className="text-xs text-slate-600">
+                {competitions.length} active tournaments configured with auto-grading and rubrics.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setActiveTab('competitions')}
-                className="text-xs font-semibold text-[#064e3b] hover:underline cursor-pointer block"
+                className="w-full text-xs"
               >
-                Inspect Competition Rounds →
-              </button>
-            </div>
+                Inspect Competitions
+              </Button>
+            </Card>
 
-            <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] space-y-3">
-              <h4 className="font-display text-lg font-bold text-[#111827] flex items-center gap-2">
-                <FileCheck size={18} className="text-[#064e3b]" />
-                <span>Dynamic Form Logic</span>
-              </h4>
-              <p className="text-xs text-[#4b5563]">
-                Custom form builder with minor protection rules active across all registration flows.
+            <Card className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold text-sm text-slate-900">Registration Form Schemas</h4>
+                <FileCheck size={16} className="text-slate-400" />
+              </div>
+              <p className="text-xs text-slate-600">
+                Custom conditional logic schemas active with minor consent rules.
               </p>
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setActiveTab('forms')}
-                className="text-xs font-semibold text-[#064e3b] hover:underline cursor-pointer block"
+                className="w-full text-xs"
               >
-                Open Visual Schema Builder →
-              </button>
-            </div>
+                Configure Forms
+              </Button>
+            </Card>
           </div>
         </div>
       )}
@@ -292,225 +329,189 @@ export default function AdminDashboardPage() {
       {/* TAB 2: Events Management */}
       {activeTab === 'events' && (
         <div className="space-y-4">
-          <div className="flex justify-between items-center pb-3 border-b border-[#e7e2d6]">
-            <h3 className="font-display text-xl font-bold text-[#111827]">
-              Active Conferences &amp; Summits
-            </h3>
-            <button
-              onClick={() => setShowCreateEventModal(true)}
-              className="px-4 py-2 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs transition-all"
-            >
-              + New Event
-            </button>
+          <div className="flex justify-between items-center pb-2">
+            <h3 className="text-lg font-bold text-slate-900">Summit Registry</h3>
+            <Button size="sm" onClick={() => setShowCreateEventModal(true)}>
+              + Add Event
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {events.map((ev) => (
-              <div
-                key={ev.id}
-                className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
-                    <span className="meta-tag px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
-                      {ev.format.toUpperCase()}
-                    </span>
-                    <span className="text-xs font-semibold text-[#065f46]">
-                      {ev.registeredCount} / {ev.capacity} Seats Filled
+              <Card key={ev.id} className="p-6 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="secondary" className="capitalize">
+                      {ev.format}
+                    </Badge>
+                    <span className="text-xs text-slate-500 font-medium">
+                      {ev.registeredCount} / {ev.capacity} Seats Claimed
                     </span>
                   </div>
-                  <h4 className="font-display text-xl font-bold text-[#111827] mt-3">{ev.title}</h4>
-                  <p className="text-xs text-[#4b5563] mt-1 line-clamp-2">{ev.description}</p>
-                  <p className="text-xs text-[#6b7280] mt-3">Venue: <strong className="text-[#111827]">{ev.venueName}</strong></p>
+                  <h4 className="text-base font-bold text-slate-900">{ev.title}</h4>
+                  <p className="text-xs text-slate-600 line-clamp-2">{ev.description}</p>
+                  <p className="text-xs text-slate-500">
+                    Venue: <strong className="text-slate-800">{ev.venueName}</strong>
+                  </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-[#e7e2d6] flex items-center justify-between">
-                  <span className="text-xs text-[#6b7280]">
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs text-slate-400">
                     Starts: {new Date(ev.startDate).toLocaleDateString()}
                   </span>
-                  <a
-                    href={`/events/${ev.id}`}
-                    className="text-xs font-semibold text-[#064e3b] hover:underline flex items-center gap-1"
-                  >
-                    <span>View Public Page</span>
-                    <ExternalLink size={13} />
-                  </a>
+                  <Link href={`/events/${ev.id}`}>
+                    <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                      <span>Preview</span>
+                      <ExternalLink size={13} />
+                    </Button>
+                  </Link>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
       )}
 
-      {/* TAB 3: Competitions Management */}
+      {/* TAB 3: Competitions */}
       {activeTab === 'competitions' && (
         <div className="space-y-4">
-          <div className="flex justify-between items-center pb-3 border-b border-[#e7e2d6]">
-            <h3 className="font-display text-xl font-bold text-[#111827]">
-              Competition Systems &amp; Scoring Rules
-            </h3>
+          <div className="flex justify-between items-center pb-2">
+            <h3 className="text-lg font-bold text-slate-900">Tournaments &amp; Contests</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {competitions.map((c) => (
-              <div
-                key={c.id}
-                className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3"
-              >
-                <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
-                  <span className="meta-tag px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
-                    Format: {c.format}
-                  </span>
-                  <span className="text-xs text-[#6b7280]">
-                    Method: <strong className="text-[#111827]">{c.scoringMethod}</strong>
+              <Card key={c.id} className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <Badge variant="secondary">{c.category}</Badge>
+                  <span className="text-xs text-slate-500">
+                    Method: <strong className="text-slate-800 capitalize">{c.scoringMethod}</strong>
                   </span>
                 </div>
-                <h4 className="font-display text-xl font-bold text-[#111827]">{c.title}</h4>
-                <p className="text-xs text-[#4b5563] line-clamp-2">{c.description}</p>
+                <h4 className="text-base font-bold text-slate-900">{c.title}</h4>
+                <p className="text-xs text-slate-600 line-clamp-2">{c.description}</p>
 
-                <div className="p-3.5 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-xs space-y-1.5">
-                  <div className="flex justify-between text-[#6b7280]">
-                    <span>Enrolled Participants:</span>
-                    <span className="text-[#111827] font-semibold">{c.enrolledCount} / {c.maxParticipants}</span>
+                <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200/80 text-xs space-y-1.5">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Participants:</span>
+                    <span className="font-semibold text-slate-900">{c.enrolledCount} / {c.maxParticipants}</span>
                   </div>
-                  <div className="flex justify-between text-[#6b7280]">
-                    <span>Rounds Configured:</span>
-                    <span className="text-[#064e3b] font-semibold">{c.rounds.length} Round(s)</span>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Rounds:</span>
+                    <span className="font-semibold text-slate-900">{c.rounds.length} Round(s)</span>
                   </div>
                 </div>
 
-                <div className="pt-2 flex justify-end">
-                  <a
-                    href={`/competitions/${c.id}`}
-                    className="text-xs font-semibold text-[#064e3b] hover:underline flex items-center gap-1"
-                  >
-                    <span>View Public Rules</span>
-                    <ExternalLink size={13} />
-                  </a>
+                <div className="flex justify-end pt-1">
+                  <Link href={`/competitions/${c.id}`}>
+                    <Button variant="outline" size="sm" className="text-xs gap-1">
+                      <span>Public Syllabus</span>
+                      <ExternalLink size={13} />
+                    </Button>
+                  </Link>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
       )}
 
-      {/* TAB 4: Question Bank Manager */}
+      {/* TAB 4: Question Bank */}
       {activeTab === 'questions' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Question Creation Form */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="p-6 sm:p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <h4 className="font-display text-xl font-bold text-[#111827] mb-4 pb-2 border-b border-[#e7e2d6]">
-                Add Question to Question Bank
-              </h4>
-
-              <form onSubmit={handleAddQuestionSubmit} className="space-y-4 text-xs">
+            <Card className="p-6">
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="text-base">Add Exam Question</CardTitle>
+                <CardDescription className="text-xs">
+                  Create proctored question items with explanations and citations.
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleAddQuestionSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Question Text (English) *</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Question Prompt *</label>
                   <textarea
                     rows={2}
                     required
                     value={newQText}
                     onChange={(e) => setNewQText(e.target.value)}
-                    placeholder="Enter question wording..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                    placeholder="Enter prompt text..."
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Arabic Text (Optional)</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Arabic Text (Optional)</label>
                   <input
                     type="text"
                     dir="rtl"
                     value={newQArabic}
                     onChange={(e) => setNewQArabic(e.target.value)}
                     placeholder="نص السؤال بالعربية..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#9e782f] font-arabic text-sm focus:border-[#064e3b] focus:outline-none"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs font-arabic focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[#4b5563] mb-1 font-bold">Category</label>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">Category</label>
                     <select
                       value={newQCategory}
                       onChange={(e) => setNewQCategory(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs"
                     >
                       <option value="hadith-mastery">Hadith Mastery</option>
                       <option value="quran-recitation">Quran Recitation</option>
                       <option value="seerah-knowledge">Seerah Knowledge</option>
-                      <option value="arabic-language">Arabic Language</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[#4b5563] mb-1 font-bold">Marks Awarded</label>
-                    <input
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">Marks</label>
+                    <Input
                       type="number"
                       value={newQMarks}
                       onChange={(e) => setNewQMarks(Number(e.target.value))}
-                      className="w-full px-3 py-2 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Scholarly Explanation &amp; Commentary</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Scholarly Explanation</label>
                   <textarea
                     rows={2}
                     value={newQExplanation}
                     onChange={(e) => setNewQExplanation(e.target.value)}
-                    placeholder="Cite classical commentaries, rulings or historical context..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                    placeholder="Reasoning and source verification..."
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Primary Source Reference</label>
-                  <input
-                    type="text"
-                    value={newQSource}
-                    onChange={(e) => setNewQSource(e.target.value)}
-                    placeholder="e.g. Fath al-Bari, Sahih Muslim #194"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-xl bg-[#064e3b] text-[#ffffff] font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs transition-all"
-                >
-                  Save Question to Bank
-                </button>
+                <Button type="submit" size="sm" className="w-full">
+                  Save to Question Bank
+                </Button>
               </form>
-            </div>
+            </Card>
           </div>
 
-          {/* Question List */}
           <div className="lg:col-span-7 space-y-3">
-            <h4 className="font-display text-xl font-bold text-[#111827] pb-2 border-b border-[#e7e2d6]">
-              Registered Questions ({questions.length})
+            <h4 className="text-sm font-bold text-slate-900 pb-2">
+              Question Bank Items ({questions.length})
             </h4>
 
             {questions.map((q) => (
-              <div
-                key={q.id}
-                className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)] space-y-2 text-xs"
-              >
+              <Card key={q.id} className="p-5 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="meta-tag px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
+                  <Badge variant="secondary" className="text-[10px]">
                     {q.category} ({q.marks} Marks)
-                  </span>
-                  <span className="text-xs text-[#6b7280] font-mono">{q.difficulty}</span>
+                  </Badge>
+                  <span className="text-[10px] text-slate-400 capitalize">{q.difficulty}</span>
                 </div>
                 {q.arabicText && (
-                  <p className="font-arabic text-base text-[#9e782f] text-right" dir="rtl">
-                    {q.arabicText}
-                  </p>
+                  <p className="font-arabic text-sm text-slate-800 text-right" dir="rtl">{q.arabicText}</p>
                 )}
-                <p className="font-bold text-sm text-[#111827]">{q.questionText}</p>
-                <p className="text-[11px] text-[#4b5563] leading-relaxed">{q.explanation}</p>
-              </div>
+                <p className="text-xs font-bold text-slate-900">{q.questionText}</p>
+                <p className="text-xs text-slate-500">{q.explanation}</p>
+              </Card>
             ))}
           </div>
         </div>
@@ -526,178 +527,173 @@ export default function AdminDashboardPage() {
 
       {/* TAB 6: Attendee Registry */}
       {activeTab === 'registrations' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
+        <Card className="overflow-hidden">
+          <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between">
             <div>
-              <h3 className="font-display text-xl font-bold text-[#111827]">
-                Confirmed Attendees &amp; Ticket Holders
-              </h3>
-              <p className="text-xs text-[#6b7280]">
-                Total: {registrations.length} registered delegates across all summits.
-              </p>
+              <CardTitle className="text-base">Attendee Roster</CardTitle>
+              <CardDescription className="text-xs">
+                Total {registrations.length} registered delegates across all summits.
+              </CardDescription>
             </div>
-
-            <button
-              onClick={handleExportCSV}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs transition-all"
-            >
+            <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5">
               <Download size={14} />
-              <span>Export CSV Table</span>
-            </button>
-          </div>
-
-          <div className="overflow-x-auto rounded-3xl border border-[#e7e2d6] bg-[#ffffff] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#faf8f5] text-[#6b7280] font-mono uppercase text-[10px] border-b border-[#e7e2d6]">
-                <tr>
-                  <th className="p-3.5">Ticket #</th>
-                  <th className="p-3.5">Delegate Name</th>
-                  <th className="p-3.5">Event</th>
-                  <th className="p-3.5">Pass Tier</th>
-                  <th className="p-3.5">Status</th>
-                  <th className="p-3.5 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e7e2d6]">
-                {registrations.map((r) => (
-                  <tr key={r.id} className="hover:bg-[#faf8f5]/60 transition-colors">
-                    <td className="p-3.5 font-mono text-[#064e3b] font-bold">{r.ticketNumber}</td>
-                    <td className="p-3.5">
-                      <div className="font-bold text-[#111827]">{r.participantName}</div>
-                      <div className="text-[11px] text-[#6b7280]">{r.participantEmail}</div>
-                    </td>
-                    <td className="p-3.5 text-[#4b5563]">{r.eventTitle}</td>
-                    <td className="p-3.5 font-semibold text-[#064e3b]">{r.ticketTierName}</td>
-                    <td className="p-3.5">
-                      <span
-                        className={`meta-tag px-2.5 py-0.5 rounded-full font-bold ${
-                          r.status === 'checked_in'
-                            ? 'bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]'
-                            : 'bg-[#f4f0e6] text-[#4b5563] border border-[#e7e2d6]'
-                        }`}
+              <span>Export CSV</span>
+            </Button>
+          </CardHeader>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Ticket No.</TableHead>
+                <TableHead>Delegate Name</TableHead>
+                <TableHead>Summit</TableHead>
+                <TableHead>Tier</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {registrations.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell className="font-mono text-xs font-semibold">{r.ticketNumber}</TableCell>
+                  <TableCell>
+                    <div className="font-semibold text-slate-900">{r.participantName}</div>
+                    <div className="text-[11px] text-slate-400">{r.participantEmail}</div>
+                  </TableCell>
+                  <TableCell className="text-slate-600 text-xs">{r.eventTitle}</TableCell>
+                  <TableCell className="font-medium text-xs">{r.ticketTierName}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        r.status === 'checked_in'
+                          ? 'info'
+                          : r.status === 'approved'
+                          ? 'success'
+                          : r.status === 'cancelled'
+                          ? 'destructive'
+                          : 'warning'
+                      }
+                      className="text-[10px]"
+                    >
+                      {r.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right space-x-1.5">
+                    {r.status !== 'approved' && r.status !== 'checked_in' && (
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="h-7 text-xs px-2.5"
+                        onClick={() => updateRegistrationStatus(r.id, 'approved')}
                       >
-                        {r.status.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="p-3.5 text-right space-x-1.5">
-                      {r.status !== 'approved' && (
-                        <button
-                          onClick={() => updateRegistrationStatus(r.id, 'approved')}
-                          className="px-2.5 py-1 rounded-lg bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0] text-[10px] font-semibold cursor-pointer hover:bg-[#d1fae5]"
-                        >
-                          Approve
-                        </button>
-                      )}
-                      {r.status !== 'cancelled' && (
-                        <button
-                          onClick={() => updateRegistrationStatus(r.id, 'cancelled')}
-                          className="px-2.5 py-1 rounded-lg bg-red-50 text-red-600 border border-red-200 text-[10px] font-semibold cursor-pointer hover:bg-red-100"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                        Approve
+                      </Button>
+                    )}
+                    {r.status !== 'cancelled' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs px-2.5 text-red-600 hover:text-red-700"
+                        onClick={() => updateRegistrationStatus(r.id, 'cancelled')}
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
       )}
 
-      {/* TAB 7: Broadcast Announcements */}
+      {/* TAB 7: Announcements */}
       {activeTab === 'announcements' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-5 space-y-4">
-            <div className="p-6 sm:p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <h4 className="font-display text-xl font-bold text-[#111827] mb-4 pb-2 border-b border-[#e7e2d6]">
-                Broadcast Official Announcement
-              </h4>
-
-              <form onSubmit={handlePublishAnnouncement} className="space-y-4 text-xs">
+            <Card className="p-6">
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="text-base">Broadcast Announcement</CardTitle>
+                <CardDescription className="text-xs">
+                  Send system notices to delegate portal notification drawers.
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handlePublishAnnouncement} className="space-y-4">
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Notice Title *</label>
-                  <input
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Title *</label>
+                  <Input
                     type="text"
                     required
                     value={newAncTitle}
                     onChange={(e) => setNewAncTitle(e.target.value)}
-                    placeholder="e.g. Schedule Update for Asr Lecture"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                    placeholder="Announcement title..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Arabic Title (Optional)</label>
-                  <input
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Arabic Title</label>
+                  <Input
                     type="text"
                     dir="rtl"
                     value={newAncArabic}
                     onChange={(e) => setNewAncArabic(e.target.value)}
                     placeholder="العنوان بالعربية..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#9e782f] font-arabic focus:border-[#064e3b] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Notice Category</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Category</label>
                   <select
                     value={newAncCategory}
                     onChange={(e) => setNewAncCategory(e.target.value as any)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs"
                   >
-                    <option value="schedule">Schedule &amp; Prayer</option>
-                    <option value="competition">Competition Alert</option>
-                    <option value="urgent">Urgent Notice</option>
-                    <option value="general">General Advisory</option>
+                    <option value="schedule">Schedule</option>
+                    <option value="competition">Competition</option>
+                    <option value="urgent">Urgent</option>
+                    <option value="general">General</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Notice Content *</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Message Content *</label>
                   <textarea
                     rows={3}
                     required
                     value={newAncContent}
                     onChange={(e) => setNewAncContent(e.target.value)}
-                    placeholder="Detailed advisory text..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                    placeholder="Message detail..."
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs"
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-xl bg-[#064e3b] text-[#ffffff] font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs transition-all"
-                >
-                  Broadcast Notice to Platform
-                </button>
+                <Button type="submit" size="sm" className="w-full">
+                  Broadcast Notice
+                </Button>
               </form>
-            </div>
+            </Card>
           </div>
 
           <div className="lg:col-span-7 space-y-3">
-            <h4 className="font-display text-xl font-bold text-[#111827] pb-2 border-b border-[#e7e2d6]">
-              Active Broadcasts ({announcements.length})
+            <h4 className="text-sm font-bold text-slate-900 pb-2">
+              Broadcast Archive ({announcements.length})
             </h4>
 
             {announcements.map((anc) => (
-              <div key={anc.id} className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)] space-y-2 text-xs">
+              <Card key={anc.id} className="p-5 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="meta-tag px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
+                  <Badge variant="secondary" className="text-[10px]">
                     {anc.category}
-                  </span>
-                  <span className="text-[11px] text-[#6b7280]">
+                  </Badge>
+                  <span className="text-[10px] text-slate-400">
                     {new Date(anc.publishedAt).toLocaleDateString()}
                   </span>
                 </div>
-                <h5 className="font-bold text-[#111827] text-base">{anc.title}</h5>
+                <h5 className="font-bold text-sm text-slate-900">{anc.title}</h5>
                 {anc.arabicTitle && (
-                  <p className="font-arabic text-base text-[#9e782f]" dir="rtl">
-                    {anc.arabicTitle}
-                  </p>
+                  <p className="font-arabic text-sm text-slate-700" dir="rtl">{anc.arabicTitle}</p>
                 )}
-                <p className="text-[#4b5563] leading-relaxed">{anc.content}</p>
-              </div>
+                <p className="text-xs text-slate-600 leading-relaxed">{anc.content}</p>
+              </Card>
             ))}
           </div>
         </div>
@@ -705,15 +701,19 @@ export default function AdminDashboardPage() {
 
       {/* TAB 8: Settings */}
       {activeTab === 'settings' && (
-        <div className="p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] max-w-2xl space-y-5 text-xs">
-          <h4 className="font-display text-xl font-bold text-[#111827] pb-3 border-b border-[#e7e2d6]">
-            Platform Regional &amp; Astronomical Settings
-          </h4>
-
+        <Card className="max-w-xl p-6 space-y-5">
+          <CardHeader className="p-0 pb-3 border-b border-slate-100">
+            <CardTitle className="text-base">System Settings</CardTitle>
+            <CardDescription className="text-xs">
+              Configure astronomical prayer conventions and organization parameters.
+            </CardDescription>
+          </CardHeader>
           <div className="space-y-4">
             <div>
-              <label className="block text-[#4b5563] mb-1 font-bold">Prayer Time Astronomical Convention</label>
-              <select className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]">
+              <label className="text-xs font-semibold text-slate-700 block mb-1">
+                Prayer Calculation Convention
+              </label>
+              <select className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs">
                 <option>Umm al-Qura University, Makkah</option>
                 <option>Muslim World League (MWL)</option>
                 <option>Egyptian General Authority of Survey</option>
@@ -722,117 +722,108 @@ export default function AdminDashboardPage() {
             </div>
 
             <div>
-              <label className="block text-[#4b5563] mb-1 font-bold">Hijri Calendar Offset Adjustment</label>
-              <select className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]">
-                <option>Astronomical Sighting Standard (0 Days)</option>
-                <option>Local Moon Sighting Committee (+1 Day)</option>
-                <option>Local Moon Sighting Committee (-1 Day)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-[#4b5563] mb-1 font-bold">Organization Endowment (Waqf) Title</label>
-              <input
-                type="text"
-                defaultValue="IlmFlow Global Islamic Council"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]"
-              />
+              <label className="text-xs font-semibold text-slate-700 block mb-1">
+                Organization Display Name
+              </label>
+              <Input defaultValue="IlmFlow Global Secretariat" />
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
-      {/* Create Event Modal */}
+      {/* Create Event Dialog Modal */}
       {showCreateEventModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-3xl bg-[#ffffff] border border-[#e7e2d6] p-7 text-[#111827] space-y-5 text-xs shadow-2xl animate-in fade-in duration-200">
-            <h4 className="font-display text-xl font-bold text-[#111827]">
-              Create New Islamic Event / Summit
-            </h4>
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <Card className="w-full max-w-lg p-6 space-y-4 bg-white shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <CardTitle className="text-base">Create New Event</CardTitle>
+              <button
+                onClick={() => setShowCreateEventModal(false)}
+                className="text-slate-400 hover:text-slate-700 p-1"
+              >
+                <X size={16} />
+              </button>
+            </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <label className="block text-[#4b5563] mb-1 font-bold">Event Title *</label>
-                <input
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Event Title *</label>
+                <Input
                   type="text"
                   value={eventFormTitle}
                   onChange={(e) => setEventFormTitle(e.target.value)}
-                  placeholder="e.g. International Hadith Symposium 2026"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                  placeholder="e.g. Seerah & Leadership Summit"
                 />
               </div>
 
               <div>
-                <label className="block text-[#4b5563] mb-1 font-bold">Event Format</label>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Category</label>
                 <select
                   value={eventFormCategory}
                   onChange={(e) => setEventFormCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs"
                 >
-                  <option value="conference">Conference / Summit</option>
-                  <option value="competition">Championship / Competition</option>
-                  <option value="workshop">Academic Workshop</option>
+                  <option value="conference">Conference</option>
+                  <option value="competition">Competition</option>
+                  <option value="workshop">Workshop</option>
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Venue Name</label>
-                  <input
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Venue</label>
+                  <Input
                     type="text"
                     value={eventFormVenue}
                     onChange={(e) => setEventFormVenue(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#4b5563] mb-1 font-bold">Capacity Limit</label>
-                  <input
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Capacity</label>
+                  <Input
                     type="number"
                     value={eventFormCapacity}
                     onChange={(e) => setEventFormCapacity(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2.5 pt-4 border-t border-[#e7e2d6]">
-              <button
-                onClick={() => setShowCreateEventModal(false)}
-                className="px-4 py-2 rounded-xl border border-[#e7e2d6] text-[#6b7280] hover:text-[#111827] cursor-pointer"
-              >
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
+              <Button variant="outline" size="sm" onClick={() => setShowCreateEventModal(false)}>
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
                 onClick={() => {
                   if (!eventFormTitle.trim()) return;
                   createEvent({
                     slug: eventFormTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
                     title: eventFormTitle,
-                    subtitle: 'Annual Academic Discourse & Sacred Knowledge Assembly',
-                    description: 'Official gathering convened under the auspices of the Academic Secretariat.',
+                    subtitle: 'Annual Academic Summit',
+                    description: 'International symposium of lectures and research discussions.',
                     category: eventFormCategory,
                     format: 'in-person',
-                    coverImage: 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&q=80&w=1200',
+                    coverImage:
+                      'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&q=80&w=1200',
                     startDate: new Date(Date.now() + 86400000 * 30).toISOString(),
                     endDate: new Date(Date.now() + 86400000 * 32).toISOString(),
-                    timeZone: 'GMT+3 (Madinah Time)',
+                    timeZone: 'GMT',
                     venueName: eventFormVenue,
-                    venueAddress: 'Sanctuary District, Al-Madinah Al-Munawwarah',
+                    venueAddress: 'Al-Madinah Al-Munawwarah',
                     registrationDeadline: new Date(Date.now() + 86400000 * 25).toISOString(),
                     capacity: eventFormCapacity,
-                    languages: ['Arabic', 'English'],
+                    languages: ['English', 'Arabic'],
                     speakers: [],
                     schedule: [],
                     tickets: [
                       {
                         id: 'tkt-' + Date.now(),
-                        name: 'General Access',
+                        name: 'General Admission',
                         price: 0,
                         currency: 'USD',
-                        description: 'Full pass to open sessions',
-                        features: ['Auditorium Entry', 'Digital Certificate'],
+                        description: 'Full admission pass',
+                        features: ['Access to all lectures', 'Delegate badge'],
                         capacity: eventFormCapacity,
                         registeredCount: 0,
                         available: true
@@ -841,24 +832,23 @@ export default function AdminDashboardPage() {
                     formId: 'form-summit-standard',
                     status: 'upcoming',
                     prayerTimes: {
-                      fajr: '05:08 AM',
-                      dhuhr: '12:14 PM',
-                      asr: '03:38 PM',
-                      maghrib: '06:05 PM',
-                      isha: '07:35 PM',
+                      fajr: '05:00 AM',
+                      dhuhr: '12:00 PM',
+                      asr: '03:30 PM',
+                      maghrib: '06:00 PM',
+                      isha: '07:30 PM',
                       nextPrayer: 'Asr',
-                      timeRemaining: '1h 24m'
+                      timeRemaining: '1h 00m'
                     }
                   });
                   setShowCreateEventModal(false);
                   setEventFormTitle('');
                 }}
-                className="px-5 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs"
               >
                 Publish Event
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       )}
     </div>

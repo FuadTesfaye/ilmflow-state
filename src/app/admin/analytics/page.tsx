@@ -2,14 +2,17 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { IslamicStarIcon } from '../../../components/common/IslamicPattern';
-import { BarChart3, ArrowLeft, TrendingUp, Users, Award, BookOpen, AlertCircle } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../../../components/ui/table';
+import { BarChart3, ArrowLeft } from 'lucide-react';
 
 export default function AdminAnalyticsPage() {
   const questionDifficultyData = [
     {
       id: 'q-hadith-1',
-      text: 'Monumental Sahih Collection by Imam Muhammad ibn Isma‘il al-Bukhari',
+      text: 'Monumental Sahih Collection by Imam Muhammad ibn Isma\'il al-Bukhari',
       attempts: 842,
       correct: 785,
       rate: '93.2%',
@@ -37,111 +40,94 @@ export default function AdminAnalyticsPage() {
   ];
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6 text-[#0f172a]">
-      {/* Header */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 text-slate-900">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2">
-            <IslamicStarIcon size={16} className="text-[#064e3b]" />
-            <span className="text-[10px] font-bold tracking-[0.14em] text-[#064e3b] uppercase">
-              EXECUTIVE TELEMETRY &amp; PSYCHOMETRIC ANALYTICS
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#0f172a] mt-1 tracking-tight">
-            Academic Analytics &amp; Question Difficulty Index
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Psychometrics &amp; Exam Analytics
           </h1>
-          <p className="text-xs text-[#475569]">
-            Psychometric evaluation of test questions, attendance velocity, and registration conversion funnels.
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            Statistical item discrimination and psychometric difficulty curves across tournament question banks.
           </p>
         </div>
-
-        <Link
-          href="/admin"
-          className="px-4 py-2 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs font-semibold text-[#0f172a] hover:border-[#064e3b] flex items-center gap-1.5 self-start sm:self-center"
-        >
-          <ArrowLeft size={14} />
-          <span>Back to Console</span>
+        <Link href="/admin">
+          <Button variant="outline" size="sm" className="gap-1.5">
+            <ArrowLeft size={14} />
+            <span>Back to Admin</span>
+          </Button>
         </Link>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-1">
-          <span className="text-[10px] font-bold tracking-wider text-[#6b7280] uppercase block">
-            AVERAGE TEST SCORE
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="p-5 space-y-1">
+          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
+            Avg Test Score
           </span>
-          <span className="text-3xl font-bold text-[#064e3b] block">82.4%</span>
-          <span className="text-[11px] text-[#10b981]">+3.2% vs previous cohort</span>
-        </div>
-        <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-1">
-          <span className="text-[10px] font-bold tracking-wider text-[#6b7280] uppercase block">
-            QUALIFICATION RATE
+          <span className="text-3xl font-extrabold text-slate-900 block tabular-nums">82.4%</span>
+          <span className="text-xs text-emerald-600 font-medium">+3.2% vs previous cohort</span>
+        </Card>
+        <Card className="p-5 space-y-1">
+          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
+            Pass Rate
           </span>
-          <span className="text-3xl font-bold text-[#0f172a] block">74.6%</span>
-          <span className="text-[11px] text-[#6b7280]">Passing threshold: 70%</span>
-        </div>
-        <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-1">
-          <span className="text-[10px] font-bold tracking-wider text-[#6b7280] uppercase block">
-            ATTENDANCE THROUGHPUT
+          <span className="text-3xl font-extrabold text-emerald-700 block tabular-nums">74.6%</span>
+          <span className="text-xs text-slate-500">Threshold: 70%</span>
+        </Card>
+        <Card className="p-5 space-y-1">
+          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
+            Check-In Rate
           </span>
-          <span className="text-3xl font-bold text-[#9e782f] block">68.7%</span>
-          <span className="text-[11px] text-[#6b7280]">824 of 1,200 checked in</span>
-        </div>
-        <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-1">
-          <span className="text-[10px] font-bold tracking-wider text-[#6b7280] uppercase block">
-            FLAGGED ATTEMPTS
+          <span className="text-3xl font-extrabold text-slate-900 block tabular-nums">68.7%</span>
+          <span className="text-xs text-slate-500">824 of 1,200</span>
+        </Card>
+        <Card className="p-5 space-y-1">
+          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
+            Flagged Attempts
           </span>
-          <span className="text-3xl font-bold text-red-600 block">4</span>
-          <span className="text-[11px] text-red-600">3+ tab switches</span>
-        </div>
+          <span className="text-3xl font-extrabold text-red-600 block tabular-nums">4</span>
+          <span className="text-xs text-red-600">3+ tab switches</span>
+        </Card>
       </div>
 
-      {/* Question Difficulty Psychometrics Table */}
-      <div className="rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs p-6 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
-          <div>
-            <h3 className="text-base font-bold text-[#0f172a]">
-              Question Discrimination &amp; Success Rates
-            </h3>
-            <p className="text-xs text-[#6b7280]">
-              Detect excessively easy questions (&gt;95%) or ambiguous questions (&lt;20%) for curriculum refinement.
-            </p>
-          </div>
-        </div>
+      <Card className="overflow-hidden">
+        <CardHeader className="p-6 border-b border-slate-100">
+          <CardTitle className="text-base">Question Success Rates</CardTitle>
+          <CardDescription className="text-xs">
+            Identify excessively easy (&gt;95%) or ambiguous (&lt;20%) questions for syllabus refinement.
+          </CardDescription>
+        </CardHeader>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#faf8f5] text-[10px] font-bold tracking-wider uppercase text-[#6b7280]">
-              <tr>
-                <th className="py-2.5 px-3">Question ID</th>
-                <th className="py-2.5 px-3">Question Excerpt</th>
-                <th className="py-2.5 px-3">Total Attempts</th>
-                <th className="py-2.5 px-3">Correct Answers</th>
-                <th className="py-2.5 px-3">Success Rate</th>
-                <th className="py-2.5 px-3">Difficulty</th>
-                <th className="py-2.5 px-3">Psychometric Health</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#f4f0e6]">
-              {questionDifficultyData.map((q) => (
-                <tr key={q.id} className="hover:bg-[#faf8f5]/50">
-                  <td className="py-3 px-3 font-mono font-semibold text-[#064e3b]">{q.id}</td>
-                  <td className="py-3 px-3 font-medium text-[#0f172a] max-w-sm">{q.text}</td>
-                  <td className="py-3 px-3 tabular-nums">{q.attempts}</td>
-                  <td className="py-3 px-3 tabular-nums text-[#064e3b] font-semibold">{q.correct}</td>
-                  <td className="py-3 px-3 tabular-nums font-bold text-[#0f172a]">{q.rate}</td>
-                  <td className="py-3 px-3">{q.difficulty}</td>
-                  <td className="py-3 px-3">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]">
-                      {q.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Item ID</TableHead>
+              <TableHead>Question Item</TableHead>
+              <TableHead>Attempts</TableHead>
+              <TableHead>Correct</TableHead>
+              <TableHead>Accuracy</TableHead>
+              <TableHead>Difficulty</TableHead>
+              <TableHead className="text-right">Psychometric State</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {questionDifficultyData.map((q) => (
+              <TableRow key={q.id}>
+                <TableCell className="font-mono text-xs text-slate-600">{q.id}</TableCell>
+                <TableCell className="font-medium text-slate-900 max-w-sm">{q.text}</TableCell>
+                <TableCell className="font-mono text-xs">{q.attempts}</TableCell>
+                <TableCell className="font-mono text-xs font-semibold text-slate-900">{q.correct}</TableCell>
+                <TableCell className="font-mono text-xs font-bold text-emerald-800">{q.rate}</TableCell>
+                <TableCell className="text-xs text-slate-600 capitalize">{q.difficulty}</TableCell>
+                <TableCell className="text-right">
+                  <Badge variant="success" className="text-[10px]">
+                    {q.status}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }

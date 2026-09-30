@@ -1,37 +1,36 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
-import { IslamicStarIcon } from '../../components/common/IslamicPattern';
-import { Award, Trophy, Medal, Search, CheckCircle } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../../components/ui/table';
+import { Trophy } from 'lucide-react';
 
 export default function LeaderboardPage() {
-  const { competitions, quizAttempts, manualSubmissions } = useApp();
+  const { competitions } = useApp();
   const [selectedCompId, setSelectedCompId] = useState(competitions[0]?.id || '');
 
-  // Sample static leaderboard entries combined with active state
   const mockLeaderboard = [
-    { rank: 1, name: 'Zayd Al-Ansari', country: 'Canada', score: 95, time: '08m 14s', badge: 'Gold Laureate' },
-    { rank: 2, name: 'Bilal Ibn Rabah Al-Habashi', country: 'Saudi Arabia', score: 94, time: '09m 22s', badge: 'Silver Medal' },
-    { rank: 3, name: 'Tariq ibn Ziyad', country: 'Morocco', score: 90, time: '10m 05s', badge: 'Bronze Medal' },
-    { rank: 4, name: 'Amina Al-Fassi', country: 'United Kingdom', score: 88, time: '11m 40s', badge: 'Top 10' },
-    { rank: 5, name: 'Ibrahim Al-Dimashqi', country: 'Turkey', score: 85, time: '12m 10s', badge: 'Top 10' }
+    { rank: 1, name: 'Zayd Al-Ansari', country: 'Canada', score: 95, time: '08m 14s', badge: '1st Place' },
+    { rank: 2, name: 'Bilal Ibn Rabah Al-Habashi', country: 'Saudi Arabia', score: 94, time: '09m 22s', badge: '2nd Place' },
+    { rank: 3, name: 'Tariq ibn Ziyad', country: 'Morocco', score: 90, time: '10m 05s', badge: '3rd Place' },
+    { rank: 4, name: 'Amina Al-Fassi', country: 'United Kingdom', score: 88, time: '11m 40s', badge: 'Finalist' },
+    { rank: 5, name: 'Ibrahim Al-Dimashqi', country: 'Turkey', score: 85, time: '12m 10s', badge: 'Finalist' }
   ];
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8 select-none text-[#111827]">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10 text-slate-900">
       {/* Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ffffff] border border-[#e7e2d6] text-xs text-[#064e3b] shadow-xs">
-          <IslamicStarIcon size={13} className="text-[#9e782f]" />
-          <span className="meta-tag font-bold">ACADEMIC STANDINGS &amp; HONORS</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl text-[#0f172a] font-bold tracking-tight">
-          Official Tournament Leaderboard
+      <div className="text-center max-w-3xl mx-auto space-y-3">
+        <Badge variant="outline" className="text-xs font-semibold px-3 py-1">
+          Standings
+        </Badge>
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+          Tournament Leaderboard
         </h1>
-        <p className="text-xs sm:text-sm text-[#475569]">
-          Publicly authenticated scores adjudicated under standardized rubrics and negative marking rules.
+        <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+          Publicly authenticated rankings adjudicated under certified rubrics and computer-based proctoring.
         </p>
       </div>
 
@@ -43,8 +42,8 @@ export default function LeaderboardPage() {
             onClick={() => setSelectedCompId(c.id)}
             className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               selectedCompId === c.id
-                ? 'bg-[#064e3b] text-[#ffffff] shadow-xs'
-                : 'bg-[#ffffff] text-[#4b5563] border border-[#e7e2d6] hover:text-[#111827]'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-600 border border-slate-200 hover:text-slate-900'
             }`}
           >
             {c.title}
@@ -52,94 +51,93 @@ export default function LeaderboardPage() {
         ))}
       </div>
 
-      {/* Podium Showcase (Top 3) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 items-end">
-        {/* 2nd Place */}
-        <div className="p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] text-center space-y-2 flex flex-col justify-end order-2 sm:order-1 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)]">
-          <div className="w-12 h-12 rounded-full bg-[#f4f0e6] border border-[#e7e2d6] text-[#4b5563] flex items-center justify-center mx-auto text-base font-bold">
+      {/* Podium Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end pt-4">
+        {/* Rank 2 (Silver) */}
+        <Card className="order-2 md:order-1 p-6 text-center space-y-3.5 border-slate-200 hover:border-slate-300 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_0_20px_rgba(148,163,184,0.2)] transition-all">
+          <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-700 font-extrabold mx-auto flex items-center justify-center text-lg shadow-inner border border-slate-200">
             2
           </div>
-          <h4 className="font-display text-lg font-bold text-[#111827]">
-            {mockLeaderboard[1].name}
-          </h4>
-          <span className="text-[11px] text-[#6b7280] block">{mockLeaderboard[1].country}</span>
-          <span className="font-display text-2xl font-bold text-[#064e3b]">
-            {mockLeaderboard[1].score} pts
-          </span>
-          <span className="text-[10px] font-mono text-[#6b7280] block">
-            Pacing: {mockLeaderboard[1].time}
-          </span>
-        </div>
-
-        {/* 1st Place */}
-        <div className="p-8 rounded-3xl bg-[#ffffff] border-2 border-[#064e3b] text-center space-y-3 shadow-[0_10px_35px_-5px_rgba(6,78,59,0.15)] relative order-1 sm:order-2">
-          <div className="w-16 h-16 rounded-full bg-[#064e3b] text-[#ffffff] flex items-center justify-center mx-auto text-2xl font-bold shadow-md">
-            👑
+          <Badge variant="secondary" className="text-[10px] font-semibold">
+            2nd Place Silver
+          </Badge>
+          <h3 className="text-base font-bold text-slate-900">{mockLeaderboard[1].name}</h3>
+          <p className="text-xs text-slate-500">{mockLeaderboard[1].country}</p>
+          <div className="pt-2 border-t border-slate-100 flex justify-between text-xs font-semibold">
+            <span className="text-slate-400">Score</span>
+            <span className="text-slate-800 font-mono text-sm">{mockLeaderboard[1].score} pts</span>
           </div>
-          <span className="meta-tag px-3 py-1 rounded-full bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0] font-bold inline-block">
-            {mockLeaderboard[0].badge}
-          </span>
-          <h3 className="font-display text-2xl font-bold text-[#111827]">
-            {mockLeaderboard[0].name}
-          </h3>
-          <span className="text-xs text-[#6b7280] block">{mockLeaderboard[0].country}</span>
-          <span className="font-display text-4xl font-extrabold text-[#064e3b] block">
-            {mockLeaderboard[0].score} pts
-          </span>
-          <span className="text-xs font-mono text-[#065f46] font-semibold block">
-            Pacing: {mockLeaderboard[0].time}
-          </span>
-        </div>
+        </Card>
 
-        {/* 3rd Place */}
-        <div className="p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] text-center space-y-2 flex flex-col justify-end order-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)]">
-          <div className="w-12 h-12 rounded-full bg-[#f4f0e6] border border-[#e7e2d6] text-[#9e782f] flex items-center justify-center mx-auto text-base font-bold">
+        {/* Rank 1 (Gold Laureate with Neon Emerald Glow) */}
+        <Card className="order-1 md:order-2 p-8 border-2 border-emerald-400 bg-gradient-to-b from-emerald-50/70 via-white to-white shadow-[0_0_35px_rgba(16,185,129,0.25)] rounded-2xl text-center space-y-4 relative transform md:-translate-y-2 transition-all">
+          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+            <Badge variant="gradient" className="text-[10px] gap-1.5 py-0.5 px-3 font-bold uppercase tracking-wider">
+              <Trophy size={12} className="text-amber-300" />
+              <span>1st Place Gold Laureate</span>
+            </Badge>
+          </div>
+          <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 text-white font-extrabold mx-auto flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(16,185,129,0.5)] mt-1">
+            1
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">{mockLeaderboard[0].name}</h3>
+            <p className="text-xs text-emerald-800 font-semibold mt-0.5">{mockLeaderboard[0].country}</p>
+          </div>
+          <div className="pt-3 border-t border-emerald-100 flex justify-between text-xs font-bold">
+            <span className="text-slate-500">Score</span>
+            <span className="text-emerald-700 font-mono text-base">{mockLeaderboard[0].score} pts</span>
+          </div>
+        </Card>
+
+        {/* Rank 3 (Bronze) */}
+        <Card className="order-3 p-6 text-center space-y-3.5 border-amber-200/80 bg-gradient-to-b from-amber-50/20 to-white hover:border-amber-300 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-all">
+          <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-800 font-extrabold mx-auto flex items-center justify-center text-lg border border-amber-200 shadow-inner">
             3
           </div>
-          <h4 className="font-display text-lg font-bold text-[#111827]">
-            {mockLeaderboard[2].name}
-          </h4>
-          <span className="text-[11px] text-[#6b7280] block">{mockLeaderboard[2].country}</span>
-          <span className="font-display text-2xl font-bold text-[#9e782f]">
-            {mockLeaderboard[2].score} pts
-          </span>
-          <span className="text-[10px] font-mono text-[#6b7280] block">
-            Pacing: {mockLeaderboard[2].time}
-          </span>
-        </div>
+          <Badge variant="warning" className="text-[10px] font-semibold">
+            3rd Place Bronze
+          </Badge>
+          <h3 className="text-base font-bold text-slate-900">{mockLeaderboard[2].name}</h3>
+          <p className="text-xs text-slate-500">{mockLeaderboard[2].country}</p>
+          <div className="pt-2 border-t border-slate-100 flex justify-between text-xs font-semibold">
+            <span className="text-slate-400">Score</span>
+            <span className="text-amber-900 font-mono text-sm">{mockLeaderboard[2].score} pts</span>
+          </div>
+        </Card>
       </div>
 
       {/* Full Leaderboard Table */}
-      <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-[#faf8f5] text-[#6b7280] font-mono uppercase text-[10px] border-b border-[#e7e2d6]">
-            <tr>
-              <th className="p-3.5">Rank</th>
-              <th className="p-3.5">Competitor</th>
-              <th className="p-3.5">Origin</th>
-              <th className="p-3.5">Score (100)</th>
-              <th className="p-3.5">Pacing</th>
-              <th className="p-3.5 text-right">Award Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#e7e2d6]">
+      <Card className="overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Rank</TableHead>
+              <TableHead>Competitor</TableHead>
+              <TableHead>Country</TableHead>
+              <TableHead>Score</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead className="text-right">Award</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {mockLeaderboard.map((entry) => (
-              <tr key={entry.rank} className="hover:bg-[#faf8f5]/60 transition-colors">
-                <td className="p-3.5 font-mono font-bold text-[#064e3b]">#{entry.rank}</td>
-                <td className="p-3.5 font-bold text-[#111827]">{entry.name}</td>
-                <td className="p-3.5 text-[#4b5563]">{entry.country}</td>
-                <td className="p-3.5 font-mono font-bold text-[#064e3b] text-sm">{entry.score}</td>
-                <td className="p-3.5 text-[#6b7280] font-mono">{entry.time}</td>
-                <td className="p-3.5 text-right">
-                  <span className="meta-tag px-2.5 py-1 rounded-full bg-[#f4f0e6] border border-[#e7e2d6] text-[#064e3b] font-bold">
+              <TableRow key={entry.rank}>
+                <TableCell className="font-mono font-bold text-xs">#{entry.rank}</TableCell>
+                <TableCell className="font-semibold text-slate-900">{entry.name}</TableCell>
+                <TableCell className="text-slate-600 text-xs">{entry.country}</TableCell>
+                <TableCell className="font-bold text-emerald-700 font-mono text-xs">{entry.score} pts</TableCell>
+                <TableCell className="text-slate-400 font-mono text-xs">{entry.time}</TableCell>
+                <TableCell className="text-right">
+                  <Badge variant={entry.rank === 1 ? 'default' : entry.rank <= 3 ? 'warning' : 'secondary'} className="text-[10px]">
                     {entry.badge}
-                  </span>
-                </td>
-              </tr>
+                  </Badge>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }

@@ -3,34 +3,29 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
-import { CertificateItem, RegistrationRecord } from '../../types';
+import { CertificateItem } from '../../types';
 import { CertificateView } from '../../components/certificates/CertificateView';
-import { IslamicStarIcon } from '../../components/common/IslamicPattern';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Avatar } from '../../components/ui/avatar';
 import {
   Calendar,
   Award,
   FileText,
-  Shield,
-  Download,
   Play,
   QrCode,
   CheckCircle,
   ExternalLink,
   Clock,
   Sparkles,
-  LayoutDashboard,
-  Bell,
-  Settings,
-  ChevronRight,
-  TrendingUp,
-  BookOpen,
-  Eye
+  Ticket
 } from 'lucide-react';
 
 export default function ParticipantDashboardPage() {
   const { currentUser, registrations, competitions, certificates, manualSubmissions, quizAttempts } = useApp();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'passes' | 'competitions' | 'certificates' | 'notifications'>('overview');
+  const [activeTab, setActiveTab] = useState<'passes' | 'competitions' | 'submissions' | 'certificates'>('passes');
   const [selectedCert, setSelectedCert] = useState<CertificateItem | null>(null);
 
   const myRegistrations = registrations.filter(
@@ -45,310 +40,312 @@ export default function ParticipantDashboardPage() {
     (s) => s.participantId === currentUser.id || s.participantEmail === currentUser.email
   );
 
-  const activeCompetition = competitions[0];
-  const primaryRegistration = myRegistrations[0];
-
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6 text-[#0f172a]">
-      {/* Welcome Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 text-slate-900">
+      <Card className="p-6 sm:p-8 bg-white border-slate-200/90 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-5">
-          <div className="w-16 h-16 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] overflow-hidden shrink-0 shadow-xs">
-            <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover" />
-          </div>
-          <div>
+          <Avatar
+            src={currentUser.avatar}
+            alt={currentUser.name}
+            fallback={currentUser.name}
+            className="w-16 h-16 border-2 border-emerald-100"
+          />
+          <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold tracking-[0.14em] px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b] uppercase">
-                VERIFIED DELEGATE • {currentUser.role.toUpperCase()}
-              </span>
-              <span className="text-xs text-[#6b7280] font-mono">ID: {currentUser.id}</span>
+              <Badge variant="success" className="text-[10px]">
+                Active Participant
+              </Badge>
+              <span className="text-xs text-slate-400 font-mono">ID: {currentUser.id}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#0f172a] mt-1 tracking-tight">
-              Assalamu Alaikum, {currentUser.name}
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Welcome, {currentUser.name}
             </h1>
-            <p className="text-xs text-[#475569]">
-              Welcome back to your central Islamic event and competition dashboard.
+            <p className="text-xs sm:text-sm text-slate-500">
+              Manage your event passes, active examinations, submissions, and accredited certificates.
             </p>
           </div>
         </div>
 
-        {/* Metric Cards */}
         <div className="flex items-center gap-3">
-          <div className="p-3.5 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-center min-w-[100px]">
-            <span className="text-[9px] font-bold text-[#6b7280] uppercase block">ACTIVE PASSES</span>
-            <span className="text-2xl font-bold text-[#064e3b] block mt-0.5">{myRegistrations.length}</span>
+          <div className="p-3.5 px-5 rounded-xl bg-slate-50 border border-slate-200 text-center min-w-[110px]">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
+              Active Passes
+            </span>
+            <span className="text-2xl font-bold text-slate-900 tabular-nums">
+              {myRegistrations.length}
+            </span>
           </div>
-          <div className="p-3.5 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-center min-w-[100px]">
-            <span className="text-[9px] font-bold text-[#6b7280] uppercase block">SCORE / RANK</span>
-            <span className="text-2xl font-bold text-[#9e782f] block mt-0.5">87% <span className="text-xs text-[#6b7280]">#18</span></span>
-          </div>
-          <div className="p-3.5 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-center min-w-[100px]">
-            <span className="text-[9px] font-bold text-[#6b7280] uppercase block">DIPLOMAS</span>
-            <span className="text-2xl font-bold text-[#064e3b] block mt-0.5">{myCertificates.length}</span>
+
+          <div className="p-3.5 px-5 rounded-xl bg-slate-50 border border-slate-200 text-center min-w-[110px]">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
+              Certificates
+            </span>
+            <span className="text-2xl font-bold text-emerald-700 tabular-nums">
+              {myCertificates.length}
+            </span>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Navigation Sub-Tabs */}
-      <div className="flex rounded-2xl bg-[#f4f0e6] p-1.5 border border-[#e7e2d6] max-w-3xl text-xs font-semibold">
-        <button
-          onClick={() => setActiveTab('overview')}
-          className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'overview' ? 'bg-[#ffffff] text-[#064e3b] shadow-xs' : 'text-[#6b7280] hover:text-[#0f172a]'
-          }`}
-        >
-          <LayoutDashboard size={14} />
-          <span>Dashboard</span>
-        </button>
-
+      <div className="flex overflow-x-auto gap-1 p-1 rounded-xl bg-slate-100 text-sm font-medium border border-slate-200 max-w-2xl">
         <button
           onClick={() => setActiveTab('passes')}
-          className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'passes' ? 'bg-[#ffffff] text-[#064e3b] shadow-xs' : 'text-[#6b7280] hover:text-[#0f172a]'
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'passes'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <QrCode size={14} />
+          <Ticket size={15} />
           <span>My Passes ({myRegistrations.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('competitions')}
-          className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'competitions' ? 'bg-[#ffffff] text-[#064e3b] shadow-xs' : 'text-[#6b7280] hover:text-[#0f172a]'
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'competitions'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Award size={14} />
-          <span>Competitions ({competitions.length})</span>
+          <Award size={15} />
+          <span>Active Exams</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('submissions')}
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'submissions'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <FileText size={15} />
+          <span>Submissions ({mySubmissions.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('certificates')}
-          className={`flex-1 py-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-            activeTab === 'certificates' ? 'bg-[#ffffff] text-[#064e3b] shadow-xs' : 'text-[#6b7280] hover:text-[#0f172a]'
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'certificates'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <CheckCircle size={14} />
+          <Sparkles size={15} />
           <span>Certificates ({myCertificates.length})</span>
         </button>
       </div>
 
-      {/* Overview Tab Content */}
-      {activeTab === 'overview' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Upcoming Event Card */}
-            <div className="p-6 sm:p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-4 flex flex-col justify-between">
-              <div className="space-y-2">
-                <span className="text-[10px] font-bold tracking-[0.14em] text-[#064e3b] uppercase block">
-                  UPCOMING CONVOCATION
-                </span>
-                <h3 className="text-xl font-bold text-[#0f172a]">
-                  The Global Quran &amp; Sunnah Summit 2026
-                </h3>
-                <p className="text-xs text-[#475569]">
-                  Convened at Al-Mihrab Sanctuary Palace, Al-Madinah Al-Munawwarah. Your General Assembly Pass is confirmed.
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-[#e7e2d6] flex items-center justify-between">
-                <span className="text-xs text-[#6b7280]">November 14–16, 2026</span>
-                <Link
-                  href="/events/evt-summit-2026"
-                  className="px-4 py-2 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] transition-all flex items-center gap-1.5 shadow-xs"
-                >
-                  <span>View Event Program</span>
-                  <ChevronRight size={13} />
-                </Link>
-              </div>
-            </div>
-
-            {/* Active Competition Round Card */}
-            <div className="p-6 sm:p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-4 flex flex-col justify-between">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold tracking-[0.14em] text-[#9e782f] uppercase block">
-                    ACTIVE TOURNAMENT ROUND
-                  </span>
-                  <span className="text-[10px] font-bold text-[#10b981] bg-[#ecfdf5] px-2 py-0.5 rounded-full border border-[#a7f3d0]">
-                    Round 1 Live
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-[#0f172a]">
-                  Imam Al-Bukhari Hadith Mastery
-                </h3>
-                <p className="text-xs text-[#475569]">
-                  Timed knowledge assessment with negative marking rules and anti-cheating window monitoring.
-                </p>
-              </div>
-
-              <div className="pt-4 border-t border-[#e7e2d6] flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs text-[#6b7280]">
-                  <Clock size={13} className="text-[#9e782f]" />
-                  <span>15 Mins Window</span>
-                </div>
-                <Link
-                  href="/test/comp-hadith-mastery"
-                  className="px-4 py-2 rounded-xl bg-[#9e782f] text-[#ffffff] text-xs font-semibold hover:bg-[#856524] transition-all flex items-center gap-1.5 shadow-xs"
-                >
-                  <Play size={12} fill="currentColor" />
-                  <span>Launch Online Test</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Performance Radar Summary */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
-              <div>
-                <span className="text-[10px] font-bold tracking-[0.14em] text-[#064e3b] uppercase block">
-                  ACADEMIC PROFICIENCY BREAKDOWN
-                </span>
-                <h4 className="text-base font-bold text-[#0f172a]">Continuous Assessment Standing</h4>
-              </div>
-              <Link href="/leaderboard" className="text-xs font-semibold text-[#064e3b] hover:underline flex items-center gap-1">
-                <span>View Full Leaderboard</span>
-                <ChevronRight size={13} />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-1">
-                <span className="text-[10px] text-[#6b7280] block">Quranic Sciences</span>
-                <span className="text-xl font-bold text-[#064e3b] block">92%</span>
-                <span className="text-[10px] text-[#10b981]">Top 5th Percentile</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-1">
-                <span className="text-[10px] text-[#6b7280] block">Hadith Terminology</span>
-                <span className="text-xl font-bold text-[#064e3b] block">84%</span>
-                <span className="text-[10px] text-[#10b981]">Proficient</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-1">
-                <span className="text-[10px] text-[#6b7280] block">Seerah &amp; Ethics</span>
-                <span className="text-xl font-bold text-[#064e3b] block">81%</span>
-                <span className="text-[10px] text-[#10b981]">Qualifying</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-1">
-                <span className="text-[10px] text-[#6b7280] block">Classical Arabic</span>
-                <span className="text-xl font-bold text-[#064e3b] block">90%</span>
-                <span className="text-[10px] text-[#10b981]">Exemplary</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Passes Tab */}
       {activeTab === 'passes' && (
         <div className="space-y-4">
-          {myRegistrations.map((reg) => (
-            <div
-              key={reg.id}
-              className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#ecfdf5] text-[#065f46] border border-[#a7f3d0]">
-                    {reg.status.toUpperCase()}
-                  </span>
-                  <span className="text-xs text-[#6b7280] font-mono">{reg.ticketNumber}</span>
-                </div>
-                <h3 className="text-lg font-bold text-[#0f172a]">{reg.eventTitle}</h3>
-                <p className="text-xs text-[#475569]">Tier: {reg.ticketTierName}</p>
+          {myRegistrations.length === 0 ? (
+            <Card className="p-12 text-center space-y-4">
+              <Calendar size={36} className="mx-auto text-slate-400" />
+              <div>
+                <h3 className="text-base font-bold text-slate-900">No Active Event Passes</h3>
+                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                  Browse upcoming summits and conferences to register your delegate seat.
+                </p>
               </div>
+              <Link href="/events">
+                <Button size="sm">Explore Events</Button>
+              </Link>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {myRegistrations.map((reg) => (
+                <Card key={reg.id} className="p-6 flex flex-col justify-between hover:border-emerald-300 transition-colors">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                      <Badge variant="secondary">{reg.ticketTierName}</Badge>
+                      <Badge variant="success" className="capitalize">
+                        {reg.status}
+                      </Badge>
+                    </div>
 
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="p-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] font-mono text-xs text-[#064e3b]">
-                  {reg.qrCodeValue || reg.ticketNumber}
-                </div>
-                <button
-                  onClick={() => window.print()}
-                  className="px-4 py-2 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] shadow-xs flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Download size={13} />
-                  <span>Print Lanyard Pass</span>
-                </button>
-              </div>
+                    <h4 className="text-base font-bold text-slate-900">{reg.eventTitle}</h4>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Delegate</span>
+                        <span className="font-semibold text-slate-900">{reg.participantName}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Ticket No.</span>
+                        <span className="font-mono font-semibold text-emerald-800">{reg.ticketNumber}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Date</span>
+                        <span className="text-slate-600">{reg.eventDate}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Gate</span>
+                        <span className="text-slate-600">Main Entrance</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                        Gate Verification Code
+                      </span>
+                      <span className="text-xs text-slate-500 font-mono">
+                        {reg.qrCodeValue.slice(0, 20)}...
+                      </span>
+                    </div>
+                    <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center">
+                      <QrCode size={28} className="text-slate-900" />
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
 
-      {/* Competitions Tab */}
       {activeTab === 'competitions' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {competitions.map((comp) => (
-            <div
-              key={comp.id}
-              className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-4 flex flex-col justify-between"
-            >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b]">
-                    {comp.category}
-                  </span>
-                  <span className="text-[10px] font-semibold text-[#6b7280]">
-                    {comp.scoringMethod}
-                  </span>
-                </div>
-                <h3 className="text-base font-bold text-[#0f172a]">{comp.title}</h3>
-                <p className="text-xs text-[#475569] line-clamp-2">{comp.description}</p>
-              </div>
+          {competitions.map((comp) => {
+            const attempt = quizAttempts.find(
+              (a) => a.competitionId === comp.id && a.participantId === currentUser.id
+            );
 
-              <div className="pt-4 border-t border-[#e7e2d6] flex items-center justify-between">
-                <span className="text-xs text-[#6b7280]">
-                  Prize: {comp.prizes[0]?.award}
-                </span>
-                <Link
-                  href={comp.format === 'online-quiz' ? `/test/${comp.id}` : `/competitions/${comp.id}`}
-                  className="px-3.5 py-1.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] shadow-xs flex items-center gap-1"
-                >
-                  <span>{comp.format === 'online-quiz' ? 'Launch Exam' : 'Submit Audio'}</span>
-                  <ChevronRight size={13} />
-                </Link>
-              </div>
-            </div>
-          ))}
+            return (
+              <Card key={comp.id} className="p-6 flex flex-col justify-between hover:border-emerald-300 transition-colors">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <Badge variant="secondary">{comp.category}</Badge>
+                    <span className="text-xs text-slate-500 flex items-center gap-1 font-mono">
+                      <Clock size={13} className="text-amber-600" />
+                      {comp.rounds[0]?.timeLimitMinutes || 15} Mins
+                    </span>
+                  </div>
+
+                  <h4 className="text-base font-bold text-slate-900">{comp.title}</h4>
+                  {comp.arabicTitle && (
+                    <p className="font-arabic text-sm text-emerald-800" dir="rtl">{comp.arabicTitle}</p>
+                  )}
+                  <p className="text-xs text-slate-600 line-clamp-2">{comp.description}</p>
+
+                  {attempt && (
+                    <div className="p-3.5 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="font-bold text-slate-900 block">Exam Completed</span>
+                        <span className="text-slate-600">Score: {attempt.score}/{attempt.totalMarks} ({attempt.percentage}%)</span>
+                      </div>
+                      <Badge variant={attempt.percentage >= 70 ? 'success' : 'warning'}>
+                        {attempt.percentage >= 70 ? 'Passed' : 'Needs Review'}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-xs text-slate-400">
+                    {comp.rounds.length} Round(s) • {comp.scoringMethod}
+                  </span>
+
+                  <Link href={`/test/${comp.id}`}>
+                    <Button size="sm" className="gap-1.5 text-xs">
+                      <Play size={13} fill="currentColor" />
+                      <span>{attempt ? 'Retake Exam' : 'Start Test'}</span>
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       )}
 
-      {/* Certificates Tab */}
+      {activeTab === 'submissions' && (
+        <div className="space-y-4">
+          {mySubmissions.length === 0 ? (
+            <Card className="p-12 text-center space-y-2">
+              <FileText size={36} className="mx-auto text-slate-400" />
+              <h3 className="text-base font-bold text-slate-900">No Submissions Yet</h3>
+              <p className="text-xs text-slate-500">Enter a competition to upload recitations or essays.</p>
+            </Card>
+          ) : (
+            mySubmissions.map((sub) => (
+              <Card key={sub.id} className="p-6 space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                      {sub.type === 'audio' ? 'Audio Recitation Entry' : 'Essay Treatise'}
+                    </span>
+                    <h4 className="text-base font-bold text-slate-900">{sub.title}</h4>
+                  </div>
+                  <Badge variant={sub.status === 'graded' ? 'success' : 'warning'}>
+                    {sub.status === 'graded' ? `Score: ${sub.finalScore}/100` : 'Pending Review'}
+                  </Badge>
+                </div>
+
+                {sub.grades?.[0] && (
+                  <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1">
+                    <span className="font-semibold text-slate-900 block">
+                      Remarks from {sub.grades[0].judgeName}:
+                    </span>
+                    <p className="text-slate-600 leading-relaxed">{sub.grades[0].comments}</p>
+                  </div>
+                )}
+              </Card>
+            ))
+          )}
+        </div>
+      )}
+
       {activeTab === 'certificates' && (
         <div className="space-y-6">
-          {myCertificates.map((cert) => (
-            <div
-              key={cert.id}
-              className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4"
-            >
-              <div className="space-y-1">
-                <span className="text-[10px] font-bold tracking-wider text-[#9e782f] uppercase block">
-                  {cert.type.toUpperCase()} DIPLOMA
-                </span>
-                <h4 className="text-base font-bold text-[#0f172a]">{cert.eventOrCompetitionTitle}</h4>
-                <p className="text-xs text-[#6b7280]">Credential ID: {cert.certificateNumber}</p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {myCertificates.map((cert) => (
+              <Card key={cert.id} className="p-6 flex flex-col justify-between hover:border-emerald-300 transition-colors">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <Badge variant="success" className="gap-1">
+                      <CheckCircle size={12} />
+                      <span>Verified Sanad</span>
+                    </Badge>
+                    <span className="font-mono text-xs text-slate-400">{cert.certificateNumber}</span>
+                  </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setSelectedCert(cert)}
-                  className="px-4 py-2 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] shadow-xs flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Eye size={13} />
-                  <span>View Parchment Diploma</span>
-                </button>
-              </div>
-            </div>
-          ))}
+                  <h4 className="text-base font-bold text-slate-900">{cert.eventOrCompetitionTitle}</h4>
+                  <p className="text-xs text-slate-600">
+                    Recipient: <strong className="text-slate-900">{cert.recipientName}</strong>
+                  </p>
+                  <p className="text-[11px] text-slate-400">Issued: {cert.issueDate}</p>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <Link href={`/certificates/verify?id=${cert.certificateNumber}`}>
+                    <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                      <ExternalLink size={13} />
+                      <span>Public Ledger</span>
+                    </Button>
+                  </Link>
+
+                  <Button size="sm" onClick={() => setSelectedCert(cert)}>
+                    View Certificate
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
 
           {selectedCert && (
-            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl p-6 relative">
-                <button
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs p-4 flex items-center justify-center">
+              <div className="relative w-full max-w-4xl animate-in zoom-in-95 duration-150">
+                <Button
+                  size="sm"
+                  variant="outline"
                   onClick={() => setSelectedCert(null)}
-                  className="absolute top-4 right-4 p-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  className="absolute -top-11 right-0 text-white bg-slate-800 border-slate-700 hover:bg-slate-700"
                 >
-                  ✕
-                </button>
+                  Close
+                </Button>
                 <CertificateView certificate={selectedCert} />
               </div>
             </div>

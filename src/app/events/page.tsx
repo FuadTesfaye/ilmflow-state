@@ -5,151 +5,245 @@ import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
 import { EventItem } from '../../types';
 import { FlowRegistrationModal } from '../../components/registration/FlowRegistrationModal';
-import { IslamicStarIcon } from '../../components/common/IslamicPattern';
-import { Calendar, MapPin, Users, ArrowRight, Search, Filter } from 'lucide-react';
+import { IslamicShaderBackground } from '../../components/shaders/IslamicShaderBackground';
+import { ArabicCalligraphyGutter } from '../../components/common/IslamicPattern';
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  Search,
+  Users,
+  ArrowRight,
+  CheckCircle2,
+  ChevronRight,
+  Filter
+} from 'lucide-react';
 
 export default function EventsListingPage() {
   const { events } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
-  const [formatFilter, setFormatFilter] = useState<'all' | 'in-person' | 'online' | 'hybrid'>('all');
+  const [categoryFilter, setCategoryFilter] = useState<'all' | 'community' | 'conference' | 'workshop' | 'prayer'>('all');
   const [selectedEventForModal, setSelectedEventForModal] = useState<EventItem | null>(null);
+
+  const categories = [
+    { id: 'all', label: 'All Programs' },
+    { id: 'community', label: 'Weekly Assemblies' },
+    { id: 'conference', label: 'Academic Summits' },
+    { id: 'workshop', label: 'Intensives & Arts' },
+    { id: 'prayer', label: 'Congregational Salah' }
+  ] as const;
 
   const filteredEvents = events.filter((ev) => {
     const matchesSearch =
       ev.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ev.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ev.venueName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFormat = formatFilter === 'all' || ev.format === formatFilter;
-    return matchesSearch && matchesFormat;
+      ev.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (ev.speakers && ev.speakers.some((s) => s.name.toLowerCase().includes(searchTerm.toLowerCase())));
+
+    const matchesCategory = categoryFilter === 'all' || ev.category === categoryFilter;
+    return matchesSearch && matchesCategory;
   });
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 select-none text-[#111827]">
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ffffff] border border-[#e7e2d6] text-xs text-[#064e3b] shadow-xs">
-          <IslamicStarIcon size={13} className="text-[#9e782f]" />
-          <span className="meta-tag font-bold">ACADEMIC CALENDAR &amp; CONVOCATIONS</span>
-        </div>
-        <h1 className="font-display text-3xl sm:text-5xl text-[#111827] font-bold tracking-tight">
-          Islamic Summits, Conferences &amp; Intensives
-        </h1>
-        <p className="text-xs sm:text-sm text-[#4b5563]">
-          Explore international gatherings of scholarship, Ten Qira’at recitation assemblies, and academic intensives across the Islamic world.
-        </p>
-      </div>
+    <div className="relative min-h-screen bg-transparent text-slate-800 font-sans py-10 sm:py-16 overflow-hidden">
+      {/* Ambient Page Shader & Calligraphy */}
+      <IslamicShaderBackground
+        type="mesh"
+        variant="ambient"
+        speed={0.05}
+        distortion={0.35}
+        swirl={0.3}
+        opacity={0.9}
+        isPageBackground={true}
+      />
+      <div className="fixed inset-0 opacity-[0.035] pointer-events-none bg-[radial-gradient(#135b3e_1.5px,transparent_1.5px)] [background-size:24px_24px] -z-0" />
+      <ArabicCalligraphyGutter side="left" />
+      <ArabicCalligraphyGutter side="right" />
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs">
-        <div className="relative w-full sm:w-80">
-          <Search size={15} className="absolute left-3.5 top-2.5 text-[#9ca3af]" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search summit by title, city or venue..."
-            className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#111827] placeholder:text-[#9ca3af] focus:border-[#064e3b] focus:outline-none transition-colors"
-          />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 relative z-10">
+
+        {/* Page Header */}
+        <div className="max-w-3xl space-y-3">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#135B3E]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#135B3E]" />
+            <span>Masjid Al-Nabi • Community Calendar</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+            Events &amp; Weekly Programs
+          </h1>
+
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Congregational supplications, academic intensives, youth halaqas, and community dinners.
+            Admission is free for community members with open family seating.
+          </p>
         </div>
 
-        <div className="flex items-center gap-1.5 w-full sm:w-auto">
-          {(['all', 'in-person', 'online', 'hybrid'] as const).map((fmt) => (
+        {/* Search & Filter Toolbar */}
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Search Box */}
+          <div className="relative w-full md:w-96">
+            <Search size={16} className="absolute left-3.5 top-3 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by event, scholar, or venue..."
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-[#135B3E] focus:bg-white transition-all"
+            />
+          </div>
+
+          {/* Category Filter Chips */}
+          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setCategoryFilter(cat.id)}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                  categoryFilter === cat.id
+                    ? 'bg-[#135B3E] text-white shadow-xs'
+                    : 'bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-[#135B3E]'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Events Grid */}
+        {filteredEvents.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
+            <Calendar className="w-10 h-10 text-slate-400 mx-auto" />
+            <h3 className="text-base font-bold text-slate-800">No events found matching your criteria</h3>
+            <p className="text-xs text-slate-500">Try adjusting your search terms or clearing filters.</p>
             <button
-              key={fmt}
-              onClick={() => setFormatFilter(fmt)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
-                formatFilter === fmt
-                  ? 'bg-[#064e3b] text-[#ffffff] shadow-xs'
-                  : 'bg-[#faf8f5] border border-[#e7e2d6] text-[#4b5563] hover:text-[#111827]'
-              }`}
+              onClick={() => {
+                setSearchTerm('');
+                setCategoryFilter('all');
+              }}
+              className="px-4 py-2 rounded-full bg-[#135B3E] text-white text-xs font-semibold mt-2"
             >
-              {fmt === 'all' ? 'All Formats' : fmt}
+              Reset Filters
             </button>
-          ))}
-        </div>
-      </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {filteredEvents.map((ev) => {
+              const eventDate = new Date(ev.startDate);
+              const monthStr = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+              const dayStr = eventDate.toLocaleDateString('en-US', { day: 'numeric' });
+              const dayOfWeek = eventDate.toLocaleDateString('en-US', { weekday: 'short' });
+              const isFree = ev.tickets?.some((t) => t.price === 0) || !ev.tickets?.length;
 
-      {/* Events Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredEvents.map((ev) => {
-          const percentFilled = Math.min(100, Math.round((ev.registeredCount / ev.capacity) * 100));
-          return (
-            <div
-              key={ev.id}
-              className="rounded-3xl bg-[#ffffff] border border-[#e7e2d6] hover:border-[#064e3b]/50 transition-all overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]"
-            >
-              {/* Event Image Banner */}
-              <div className="relative h-48 w-full bg-[#f4f0e6] overflow-hidden">
-                <img
-                  src={ev.coverImage}
-                  alt={ev.title}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-3 left-3 flex gap-2">
-                  <span className="meta-tag px-2.5 py-1 rounded bg-[#ffffff]/90 backdrop-blur-md text-[#064e3b] border border-[#e7e2d6] font-bold">
-                    {ev.format}
-                  </span>
-                  <span className="meta-tag px-2.5 py-1 rounded bg-[#ffffff]/90 backdrop-blur-md text-[#111827] border border-[#e7e2d6]">
-                    {ev.category}
-                  </span>
-                </div>
-              </div>
+              return (
+                <div
+                  key={ev.id}
+                  className="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all flex flex-col justify-between overflow-hidden group"
+                >
+                  {/* Image & Date Badge */}
+                  <div className="relative h-52 w-full overflow-hidden bg-slate-100">
+                    <img
+                      src={ev.coverImage}
+                      alt={ev.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-              {/* Event Content */}
-              <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 text-xs text-[#6b7280]">
-                    <span className="flex items-center gap-1">
-                      <Calendar size={13} className="text-[#9e782f]" />
-                      {new Date(ev.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <MapPin size={13} className="text-[#9e782f]" />
-                      {ev.venueName.split(' ')[0]}
-                    </span>
+                    {/* Clean Date Calendar Ribbon */}
+                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm rounded-xl px-2.5 py-1.5 text-center shadow-sm border border-slate-200/60 leading-none">
+                      <span className="text-[10px] font-bold text-[#135B3E] uppercase block tracking-wider">
+                        {monthStr}
+                      </span>
+                      <span className="text-base font-extrabold text-slate-900 block mt-0.5">
+                        {dayStr}
+                      </span>
+                    </div>
+
+                    {/* Admission Badge */}
+                    <div className="absolute top-3 right-3">
+                      {isFree ? (
+                        <span className="px-3 py-1 rounded-full bg-emerald-600 text-white text-[11px] font-bold tracking-wide shadow-sm">
+                          Free Admission
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 rounded-full bg-slate-900/90 backdrop-blur-sm text-white text-[11px] font-bold tracking-wide">
+                          From ${ev.tickets[0]?.price}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Time pill on bottom of image */}
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-white text-xs font-medium">
+                      <Clock size={13} className="text-emerald-300" />
+                      <span>{dayOfWeek} • {ev.schedule?.[0]?.startTime || '5:30 PM'}</span>
+                    </div>
                   </div>
 
-                  <h3 className="font-display text-xl font-bold text-[#111827] leading-snug">
-                    {ev.title}
-                  </h3>
+                  {/* Body Content */}
+                  <div className="p-5 sm:p-6 space-y-4 flex-1 flex flex-col justify-between">
+                    <div className="space-y-2.5">
+                      {/* Venue location */}
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                        <MapPin size={13} className="text-[#135B3E] shrink-0" />
+                        <span className="truncate">{ev.venueName}</span>
+                      </div>
 
-                  <p className="text-xs text-[#4b5563] line-clamp-2 leading-relaxed">
-                    {ev.description}
-                  </p>
-                </div>
+                      {/* Title */}
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#135B3E] transition-colors leading-snug">
+                        {ev.title}
+                      </h3>
 
-                {/* Capacity Progress Bar */}
-                <div className="space-y-1.5 pt-4 border-t border-[#e7e2d6]">
-                  <div className="flex justify-between text-[11px]">
-                    <span className="text-[#6b7280]">Capacity Status:</span>
-                    <span className="text-[#064e3b] font-semibold">{percentFilled}% Filled</span>
+                      {/* Description */}
+                      <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {ev.description}
+                      </p>
+
+                      {/* Lead Speaker / Faculty */}
+                      {ev.speakers?.[0] && (
+                        <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                          <img
+                            src={ev.speakers[0].avatar}
+                            alt={ev.speakers[0].name}
+                            className="w-6 h-6 rounded-full object-cover ring-1 ring-slate-200"
+                          />
+                          <span className="text-xs font-semibold text-slate-700 truncate">
+                            {ev.speakers[0].name}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Card Footer: Attendees & Action Button */}
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500">
+                        <Users size={13} className="text-slate-400" />
+                        <span>{ev.registeredCount} attending</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/events/${ev.id}`}
+                          className="px-3 py-1.5 rounded-full border border-slate-200 hover:border-emerald-300 text-xs font-semibold text-slate-600 hover:text-[#135B3E] transition-colors"
+                        >
+                          Details
+                        </Link>
+                        <button
+                          onClick={() => setSelectedEventForModal(ev)}
+                          className="px-4 py-1.5 rounded-full bg-[#135B3E] hover:bg-[#0e4831] text-white text-xs font-semibold shadow-xs hover:shadow-sm transition-all cursor-pointer flex items-center gap-1"
+                        >
+                          <span>RSVP</span>
+                          <ArrowRight size={12} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full bg-[#f4f0e6] h-1.5 rounded-full overflow-hidden">
-                    <div className="bg-[#064e3b] h-full rounded-full" style={{ width: `${percentFilled}%` }} />
-                  </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
 
-                {/* Card Actions */}
-                <div className="pt-4 flex items-center justify-between gap-2">
-                  <Link
-                    href={`/events/${ev.id}`}
-                    className="text-xs font-semibold text-[#064e3b] hover:underline"
-                  >
-                    View Details
-                  </Link>
-
-                  <button
-                    onClick={() => setSelectedEventForModal(ev)}
-                    className="px-4 py-2 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] shadow-sm transition-all flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <span>Register Pass</span>
-                    <ArrowRight size={13} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
       </div>
 
       {/* Registration Modal */}

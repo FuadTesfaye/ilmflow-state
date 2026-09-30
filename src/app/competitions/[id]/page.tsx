@@ -4,18 +4,18 @@ import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useApp } from '../../../context/AppContext';
-import { IslamicStarIcon } from '../../../components/common/IslamicPattern';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/ui/card';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { Input } from '../../../components/ui/input';
 import {
   Award,
-  Clock,
-  CheckCircle,
-  ArrowRight,
   Shield,
   ArrowLeft,
   Play,
-  FileText,
   Volume2,
-  Users
+  CheckCircle,
+  X
 } from 'lucide-react';
 
 export default function CompetitionDetailPage() {
@@ -25,7 +25,6 @@ export default function CompetitionDetailPage() {
   const compId = (params?.id as string) || 'comp-hadith-mastery';
   const comp = getCompetitionById(compId) || getCompetitionById('comp-hadith-mastery');
 
-  // Audio / essay submission modal state
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [surahName, setSurahName] = useState('Al-Isra');
   const [surahNum, setSurahNum] = useState(17);
@@ -36,10 +35,10 @@ export default function CompetitionDetailPage() {
 
   if (!comp) {
     return (
-      <div className="min-h-screen py-16 text-center space-y-3">
-        <h2 className="font-display text-2xl text-[#111827] font-bold">Competition Not Found</h2>
-        <Link href="/competitions" className="text-xs text-[#064e3b] font-semibold underline">
-          Back to Competitions Catalog
+      <div className="min-h-screen py-16 text-center space-y-4">
+        <h2 className="text-2xl text-slate-900 font-bold">Competition Not Found</h2>
+        <Link href="/competitions">
+          <Button variant="outline">Back to Competitions</Button>
         </Link>
       </div>
     );
@@ -74,7 +73,7 @@ export default function CompetitionDetailPage() {
         participantName: currentUser.name,
         participantEmail: currentUser.email,
         type: 'essay',
-        title: 'Academic Treatise on Prophetic Ethics',
+        title: 'Academic Submission',
         essayContent: essayText
       });
     }
@@ -83,185 +82,183 @@ export default function CompetitionDetailPage() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 select-none text-[#111827]">
-      <Link
-        href="/competitions"
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#064e3b] hover:underline"
-      >
-        <ArrowLeft size={14} />
-        <span>Back to Competitions Catalog</span>
+    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 text-slate-900">
+      <Link href="/competitions">
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-slate-600 hover:text-slate-900">
+          <ArrowLeft size={14} />
+          <span>Back to Competitions</span>
+        </Button>
       </Link>
 
       {/* Header Banner */}
-      <div className="p-8 sm:p-10 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] relative overflow-hidden">
+      <Card className="p-8 sm:p-10 relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-3xl">
-            <span className="meta-tag px-3 py-1 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
+          <div className="space-y-4 max-w-3xl">
+            <Badge variant="secondary" className="text-xs">
               {comp.category}
-            </span>
-            <h1 className="text-3xl sm:text-5xl text-[#0f172a] font-bold tracking-tight">
+            </Badge>
+            <h1 className="text-3xl sm:text-4xl text-slate-900 font-extrabold tracking-tight">
               {comp.title}
             </h1>
             {comp.arabicTitle && (
-              <p className="font-arabic text-xl sm:text-2xl text-[#9e782f]" dir="rtl">
+              <p className="font-arabic text-xl sm:text-2xl text-emerald-800" dir="rtl">
                 {comp.arabicTitle}
               </p>
             )}
-            <p className="text-xs sm:text-sm text-[#475569] leading-relaxed">{comp.description}</p>
+            <p className="text-sm text-slate-600 leading-relaxed">{comp.description}</p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] text-center min-w-[220px] shrink-0 space-y-3">
-            <span className="meta-tag text-[#6b7280] block">
-              ENROLLED COMPETITORS
-            </span>
-            <span className="font-display text-3xl font-bold text-[#064e3b] block">
-              {comp.enrolledCount} / {comp.maxParticipants}
-            </span>
+          <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center min-w-[220px] shrink-0 space-y-4">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                Enrolled Participants
+              </span>
+              <span className="text-3xl font-extrabold text-slate-900 block tabular-nums">
+                {comp.enrolledCount} <span className="text-base font-normal text-slate-400">/ {comp.maxParticipants}</span>
+              </span>
+            </div>
+
             {comp.format === 'online-quiz' ? (
-              <Link
-                href={`/test/${comp.id}`}
-                className="w-full py-3 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-bold hover:bg-[#043c2e] shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
-              >
-                <Play size={14} fill="currentColor" />
-                <span>Start Online Test</span>
+              <Link href={`/test/${comp.id}`} className="block">
+                <Button size="default" className="w-full gap-2">
+                  <Play size={15} fill="currentColor" />
+                  <span>Start Online Exam</span>
+                </Button>
               </Link>
             ) : (
-              <button
+              <Button
+                size="default"
                 onClick={() => setShowSubmitModal(true)}
-                className="w-full py-3 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-bold hover:bg-[#043c2e] shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+                className="w-full gap-2"
               >
-                <Volume2 size={14} />
+                <Volume2 size={16} />
                 <span>Submit Work</span>
-              </button>
+              </Button>
             )}
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Rules & Rubrics Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Rules */}
-        <div className="p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-[#e7e2d6]">
-            <Shield size={18} className="text-[#064e3b]" />
-            <h3 className="text-xl font-bold text-[#0f172a]">
-              Rules of Adjudication &amp; Integrity
-            </h3>
+        <Card className="p-6 space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <Shield size={18} className="text-slate-500" />
+            <h3 className="text-base font-bold text-slate-900">Competition Guidelines</h3>
           </div>
-          <ul className="space-y-3 text-xs text-[#475569]">
+          <ul className="space-y-3 text-xs sm:text-sm text-slate-600">
             {comp.rules.map((rule, idx) => (
               <li key={idx} className="flex items-start gap-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#064e3b] mt-1.5 shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-2 shrink-0" />
                 <span className="leading-relaxed">{rule}</span>
               </li>
             ))}
           </ul>
-        </div>
+        </Card>
 
         {/* Prizes */}
-        <div className="p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-[#e7e2d6]">
-            <Award size={18} className="text-[#9e782f]" />
-            <h3 className="text-xl font-bold text-[#0f172a]">
-              Awards &amp; Academic Distinctions
-            </h3>
+        <Card className="p-6 space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <Award size={18} className="text-slate-500" />
+            <h3 className="text-base font-bold text-slate-900">Awards &amp; Merits</h3>
           </div>
           <div className="space-y-3">
             {comp.prizes.map((p) => (
               <div
                 key={p.rank}
-                className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] flex items-center justify-between gap-3 text-xs"
+                className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 text-xs"
               >
                 <div>
-                  <span className="font-bold text-[#111827] text-sm block">
-                    {p.rank === 1 ? '🥇' : p.rank === 2 ? '🥈' : '🥉'} {p.title}
+                  <span className="font-bold text-slate-900 block text-sm">
+                    {p.rank === 1 ? '🥇 1st Place' : p.rank === 2 ? '🥈 2nd Place' : '🥉 3rd Place'} — {p.title}
                   </span>
-                  <p className="text-[11px] text-[#064e3b] font-medium mt-0.5">{p.award}</p>
+                  <p className="text-slate-600 mt-0.5">{p.award}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* Submission Modal for Quran audio / Essay */}
+      {/* Submission Modal Dialog */}
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 bg-[#111827]/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-lg rounded-3xl bg-[#ffffff] border border-[#e7e2d6] p-7 text-[#111827] space-y-5 text-xs shadow-2xl animate-in fade-in duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
-              <h4 className="font-display text-xl font-bold text-[#111827]">
-                {comp.format === 'quran-recitation' ? 'Submit Quran Recitation Recording' : 'Submit Written Essay'}
-              </h4>
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <Card className="w-full max-w-lg p-6 space-y-4 bg-white shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="font-bold text-base text-slate-900">
+                Submit Entry: {comp.title}
+              </h3>
               <button
                 onClick={() => setShowSubmitModal(false)}
-                className="text-[#6b7280] hover:text-[#111827] p-1 text-xs cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 p-1"
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
 
             <form onSubmit={handleSubmitWork} className="space-y-4">
               {comp.format === 'quran-recitation' ? (
                 <>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">Surah Name</label>
+                    <Input
+                      type="text"
+                      value={surahName}
+                      onChange={(e) => setSurahName(e.target.value)}
+                    />
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-[#4b5563] font-semibold mb-1">Surah Selection</label>
-                      <input
-                        type="text"
-                        value={surahName}
-                        onChange={(e) => setSurahName(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                      <label className="text-xs font-semibold text-slate-700 block mb-1">From Ayah</label>
+                      <Input
+                        type="number"
+                        value={ayahStart}
+                        onChange={(e) => setAyahStart(Number(e.target.value))}
                       />
                     </div>
                     <div>
-                      <label className="block text-[#4b5563] font-semibold mb-1">Riwayah / Qira’at Tradition</label>
-                      <select
-                        value={qiraat}
-                        onChange={(e) => setQiraat(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
-                      >
-                        <option>Hafs ‘an ‘Asim</option>
-                        <option>Warsh ‘an Nafi’</option>
-                        <option>Qalun ‘an Nafi’</option>
-                        <option>Al-Duri ‘an Abi ‘Amr</option>
-                      </select>
+                      <label className="text-xs font-semibold text-slate-700 block mb-1">To Ayah</label>
+                      <Input
+                        type="number"
+                        value={ayahEnd}
+                        onChange={(e) => setAyahEnd(Number(e.target.value))}
+                      />
                     </div>
                   </div>
-
-                  <div className="p-3.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[11px] text-[#6b7280]">
-                    Audio recorded in studio standard with no digital reverbs or pitch corrections.
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">Recitation Riwayah</label>
+                    <Input
+                      type="text"
+                      value={qiraat}
+                      onChange={(e) => setQiraat(e.target.value)}
+                    />
                   </div>
                 </>
               ) : (
                 <div>
-                  <label className="block text-[#4b5563] font-semibold mb-1">Essay Content / Thesis</label>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">Essay Treatise Text</label>
                   <textarea
                     rows={6}
+                    required
                     value={essayText}
                     onChange={(e) => setEssayText(e.target.value)}
-                    placeholder="Enter or paste your academic treatise..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                    placeholder="Enter academic essay content..."
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                   />
                 </div>
               )}
 
-              <div className="flex justify-end gap-2.5 pt-3 border-t border-[#e7e2d6]">
-                <button
-                  type="button"
-                  onClick={() => setShowSubmitModal(false)}
-                  className="px-4 py-2 rounded-xl border border-[#e7e2d6] text-[#6b7280] hover:text-[#111827] cursor-pointer"
-                >
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <Button variant="outline" size="sm" onClick={() => setShowSubmitModal(false)}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#064e3b] text-[#ffffff] font-semibold cursor-pointer hover:bg-[#043c2e] shadow-xs"
-                >
-                  Submit for Judicial Review
-                </button>
+                </Button>
+                <Button type="submit" size="sm">
+                  Confirm Submission
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>

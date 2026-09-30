@@ -8,7 +8,9 @@ export type EventCategory =
   | 'workshop' 
   | 'youth-summit' 
   | 'ramadan-program' 
-  | 'quran-intensive';
+  | 'quran-intensive'
+  | 'community'
+  | 'prayer';
 
 export type CompetitionCategory = 
   | 'quran-memorization'

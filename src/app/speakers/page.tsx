@@ -2,45 +2,54 @@
 
 import React from 'react';
 import { INITIAL_SPEAKERS } from '../../data/mockData';
-import { IslamicStarIcon } from '../../components/common/IslamicPattern';
-import { Compass, BookOpen, Award } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
+import { Badge } from '../../components/ui/badge';
+import { Avatar } from '../../components/ui/avatar';
+import { CheckCircle } from 'lucide-react';
 
 export default function SpeakersPage() {
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 select-none text-[#111827]">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10 text-slate-900">
       {/* Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ffffff] border border-[#e7e2d6] text-xs text-[#064e3b] shadow-xs">
-          <IslamicStarIcon size={13} className="text-[#9e782f]" />
-          <span className="meta-tag font-bold">FACULTY &amp; ADJUDICATION BENCH</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl text-[#0f172a] font-bold tracking-tight">
-          Distinguished Scholars &amp; Reciters
+      <div className="text-center max-w-3xl mx-auto space-y-3">
+        <Badge variant="outline" className="text-xs font-semibold px-3 py-1">
+          Faculty &amp; Judges
+        </Badge>
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+          Senior Scholars &amp; Reciters
         </h1>
-        <p className="text-xs sm:text-sm text-[#475569]">
-          Senior authorities presiding over plenary lectures, classical seminars, and the evaluation of Quran recitations.
+        <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+          Eminent Hadith researchers, Qira’at reciters, and professors presiding over plenaries and judging rounds.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {INITIAL_SPEAKERS.map((spk) => (
-          <div
+          <Card
             key={spk.id}
-            className="p-7 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col sm:flex-row items-start gap-6 hover:border-[#064e3b]/40 transition-all"
+            className="p-6 flex flex-col sm:flex-row items-start gap-6 hover:border-emerald-300 transition-colors"
           >
-            <div className="w-24 h-24 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] overflow-hidden shrink-0 shadow-xs">
-              <img src={spk.avatar} alt={spk.name} className="w-full h-full object-cover" />
-            </div>
+            <Avatar
+              src={spk.avatar}
+              alt={spk.name}
+              fallback={spk.name}
+              className="w-20 h-20 shrink-0 border-2 border-emerald-100"
+            />
 
-            <div className="space-y-2 flex-1">
-              <span className="meta-tag px-2.5 py-0.5 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold inline-block">
+            <div className="space-y-2 flex-1 min-w-0">
+              <Badge variant="secondary" className="text-xs">
                 {spk.organization}
-              </span>
-              <h3 className="text-lg font-bold text-[#0f172a]">{spk.name}</h3>
-              <p className="text-xs text-[#064e3b] font-semibold">{spk.title}</p>
-              <p className="text-xs text-[#475569] leading-relaxed pt-1">{spk.bio}</p>
+              </Badge>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-base font-bold text-slate-900 leading-snug">
+                  {spk.name}
+                </h3>
+                <CheckCircle size={15} className="text-emerald-600 shrink-0" />
+              </div>
+              <p className="text-xs text-emerald-700 font-semibold">{spk.title}</p>
+              <p className="text-xs text-slate-600 leading-relaxed pt-1">{spk.bio}</p>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

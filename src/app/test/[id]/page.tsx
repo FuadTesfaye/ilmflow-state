@@ -4,8 +4,11 @@ import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useApp } from '../../../context/AppContext';
 import { QuizEngine } from '../../../components/competition/QuizEngine';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '../../../components/ui/button';
+import { Badge } from '../../../components/ui/badge';
+import { Card, CardContent } from '../../../components/ui/card';
 
 export default function TestRunnerPage() {
   const params = useParams();
@@ -17,12 +20,19 @@ export default function TestRunnerPage() {
 
   if (!competition) {
     return (
-      <div className="min-h-screen py-16 px-4 text-center space-y-4 text-[#111827]">
-        <AlertCircle size={36} className="mx-auto text-red-600" />
-        <h2 className="font-display text-2xl text-[#111827] font-bold">Competition Not Found</h2>
-        <Link href="/competitions" className="text-xs text-[#064e3b] font-semibold underline">
-          Return to Competitions Catalog
-        </Link>
+      <div className="min-h-screen py-16 px-4 text-center space-y-4 max-w-md mx-auto">
+        <Card>
+          <CardContent className="p-8 space-y-4">
+            <AlertCircle size={40} className="mx-auto text-red-600" />
+            <h2 className="text-xl text-stone-900 font-semibold">Test Session Not Found</h2>
+            <p className="text-sm text-stone-500">
+              The competition you are looking for is either unpublished or invalid.
+            </p>
+            <Link href="/competitions">
+              <Button className="mt-2">Return to Competitions</Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -37,18 +47,20 @@ export default function TestRunnerPage() {
   const activeQuestionsList = roundQuestions.length > 0 ? roundQuestions : questions.slice(0, 4);
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-6 text-[#111827]">
-      <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
-        <Link
-          href={`/competitions/${competition.id}`}
-          className="flex items-center gap-1.5 text-xs text-[#064e3b] font-semibold hover:underline transition-colors"
-        >
-          <ArrowLeft size={14} />
-          <span>Exit Examination Environment</span>
+    <div className="min-h-screen py-8 px-4 sm:px-6 max-w-6xl mx-auto space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-stone-200">
+        <Link href={`/competitions/${competition.id}`}>
+          <Button variant="ghost" size="sm" className="gap-1.5 text-stone-600 hover:text-stone-900">
+            <ArrowLeft size={16} />
+            <span>Exit Exam Environment</span>
+          </Button>
         </Link>
-        <span className="meta-tag px-3 py-1 rounded-full bg-[#f4f0e6] text-[#064e3b] font-bold">
-          PROCTORED SESSION
-        </span>
+        <div className="flex items-center gap-2">
+          <Badge variant="warning" className="gap-1.5 py-1 px-2.5">
+            <ShieldCheck size={13} />
+            <span>Proctored Secure Session</span>
+          </Badge>
+        </div>
       </div>
 
       <QuizEngine

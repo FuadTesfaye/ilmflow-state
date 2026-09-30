@@ -4,20 +4,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '../../../../context/AppContext';
-import { IslamicStarIcon } from '../../../../components/common/IslamicPattern';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  Calendar,
-  MapPin,
-  Clock,
-  Layers,
-  Award,
-  FileCheck,
-  Sparkles,
-  Save
-} from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Save, Calendar, MapPin, Users, Ticket, Sparkles } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../../components/ui/card';
+import { Button } from '../../../../components/ui/button';
+import { Input } from '../../../../components/ui/input';
+import { Badge } from '../../../../components/ui/badge';
 
 export default function CreateEventWizardPage() {
   const router = useRouter();
@@ -34,10 +25,10 @@ export default function CreateEventWizardPage() {
     startDate: '2026-11-14T08:30:00Z',
     endDate: '2026-11-16T21:00:00Z',
     timezone: 'GMT+3 (Madinah Time)',
-    venueName: 'The Grand Al-Mihrab Conference Palace',
+    venueName: 'King Abdullah Cultural & Convention Center',
     venueAddress: 'King Abdullah Cultural District, Al-Madinah Al-Munawwarah',
     capacity: 1000,
-    ticketTierName: 'General Assembly Pass',
+    ticketTierName: 'General Admission',
     ticketTierPrice: 0,
     ageRestrictions: 'All ages welcome',
     genderCategory: 'segregated-halls' as const,
@@ -54,7 +45,7 @@ export default function CreateEventWizardPage() {
       title: formData.title,
       slug: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `event-${Date.now()}`,
       status: 'upcoming',
-      subtitle: formData.subtitle || 'International Academic Convocation',
+      subtitle: formData.subtitle || 'International Academic Event',
       description: formData.description || 'Scholarly gathering and competition assembly.',
       category: 'conference',
       format: formData.format,
@@ -73,358 +64,344 @@ export default function CreateEventWizardPage() {
       formId: 'form-summit-standard',
       featured: true,
       prayerTimes: {
-        fajr: '05:08 AM',
-        dhuhr: '12:14 PM',
-        asr: '03:38 PM',
-        maghrib: '06:05 PM',
-        isha: '07:35 PM',
-        nextPrayer: 'Asr',
-        timeRemaining: '1h 24m'
+        fajr: '05:08 AM', dhuhr: '12:14 PM', asr: '03:38 PM',
+        maghrib: '06:05 PM', isha: '07:35 PM', nextPrayer: 'Asr', timeRemaining: '1h 24m'
       },
       schedule: [],
-      tickets: [
-        {
-          id: `tkt-${Date.now()}`,
-          name: formData.ticketTierName,
-          price: Number(formData.ticketTierPrice),
-          currency: 'USD',
-          description: 'Official admission pass to all plenary lectures and sessions.',
-          features: ['All Sessions', 'Delegate Lanyard', 'Verified QR Pass'],
-          capacity: Number(formData.capacity),
-          registeredCount: 0,
-          available: true
-        }
-      ]
+      tickets: [{
+        id: `tkt-${Date.now()}`,
+        name: formData.ticketTierName,
+        price: Number(formData.ticketTierPrice),
+        currency: 'USD',
+        description: 'Official admission pass to all sessions.',
+        features: ['All Sessions', 'Delegate Lanyard', 'Verified QR Pass'],
+        capacity: Number(formData.capacity),
+        registeredCount: 0,
+        available: true
+      }]
     });
 
-    addToast('Event created successfully in the central registry!', 'success');
+    addToast('Event created successfully!', 'success');
     router.push('/admin');
   };
 
   const steps = [
-    { num: 1, title: 'Basic Information' },
-    { num: 2, title: 'Dates & Sanctuary Venue' },
-    { num: 3, title: 'Capacities & Passes' },
-    { num: 4, title: 'Review & Publish' }
+    { num: 1, title: 'Basic Info', icon: Sparkles },
+    { num: 2, title: 'Dates & Venue', icon: Calendar },
+    { num: 3, title: 'Capacity & Tickets', icon: Ticket },
+    { num: 4, title: 'Review & Publish', icon: Check }
   ];
 
   return (
-    <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8 text-[#0f172a]">
-      {/* Top Bar */}
-      <div className="flex items-center justify-between pb-4 border-b border-[#e7e2d6]">
-        <Link
-          href="/admin"
-          className="flex items-center gap-1.5 text-xs text-[#064e3b] font-semibold hover:underline"
-        >
-          <ArrowLeft size={14} />
-          <span>Exit Event Creator</span>
+    <div className="min-h-screen py-8 px-4 sm:px-6 max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <Link href="/admin">
+          <Button variant="ghost" size="sm" className="gap-1.5 text-stone-600 hover:text-stone-900">
+            <ArrowLeft size={16} />
+            <span>Back to Dashboard</span>
+          </Button>
         </Link>
-        <span className="text-[10px] font-bold tracking-[0.14em] text-[#064e3b] uppercase">
-          7-STEP EVENT ARCHITECT WIZARD
-        </span>
+        <Badge variant="info">Event Wizard</Badge>
       </div>
 
-      {/* Stepper Progress */}
-      <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs">
-        <div className="flex items-center justify-between">
-          {steps.map((s) => {
-            const isActive = step === s.num;
-            const isDone = step > s.num;
-
-            return (
-              <div key={s.num} className="flex items-center gap-2">
+      {/* Step indicator */}
+      <Card>
+        <CardContent className="p-4 sm:p-5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {steps.map((s) => {
+              const isDone = step > s.num;
+              const isCurrent = step === s.num;
+              const Icon = s.icon;
+              return (
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold font-mono transition-all ${
-                    isDone
-                      ? 'bg-[#064e3b] text-[#ffffff]'
-                      : isActive
-                      ? 'bg-[#9e782f] text-[#ffffff] ring-2 ring-[#9e782f]/30'
-                      : 'bg-[#faf8f5] text-[#6b7280] border border-[#e7e2d6]'
+                  key={s.num}
+                  className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all ${
+                    isCurrent
+                      ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950 font-medium'
+                      : isDone
+                      ? 'bg-stone-50 border-stone-200 text-stone-700'
+                      : 'border-transparent text-stone-400'
                   }`}
                 >
-                  {isDone ? <Check size={14} /> : s.num}
+                  <div
+                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 transition-colors ${
+                      isDone
+                        ? 'bg-emerald-600 text-white'
+                        : isCurrent
+                        ? 'bg-emerald-700 text-white'
+                        : 'bg-stone-200 text-stone-500'
+                    }`}
+                  >
+                    {isDone ? <Check size={14} /> : s.num}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-xs text-stone-400 block">Step {s.num}</span>
+                    <span className="text-xs sm:text-sm truncate block font-medium">{s.title}</span>
+                  </div>
                 </div>
-                <span
-                  className={`text-xs hidden sm:inline ${
-                    isActive ? 'font-bold text-[#064e3b]' : 'text-[#6b7280]'
-                  }`}
-                >
-                  {s.title}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Step 1: Basic Info */}
       {step === 1 && (
-        <div className="p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-6">
-          <div className="space-y-1 pb-4 border-b border-[#e7e2d6]">
-            <h2 className="text-xl font-bold text-[#0f172a]">Step 1: Event Identity &amp; Classification</h2>
-            <p className="text-xs text-[#6b7280]">Specify the official title, event category, and descriptive summary.</p>
-          </div>
-
-          <div className="space-y-4 text-xs">
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+            <CardDescription>Enter the title, category, format, and description of your event.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <label className="font-semibold text-[#0f172a] block mb-1">Convocation Title *</label>
-              <input
+              <label className="text-sm font-medium text-stone-700 block mb-1.5">Event Title *</label>
+              <Input
                 type="text"
-                placeholder="e.g. The International Seerah &amp; Leadership Summit 2026"
+                placeholder="e.g. International Hadith & Sunnah Conference 2026"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
               />
             </div>
-
             <div>
-              <label className="font-semibold text-[#0f172a] block mb-1">Subtitle / Epigram</label>
-              <input
+              <label className="text-sm font-medium text-stone-700 block mb-1.5">Subtitle</label>
+              <Input
                 type="text"
-                placeholder="e.g. Preserving Sacred Tradition Through Contemporary Scholarship"
+                placeholder="e.g. Exploring classical scholarship in the modern age"
                 value={formData.subtitle}
                 onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
               />
             </div>
-
             <div>
-              <label className="font-semibold text-[#0f172a] block mb-1">Comprehensive Description</label>
+              <label className="text-sm font-medium text-stone-700 block mb-1.5">Description</label>
               <textarea
                 rows={4}
-                placeholder="Provide details regarding the curriculum, plenary sessions, scholars, and objectives..."
+                placeholder="Provide a detailed description of the event, learning objectives, and agenda..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="font-semibold text-[#0f172a] block mb-1">Event Type</label>
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">Event Type</label>
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="CONFERENCE">CONFERENCE</option>
-                  <option value="LECTURE">LECTURE</option>
-                  <option value="COMPETITION">COMPETITION</option>
-                  <option value="QUIZ">QUIZ</option>
-                  <option value="WORKSHOP">WORKSHOP</option>
-                  <option value="SEMINAR">SEMINAR</option>
-                  <option value="HYBRID">HYBRID</option>
+                  <option value="CONFERENCE">Conference</option>
+                  <option value="WORKSHOP">Workshop</option>
+                  <option value="COMPETITION">Competition</option>
+                  <option value="SEMINAR">Seminar</option>
                 </select>
               </div>
-
               <div>
-                <label className="font-semibold text-[#0f172a] block mb-1">Delivery Format</label>
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">Delivery Format</label>
                 <select
                   value={formData.format}
                   onChange={(e) => setFormData({ ...formData, format: e.target.value as any })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="hybrid">Hybrid (On-Site &amp; Streamed)</option>
+                  <option value="hybrid">Hybrid (In-person & Virtual)</option>
                   <option value="in-person">In-Person Only</option>
-                  <option value="online">Online Virtual Gathering</option>
+                  <option value="online">Online / Virtual Only</option>
                 </select>
               </div>
             </div>
-          </div>
-
-          <div className="pt-4 border-t border-[#e7e2d6] flex justify-end">
-            <button
-              onClick={() => setStep(2)}
-              className="px-6 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] transition-all flex items-center gap-1.5 shadow-xs"
-            >
-              <span>Next: Dates &amp; Venue</span>
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button onClick={() => setStep(2)} className="gap-1.5">
+              <span>Next: Dates & Venue</span>
+              <ArrowRight size={15} />
+            </Button>
+          </CardFooter>
+        </Card>
       )}
 
       {/* Step 2: Dates & Venue */}
       {step === 2 && (
-        <div className="p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-6">
-          <div className="space-y-1 pb-4 border-b border-[#e7e2d6]">
-            <h2 className="text-xl font-bold text-[#0f172a]">Step 2: Dates, Timezone &amp; Sanctuary Venue</h2>
-            <p className="text-xs text-[#6b7280]">Configure schedule boundaries and physical location coordinates.</p>
-          </div>
-
-          <div className="space-y-4 text-xs">
-            <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Dates & Venue</CardTitle>
+            <CardDescription>Specify the event schedule and physical location details.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="font-semibold text-[#0f172a] block mb-1">Start Date</label>
-                <input
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">Start Date</label>
+                <Input
                   type="date"
                   value={formData.startDate.split('T')[0]}
-                  onChange={(e) =>
-                    setFormData({ ...formData, startDate: `${e.target.value}T08:30:00Z` })
-                  }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
+                  onChange={(e) => setFormData({ ...formData, startDate: `${e.target.value}T08:30:00Z` })}
                 />
               </div>
-
               <div>
-                <label className="font-semibold text-[#0f172a] block mb-1">End Date</label>
-                <input
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">End Date</label>
+                <Input
                   type="date"
                   value={formData.endDate.split('T')[0]}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endDate: `${e.target.value}T21:00:00Z` })
-                  }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
+                  onChange={(e) => setFormData({ ...formData, endDate: `${e.target.value}T21:00:00Z` })}
                 />
               </div>
             </div>
-
             <div>
-              <label className="font-semibold text-[#0f172a] block mb-1">Venue Palace Name</label>
-              <input
+              <label className="text-sm font-medium text-stone-700 block mb-1.5">Venue Name</label>
+              <Input
                 type="text"
                 value={formData.venueName}
                 onChange={(e) => setFormData({ ...formData, venueName: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
+                placeholder="e.g. King Abdullah Cultural & Convention Center"
               />
             </div>
-
             <div>
-              <label className="font-semibold text-[#0f172a] block mb-1">Physical Address</label>
-              <input
+              <label className="text-sm font-medium text-stone-700 block mb-1.5">Street Address</label>
+              <Input
                 type="text"
                 value={formData.venueAddress}
                 onChange={(e) => setFormData({ ...formData, venueAddress: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
+                placeholder="Full address, city, country"
               />
             </div>
-          </div>
-
-          <div className="pt-4 border-t border-[#e7e2d6] flex justify-between">
-            <button
-              onClick={() => setStep(1)}
-              className="px-4 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs font-semibold text-[#6b7280] hover:text-[#0f172a]"
-            >
+            <div>
+              <label className="text-sm font-medium text-stone-700 block mb-1.5">Time Zone</label>
+              <Input
+                type="text"
+                value={formData.timezone}
+                onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" onClick={() => setStep(1)}>
               Back
-            </button>
-            <button
-              onClick={() => setStep(3)}
-              className="px-6 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] transition-all flex items-center gap-1.5 shadow-xs"
-            >
-              <span>Next: Capacities &amp; Passes</span>
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
+            </Button>
+            <Button onClick={() => setStep(3)} className="gap-1.5">
+              <span>Next: Capacity & Tickets</span>
+              <ArrowRight size={15} />
+            </Button>
+          </CardFooter>
+        </Card>
       )}
 
-      {/* Step 3: Capacities & Passes */}
+      {/* Step 3: Capacity & Tickets */}
       {step === 3 && (
-        <div className="p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-6">
-          <div className="space-y-1 pb-4 border-b border-[#e7e2d6]">
-            <h2 className="text-xl font-bold text-[#0f172a]">Step 3: Capacities &amp; Pass Allocation</h2>
-            <p className="text-xs text-[#6b7280]">Define total seating quota and initial registration ticket tier.</p>
-          </div>
-
-          <div className="space-y-4 text-xs">
-            <div className="grid grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Capacity & Tickets</CardTitle>
+            <CardDescription>Configure seat capacity and primary ticket tier pricing.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="font-semibold text-[#0f172a] block mb-1">Total Venue Capacity</label>
-                <input
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">Total Capacity</label>
+                <Input
                   type="number"
                   value={formData.capacity}
                   onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
                 />
               </div>
-
               <div>
-                <label className="font-semibold text-[#0f172a] block mb-1">Initial Ticket Tier Name</label>
-                <input
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">Primary Ticket Name</label>
+                <Input
                   type="text"
                   value={formData.ticketTierName}
                   onChange={(e) => setFormData({ ...formData, ticketTierName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
                 />
               </div>
             </div>
-
             <div>
-              <label className="font-semibold text-[#0f172a] block mb-1">Ticket Price (USD, enter 0 for Free)</label>
-              <input
+              <label className="text-sm font-medium text-stone-700 block mb-1.5">Ticket Price (USD, 0 = Free Admission)</label>
+              <Input
                 type="number"
                 value={formData.ticketTierPrice}
                 onChange={(e) => setFormData({ ...formData, ticketTierPrice: Number(e.target.value) })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs text-[#0f172a] focus:border-[#064e3b] focus:outline-none"
               />
             </div>
-          </div>
-
-          <div className="pt-4 border-t border-[#e7e2d6] flex justify-between">
-            <button
-              onClick={() => setStep(2)}
-              className="px-4 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs font-semibold text-[#6b7280] hover:text-[#0f172a]"
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">Age Restrictions</label>
+                <Input
+                  type="text"
+                  value={formData.ageRestrictions}
+                  onChange={(e) => setFormData({ ...formData, ageRestrictions: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-stone-700 block mb-1.5">Gender Arrangement</label>
+                <select
+                  value={formData.genderCategory}
+                  onChange={(e) => setFormData({ ...formData, genderCategory: e.target.value as any })}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value="segregated-halls">Segregated Halls & Seating</option>
+                  <option value="family-friendly">Family Friendly Shared Hall</option>
+                  <option value="all">Open Admission</option>
+                </select>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" onClick={() => setStep(2)}>
               Back
-            </button>
-            <button
-              onClick={() => setStep(4)}
-              className="px-6 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] transition-all flex items-center gap-1.5 shadow-xs"
-            >
-              <span>Next: Review &amp; Publish</span>
-              <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
+            </Button>
+            <Button onClick={() => setStep(4)} className="gap-1.5">
+              <span>Next: Review & Publish</span>
+              <ArrowRight size={15} />
+            </Button>
+          </CardFooter>
+        </Card>
       )}
 
       {/* Step 4: Review & Publish */}
       {step === 4 && (
-        <div className="p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-xs space-y-6">
-          <div className="space-y-1 pb-4 border-b border-[#e7e2d6]">
-            <h2 className="text-xl font-bold text-[#0f172a]">Step 4: Final Verification &amp; Release</h2>
-            <p className="text-xs text-[#6b7280]">Review parameters before publishing to the global academic registry.</p>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-3 text-xs">
-            <div className="flex justify-between">
-              <span className="text-[#6b7280]">Title:</span>
-              <span className="font-bold text-[#0f172a]">{formData.title || 'Untitled Event'}</span>
+        <Card>
+          <CardHeader>
+            <CardTitle>Review & Publish</CardTitle>
+            <CardDescription>Confirm event specifications before publishing to the live catalogue.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg bg-stone-50 border border-stone-200 divide-y divide-stone-200 text-sm">
+              <div className="p-3.5 flex items-center justify-between">
+                <span className="text-stone-500 font-medium">Event Title</span>
+                <span className="font-semibold text-stone-900">{formData.title || 'Untitled Event'}</span>
+              </div>
+              <div className="p-3.5 flex items-center justify-between">
+                <span className="text-stone-500 font-medium">Type & Format</span>
+                <span className="font-semibold text-stone-900">
+                  {formData.type} · {formData.format}
+                </span>
+              </div>
+              <div className="p-3.5 flex items-center justify-between">
+                <span className="text-stone-500 font-medium">Dates</span>
+                <span className="font-semibold text-stone-900">
+                  {formData.startDate.split('T')[0]} to {formData.endDate.split('T')[0]}
+                </span>
+              </div>
+              <div className="p-3.5 flex items-center justify-between">
+                <span className="text-stone-500 font-medium">Venue</span>
+                <span className="font-semibold text-stone-900">{formData.venueName}</span>
+              </div>
+              <div className="p-3.5 flex items-center justify-between">
+                <span className="text-stone-500 font-medium">Capacity & Price</span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{formData.capacity} seats</Badge>
+                  <Badge variant={formData.ticketTierPrice === 0 ? 'success' : 'default'}>
+                    {formData.ticketTierPrice === 0 ? 'Free' : `$${formData.ticketTierPrice}`}
+                  </Badge>
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[#6b7280]">Category &amp; Format:</span>
-              <span className="font-bold text-[#064e3b]">{formData.type} • {formData.format}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#6b7280]">Dates:</span>
-              <span className="font-bold text-[#0f172a]">{formData.startDate.split('T')[0]} to {formData.endDate.split('T')[0]}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#6b7280]">Sanctuary Venue:</span>
-              <span className="font-bold text-[#0f172a]">{formData.venueName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#6b7280]">Allocated Quota:</span>
-              <span className="font-bold text-[#064e3b]">{formData.capacity} Seats ({formData.ticketTierPrice === 0 ? 'Free' : `$${formData.ticketTierPrice}`})</span>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-[#e7e2d6] flex justify-between">
-            <button
-              onClick={() => setStep(3)}
-              className="px-4 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-xs font-semibold text-[#6b7280] hover:text-[#0f172a]"
-            >
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button variant="outline" onClick={() => setStep(3)}>
               Back
-            </button>
-            <button
-              onClick={handleCreate}
-              className="px-6 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] transition-all flex items-center gap-1.5 shadow-md"
-            >
-              <Save size={14} />
-              <span>Publish Event to Central Registry</span>
-            </button>
-          </div>
-        </div>
+            </Button>
+            <Button onClick={handleCreate} className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white">
+              <Save size={16} />
+              <span>Publish Event</span>
+            </Button>
+          </CardFooter>
+        </Card>
       )}
     </div>
   );

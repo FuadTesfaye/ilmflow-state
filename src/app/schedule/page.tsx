@@ -2,8 +2,10 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { IslamicStarIcon } from '../../components/common/IslamicPattern';
-import { Clock, MapPin, Calendar, Compass } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { MapPin, Clock, Calendar } from 'lucide-react';
 
 export default function SchedulePage() {
   const { events } = useApp();
@@ -12,18 +14,17 @@ export default function SchedulePage() {
   const activeEvent = events.find((e) => e.id === selectedEventId) || events[0];
 
   return (
-    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-8 select-none text-[#111827]">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-10 text-slate-900">
       {/* Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ffffff] border border-[#e7e2d6] text-xs text-[#064e3b] shadow-xs">
-          <IslamicStarIcon size={13} className="text-[#9e782f]" />
-          <span className="meta-tag font-bold">PROGRAM CALENDAR</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl text-[#0f172a] font-bold tracking-tight">
-          Synchronized Session Schedule
+      <div className="text-center max-w-2xl mx-auto space-y-3">
+        <Badge variant="outline" className="text-xs font-semibold px-3 py-1">
+          Conference Agenda
+        </Badge>
+        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+          Program Schedule
         </h1>
-        <p className="text-xs sm:text-sm text-[#475569]">
-          Academic lectures, Qira’at recitals, and research panels structured around congregational Salah.
+        <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+          Plenary lectures, oral recitations, and panel discussions synchronized with congregational Salah breaks.
         </p>
       </div>
 
@@ -35,8 +36,8 @@ export default function SchedulePage() {
             onClick={() => setSelectedEventId(ev.id)}
             className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeEvent.id === ev.id
-                ? 'bg-[#064e3b] text-[#ffffff] shadow-xs'
-                : 'bg-[#ffffff] text-[#4b5563] border border-[#e7e2d6] hover:text-[#111827]'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-white text-slate-600 border border-slate-200 hover:text-slate-900'
             }`}
           >
             {ev.title}
@@ -46,38 +47,38 @@ export default function SchedulePage() {
 
       {/* Schedule Timeline */}
       <div className="space-y-4">
-        {activeEvent.schedule.map((session) => (
-          <div
+        {activeEvent?.schedule.map((session) => (
+          <Card
             key={session.id}
-            className={`p-6 rounded-3xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all shadow-[0_2px_15px_-3px_rgba(0,0,0,0.04)] ${
+            className={`p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
               session.isPrayerBreak
-                ? 'bg-[#ecfdf5] border-[#a7f3d0] text-[#065f46]'
-                : 'bg-[#ffffff] border-[#e7e2d6]'
+                ? 'bg-emerald-50/70 border-emerald-300 ring-1 ring-emerald-500/20'
+                : 'hover:border-slate-300'
             }`}
           >
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs text-[#064e3b] font-bold bg-[#faf8f5] px-2.5 py-0.5 rounded-lg border border-[#e7e2d6]">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs text-slate-700 font-semibold font-mono bg-slate-100 px-2.5 py-1 rounded-md">
                   {session.startTime} – {session.endTime}
                 </span>
                 {session.isPrayerBreak && (
-                  <span className="meta-tag px-2.5 py-0.5 rounded-full bg-[#d1fae5] text-[#065f46] font-bold">
-                    CONGREGATIONAL SALAH
-                  </span>
+                  <Badge variant="default" className="text-[10px]">
+                    Congregational Salah Break
+                  </Badge>
                 )}
               </div>
 
-              <h4 className="text-base font-bold text-[#0f172a]">{session.title}</h4>
+              <h4 className="text-base sm:text-lg font-bold text-slate-900">{session.title}</h4>
               {session.speaker && (
-                <p className="text-xs text-[#064e3b] font-medium">Keynote Scholar: {session.speaker}</p>
+                <p className="text-xs text-emerald-800 font-medium">Speaker: {session.speaker}</p>
               )}
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-[#6b7280] shrink-0">
-              <MapPin size={15} className="text-[#9e782f]" />
-              <span className="font-medium">{session.location}</span>
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 shrink-0 font-medium">
+              <MapPin size={14} className="text-slate-400" />
+              <span>{session.location}</span>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

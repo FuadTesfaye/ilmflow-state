@@ -2,20 +2,22 @@
 
 import React, { useState } from 'react';
 import { RegistrationForm, FormField, FormFieldType } from '../../types';
-import { IslamicStarIcon } from '../common/IslamicPattern';
 import {
   Plus,
   Trash2,
   MoveUp,
   MoveDown,
-  Settings,
   Eye,
   FileCode,
   Save,
   Sliders,
-  CheckCircle,
-  HelpCircle
+  Settings2,
+  Check
 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Badge } from '../ui/badge';
 
 interface FormBuilderProps {
   initialForm: RegistrationForm;
@@ -29,38 +31,38 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ initialForm, onSave })
   );
   const [activeTab, setActiveTab] = useState<'editor' | 'preview' | 'json'>('editor');
   const [previewValues, setPreviewValues] = useState<Record<string, any>>({
-    'fld-age': 16 // minor test default for conditional logic demo
+    'fld-age': 16
   });
 
   const fieldTypeOptions: { type: FormFieldType; label: string; icon: string }[] = [
     { type: 'text', label: 'Short Text', icon: 'Aa' },
-    { type: 'textarea', label: 'Long Text / Bio', icon: '¶' },
+    { type: 'textarea', label: 'Long Text', icon: '¶' },
     { type: 'number', label: 'Numeric Value', icon: '#' },
     { type: 'email', label: 'Email Address', icon: '@' },
     { type: 'phone', label: 'Phone Number', icon: '☎' },
     { type: 'dropdown', label: 'Select Dropdown', icon: '▾' },
-    { type: 'radio', label: 'Radio Option Group', icon: '◉' },
-    { type: 'checkbox', label: 'Consent Checkbox', icon: '☑' },
-    { type: 'date', label: 'Calendar Date', icon: '📅' },
-    { type: 'file', label: 'Document / Sanad Upload', icon: '⇪' },
-    { type: 'section-header', label: 'Section Heading', icon: 'H' },
-    { type: 'signature', label: 'Digital Signature', icon: '✍' }
+    { type: 'radio', label: 'Radio Group', icon: '◉' },
+    { type: 'checkbox', label: 'Checkbox', icon: '☑' },
+    { type: 'date', label: 'Date', icon: '📅' },
+    { type: 'file', label: 'File Upload', icon: '⇪' },
+    { type: 'section-header', label: 'Section Header', icon: 'H' },
+    { type: 'signature', label: 'Signature', icon: '✍' }
   ];
 
   const handleAddField = (type: FormFieldType) => {
     const newId = `fld-${Date.now()}`;
     const newField: FormField = {
       id: newId,
-      label: `New ${type.replace('-', ' ')} Field`,
+      label: `New ${type.replace('-', ' ')}`,
       type,
       required: false,
       placeholder: 'Enter details...',
-      helpText: 'Official academic or admission record verification.',
+      helpText: '',
       options:
         type === 'dropdown' || type === 'radio'
           ? [
-              { label: 'Primary Option', value: 'opt_1' },
-              { label: 'Secondary Option', value: 'opt_2' }
+              { label: 'Option 1', value: 'opt_1' },
+              { label: 'Option 2', value: 'opt_2' }
             ]
           : undefined
     };
@@ -104,248 +106,279 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ initialForm, onSave })
   const selectedField = form.fields.find((f) => f.id === selectedFieldId);
 
   return (
-    <div className="w-full space-y-6 select-none text-[#111827]">
+    <div className="w-full space-y-6 select-none text-stone-900">
       {/* Top Bar */}
-      <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <IslamicStarIcon size={14} className="text-[#064e3b]" />
-            <span className="meta-tag text-[#064e3b] font-bold">
-              DYNAMIC FORM SCHEMA ARCHITECT
+      <Card>
+        <CardContent className="p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700 block mb-1">
+              Interactive Schema Builder
             </span>
-          </div>
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
-            className="font-display text-2xl font-bold text-[#111827] bg-transparent border-b border-transparent hover:border-[#e7e2d6] focus:border-[#064e3b] focus:outline-none w-full mt-1 transition-colors"
-          />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-2xl bg-[#f4f0e6] p-1.5 border border-[#e7e2d6]">
-            <button
-              onClick={() => setActiveTab('editor')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                activeTab === 'editor'
-                  ? 'bg-[#ffffff] text-[#064e3b] shadow-xs'
-                  : 'text-[#6b7280] hover:text-[#111827]'
-              }`}
-            >
-              Schema Editor
-            </button>
-            <button
-              onClick={() => setActiveTab('preview')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'preview'
-                  ? 'bg-[#ffffff] text-[#064e3b] shadow-xs'
-                  : 'text-[#6b7280] hover:text-[#111827]'
-              }`}
-            >
-              <Eye size={13} />
-              <span>Live Test Preview</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('json')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'json'
-                  ? 'bg-[#ffffff] text-[#064e3b] shadow-xs'
-                  : 'text-[#6b7280] hover:text-[#111827]'
-              }`}
-            >
-              <FileCode size={13} />
-              <span>JSON</span>
-            </button>
+            <input
+              type="text"
+              value={form.title}
+              onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+              className="text-xl sm:text-2xl font-bold text-stone-900 bg-transparent border-b border-transparent hover:border-stone-300 focus:border-emerald-600 focus:outline-none w-full transition-colors"
+            />
           </div>
 
-          <button
-            onClick={() => onSave(form)}
-            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] text-xs font-semibold hover:bg-[#043c2e] cursor-pointer shadow-xs transition-all"
-          >
-            <Save size={14} />
-            <span>Save Schema</span>
-          </button>
-        </div>
-      </div>
+          <div className="flex items-center gap-3">
+            <div className="flex p-1 bg-stone-100 rounded-lg border border-stone-200">
+              <button
+                onClick={() => setActiveTab('editor')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                  activeTab === 'editor'
+                    ? 'bg-white text-stone-900 shadow-sm font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                Editor
+              </button>
+              <button
+                onClick={() => setActiveTab('preview')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeTab === 'preview'
+                    ? 'bg-white text-stone-900 shadow-sm font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                <Eye size={13} />
+                <span>Preview</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('json')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeTab === 'json'
+                    ? 'bg-white text-stone-900 shadow-sm font-semibold'
+                    : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                <FileCode size={13} />
+                <span>JSON</span>
+              </button>
+            </div>
 
-      {/* Editor Grid */}
+            <Button
+              onClick={() => onSave(form)}
+              className="gap-2 bg-emerald-700 hover:bg-emerald-800 text-white"
+            >
+              <Save size={15} />
+              <span>Save Schema</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Grid */}
       {activeTab === 'editor' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left: Palette */}
-          <div className="lg:col-span-3 space-y-3">
-            <div className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-              <span className="meta-tag text-[#064e3b] block mb-3 font-bold">AVAILABLE COMPONENTS</span>
-              <div className="grid grid-cols-1 gap-1.5">
+          <div className="lg:col-span-3 space-y-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                  Field Library
+                </CardTitle>
+                <CardDescription className="text-xs">Click to add to canvas</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-1.5 p-3 pt-0">
                 {fieldTypeOptions.map((f) => (
                   <button
                     key={f.type}
                     onClick={() => handleAddField(f.type)}
-                    className="w-full text-left px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] hover:border-[#064e3b]/50 text-[#4b5563] hover:text-[#111827] text-xs flex items-center justify-between transition-all group cursor-pointer"
+                    className="w-full text-left px-3 py-2 rounded-lg bg-stone-50 border border-stone-200/80 hover:border-emerald-400 hover:bg-emerald-50/50 text-stone-800 text-xs font-medium flex items-center justify-between transition-colors group cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="font-mono text-xs text-[#064e3b] font-bold w-4">
+                      <span className="font-mono text-xs text-stone-400 w-4 block text-center group-hover:text-emerald-700">
                         {f.icon}
                       </span>
                       <span>{f.label}</span>
                     </div>
-                    <Plus size={13} className="text-[#9ca3af] group-hover:text-[#064e3b]" />
+                    <Plus size={13} className="text-stone-400 group-hover:text-emerald-700" />
                   </button>
                 ))}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Middle: Canvas */}
           <div className="lg:col-span-5 space-y-3">
-            <div className="p-5 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-3">
-              <div className="flex items-center justify-between pb-3 border-b border-[#e7e2d6]">
-                <span className="meta-tag text-[#111827] font-bold">SEQUENCE ({form.fields.length} FIELDS)</span>
-                <span className="text-[11px] text-[#6b7280]">Click field to inspect</span>
-              </div>
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs font-semibold text-stone-700">
+                Fields in Form ({form.fields.length})
+              </span>
+              <span className="text-xs text-stone-400">Drag or use arrows to order</span>
+            </div>
 
-              <div className="space-y-2">
-                {form.fields.map((field, idx) => {
-                  const isSelected = selectedFieldId === field.id;
-                  return (
-                    <div
-                      key={field.id}
-                      onClick={() => setSelectedFieldId(field.id)}
-                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                        isSelected
-                          ? 'bg-[#f4f0e6] border-[#064e3b] text-[#111827] shadow-xs'
-                          : 'bg-[#faf8f5] border-[#e7e2d6] text-[#4b5563] hover:border-[#064e3b]/30'
-                      }`}
-                    >
+            <div className="space-y-2.5">
+              {form.fields.map((field, idx) => {
+                const isSelected = selectedFieldId === field.id;
+                return (
+                  <Card
+                    key={field.id}
+                    onClick={() => setSelectedFieldId(field.id)}
+                    className={`cursor-pointer transition-all ${
+                      isSelected
+                        ? 'border-emerald-600 ring-2 ring-emerald-500/20 shadow-sm'
+                        : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    <CardContent className="p-3.5 flex items-center justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold truncate">{field.label}</span>
-                          {field.required && <span className="text-red-600 text-xs font-bold">*</span>}
+                          <span className="text-xs font-mono font-bold text-stone-400">#{idx + 1}</span>
+                          <span className="text-sm font-semibold truncate text-stone-900">{field.label}</span>
+                          {field.required && (
+                            <Badge variant="destructive" className="text-[10px] py-0 px-1.5">
+                              Required
+                            </Badge>
+                          )}
                         </div>
-                        <span className="meta-tag text-[9px] text-[#6b7280] block mt-0.5">
-                          Type: {field.type} {field.conditional ? '• [CONDITIONAL]' : ''}
-                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="secondary" className="text-[10px] font-mono uppercase">
+                            {field.type}
+                          </Badge>
+                          {field.conditional && (
+                            <Badge variant="warning" className="text-[10px] py-0 px-1.5">
+                              Conditional
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           disabled={idx === 0}
                           onClick={() => handleMoveField(idx, 'up')}
-                          className="p-1 rounded-lg bg-[#ffffff] border border-[#e7e2d6] text-[#6b7280] hover:text-[#111827] disabled:opacity-30 cursor-pointer"
+                          className="h-7 w-7 p-0 text-stone-400 hover:text-stone-700"
                         >
-                          <MoveUp size={12} />
-                        </button>
-                        <button
+                          <MoveUp size={13} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           disabled={idx === form.fields.length - 1}
                           onClick={() => handleMoveField(idx, 'down')}
-                          className="p-1 rounded-lg bg-[#ffffff] border border-[#e7e2d6] text-[#6b7280] hover:text-[#111827] disabled:opacity-30 cursor-pointer"
+                          className="h-7 w-7 p-0 text-stone-400 hover:text-stone-700"
                         >
-                          <MoveDown size={12} />
-                        </button>
-                        <button
+                          <MoveDown size={13} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleDeleteField(field.id)}
-                          className="p-1 rounded-lg bg-red-50 border border-red-200 text-red-600 hover:text-red-700 ml-1 cursor-pointer"
+                          className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                         >
-                          <Trash2 size={12} />
-                        </button>
+                          <Trash2 size={13} />
+                        </Button>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </div>
 
           {/* Right: Property Inspector */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] space-y-4">
-              <span className="meta-tag text-[#064e3b] block pb-3 border-b border-[#e7e2d6] font-bold">
-                PROPERTY CONFIGURATOR
-              </span>
-
-              {selectedField ? (
-                <div className="space-y-4 text-xs">
-                  <div>
-                    <label className="block text-[#4b5563] mb-1 font-bold">Field Label *</label>
-                    <input
-                      type="text"
-                      value={selectedField.label}
-                      onChange={(e) => handleUpdateField(selectedField.id, { label: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
-                    />
+            <Card className="sticky top-20">
+              <CardHeader className="pb-3 border-b border-stone-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Settings2 size={15} className="text-emerald-700" />
+                    <CardTitle className="text-sm font-semibold">Field Properties</CardTitle>
                   </div>
+                  {selectedField && (
+                    <span className="font-mono text-xs text-stone-400">{selectedField.id}</span>
+                  )}
+                </div>
+              </CardHeader>
 
-                  <div>
-                    <label className="block text-[#4b5563] mb-1 font-bold">Placeholder Text</label>
-                    <input
-                      type="text"
-                      value={selectedField.placeholder || ''}
-                      onChange={(e) =>
-                        handleUpdateField(selectedField.id, { placeholder: e.target.value })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[#4b5563] mb-1 font-bold">Subtext / Explanatory Advice</label>
-                    <input
-                      type="text"
-                      value={selectedField.helpText || ''}
-                      onChange={(e) =>
-                        handleUpdateField(selectedField.id, { helpText: e.target.value })
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
-                    />
-                  </div>
-
-                  <label className="flex items-center gap-2 cursor-pointer pt-1">
-                    <input
-                      type="checkbox"
-                      checked={selectedField.required}
-                      onChange={(e) =>
-                        handleUpdateField(selectedField.id, { required: e.target.checked })
-                      }
-                      className="accent-[#064e3b] w-4 h-4 rounded"
-                    />
-                    <span className="text-[#111827] font-semibold">Enforce as Required Field</span>
-                  </label>
-
-                  {/* Conditional Logic Rule Config */}
-                  <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6] space-y-2.5 mt-4">
-                    <div className="flex items-center justify-between">
-                      <span className="meta-tag text-[#064e3b] font-bold">CONDITIONAL RULE</span>
-                      <Sliders size={13} className="text-[#064e3b]" />
+              <CardContent className="p-4 space-y-4">
+                {selectedField ? (
+                  <div className="space-y-4 text-sm">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Field Label *</label>
+                      <Input
+                        type="text"
+                        value={selectedField.label}
+                        onChange={(e) => handleUpdateField(selectedField.id, { label: e.target.value })}
+                      />
                     </div>
-                    <p className="text-[11px] text-[#6b7280]">
-                      Display this question conditionally based on attendee input (e.g. Minor &lt; 18).
-                    </p>
 
-                    <label className="flex items-center gap-2 cursor-pointer pt-1">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Placeholder</label>
+                      <Input
+                        type="text"
+                        value={selectedField.placeholder || ''}
+                        onChange={(e) =>
+                          handleUpdateField(selectedField.id, { placeholder: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">Help Text</label>
+                      <Input
+                        type="text"
+                        value={selectedField.helpText || ''}
+                        onChange={(e) =>
+                          handleUpdateField(selectedField.id, { helpText: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-stone-50 border border-stone-200">
+                      <div>
+                        <span className="text-xs font-semibold text-stone-800 block">Required Field</span>
+                        <span className="text-[11px] text-stone-500">Attendee cannot leave blank</span>
+                      </div>
                       <input
                         type="checkbox"
-                        checked={Boolean(selectedField.conditional)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            handleUpdateField(selectedField.id, {
-                              conditional: {
-                                fieldId: form.fields[0]?.id || '',
-                                operator: 'less_than',
-                                value: 18
-                              }
-                            });
-                          } else {
-                            handleUpdateField(selectedField.id, { conditional: undefined });
-                          }
-                        }}
-                        className="accent-[#064e3b] w-4 h-4 rounded"
+                        checked={selectedField.required}
+                        onChange={(e) =>
+                          handleUpdateField(selectedField.id, { required: e.target.checked })
+                        }
+                        className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
                       />
-                      <span className="font-semibold text-[#111827]">Enable Rule Engine</span>
-                    </label>
+                    </div>
 
-                    {selectedField.conditional && (
-                      <div className="space-y-2 pt-2 text-[11px]">
-                        <div>
-                          <label className="block text-[#6b7280]">Depends On Field:</label>
+                    {/* Conditional Logic */}
+                    <div className="p-3.5 rounded-lg bg-stone-50 border border-stone-200 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-stone-700">
+                          Conditional Rule
+                        </span>
+                        <Sliders size={13} className="text-stone-400" />
+                      </div>
+
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(selectedField.conditional)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              handleUpdateField(selectedField.id, {
+                                conditional: {
+                                  fieldId: form.fields[0]?.id || '',
+                                  operator: 'less_than',
+                                  value: 18
+                                }
+                              });
+                            } else {
+                              handleUpdateField(selectedField.id, { conditional: undefined });
+                            }
+                          }}
+                          className="w-4 h-4 accent-emerald-600 rounded"
+                        />
+                        <span className="font-medium text-stone-900 text-xs">Enable Visibility Logic</span>
+                      </label>
+
+                      {selectedField.conditional && (
+                        <div className="space-y-2 pt-1">
+                          <label className="block text-[11px] text-stone-500">Depends On Field:</label>
                           <select
                             value={selectedField.conditional.fieldId}
                             onChange={(e) =>
@@ -356,41 +389,41 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ initialForm, onSave })
                                 }
                               })
                             }
-                            className="w-full px-3 py-1.5 rounded-xl bg-[#ffffff] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b]"
+                            className="w-full h-8 rounded-md border border-input bg-background px-2.5 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                           >
                             {form.fields
                               .filter((f) => f.id !== selectedField.id)
                               .map((f) => (
                                 <option key={f.id} value={f.id}>
-                                  {f.label} ({f.id})
+                                  {f.label}
                                 </option>
                               ))}
                           </select>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <p className="text-xs text-[#6b7280]">Select a component from the canvas to configure.</p>
-              )}
-            </div>
+                ) : (
+                  <p className="text-xs text-stone-400 py-4 text-center">
+                    Select a field card to configure its properties.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}
 
       {/* Preview Tab */}
       {activeTab === 'preview' && (
-        <div className="max-w-2xl mx-auto p-8 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_25px_-5px_rgba(0,0,0,0.06)] relative">
-          <div className="border-b border-[#e7e2d6] pb-4 mb-6">
-            <span className="meta-tag text-[#064e3b] font-bold">
-              INTERACTIVE TEST RUNNER PREVIEW
-            </span>
-            <h4 className="font-display text-2xl text-[#111827] font-bold mt-1.5">{form.title}</h4>
-            <p className="text-xs text-[#6b7280] mt-1">{form.description}</p>
-          </div>
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader className="border-b border-stone-100">
+            <Badge variant="info" className="w-fit">Live Form Preview</Badge>
+            <CardTitle className="text-xl mt-2">{form.title}</CardTitle>
+            {form.description && <CardDescription>{form.description}</CardDescription>}
+          </CardHeader>
 
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-4 text-xs">
+          <CardContent className="p-6 space-y-4">
             {form.fields.map((field) => {
               if (field.conditional) {
                 const targetVal = Number(previewValues[field.conditional.fieldId]);
@@ -403,20 +436,18 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ initialForm, onSave })
 
               if (field.type === 'section-header') {
                 return (
-                  <div key={field.id} className="pt-4 pb-2 border-b border-[#e7e2d6]">
-                    <h5 className="font-display text-base font-bold text-[#064e3b]">
-                      {field.label}
-                    </h5>
+                  <div key={field.id} className="pt-4 pb-1 border-b border-stone-200">
+                    <h5 className="text-base font-bold text-stone-900">{field.label}</h5>
                   </div>
                 );
               }
 
               return (
                 <div key={field.id} className="space-y-1.5">
-                  <label className="block text-[#111827] font-bold">
+                  <label className="block text-stone-800 font-medium text-xs">
                     {field.label} {field.required && <span className="text-red-600">*</span>}
                   </label>
-                  {field.helpText && <p className="text-[11px] text-[#6b7280]">{field.helpText}</p>}
+                  {field.helpText && <p className="text-[11px] text-stone-400">{field.helpText}</p>}
 
                   {field.type === 'textarea' ? (
                     <textarea
@@ -426,7 +457,7 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ initialForm, onSave })
                       onChange={(e) =>
                         setPreviewValues((prev) => ({ ...prev, [field.id]: e.target.value }))
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     />
                   ) : field.type === 'dropdown' ? (
                     <select
@@ -434,9 +465,9 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ initialForm, onSave })
                       onChange={(e) =>
                         setPreviewValues((prev) => ({ ...prev, [field.id]: e.target.value }))
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                      className="w-full h-8 rounded-md border border-input bg-background px-2.5 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                     >
-                      <option value="">Select option...</option>
+                      <option value="">Select...</option>
                       {field.options?.map((o) => (
                         <option key={o.value} value={o.value}>
                           {o.label}
@@ -444,40 +475,41 @@ export const FormBuilder: React.FC<FormBuilderProps> = ({ initialForm, onSave })
                       ))}
                     </select>
                   ) : (
-                    <input
-                      type={field.type === 'age' || field.type === 'number' ? 'number' : 'text'}
+                    <Input
+                      type={field.type === 'number' ? 'number' : 'text'}
                       placeholder={field.placeholder}
                       value={(previewValues[field.id] as string) || ''}
                       onChange={(e) =>
                         setPreviewValues((prev) => ({ ...prev, [field.id]: e.target.value }))
                       }
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#faf8f5] border border-[#e7e2d6] text-[#111827] focus:border-[#064e3b] focus:outline-none"
+                      className="h-8 text-xs"
                     />
                   )}
                 </div>
               );
             })}
 
-            <div className="pt-4 border-t border-[#e7e2d6] flex justify-end">
-              <button
-                type="submit"
-                onClick={() => alert('Test Submission Validated Successfully!')}
-                className="px-6 py-2.5 rounded-xl bg-[#064e3b] text-[#ffffff] font-bold text-xs hover:bg-[#043c2e] cursor-pointer shadow-xs"
-              >
-                Test Submit
-              </button>
+            <div className="pt-4 mt-4 border-t border-stone-100 flex justify-end">
+              <Button onClick={() => alert('Submission simulated')} className="bg-emerald-700 hover:bg-emerald-800 text-white">
+                Simulate Submit
+              </Button>
             </div>
-          </form>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* JSON Schema */}
       {activeTab === 'json' && (
-        <div className="p-6 rounded-3xl bg-[#ffffff] border border-[#e7e2d6] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]">
-          <pre className="text-xs font-mono text-[#064e3b] overflow-x-auto p-5 rounded-2xl bg-[#faf8f5] border border-[#e7e2d6]">
-            {JSON.stringify(form, null, 2)}
-          </pre>
-        </div>
+        <Card className="max-w-4xl mx-auto">
+          <CardHeader className="pb-3 border-b border-stone-100">
+            <CardTitle className="text-sm font-semibold">Schema Definition JSON</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <pre className="text-xs font-mono text-stone-100 bg-stone-900 p-5 rounded-b-xl overflow-x-auto leading-relaxed max-h-[500px]">
+              {JSON.stringify(form, null, 2)}
+            </pre>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

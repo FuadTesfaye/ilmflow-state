@@ -502,6 +502,199 @@ export const INITIAL_EVENTS: EventItem[] = [
         available: true
       }
     ]
+  },
+  {
+    id: 'evt-dua-kumayl',
+    slug: 'weekly-dua-kumayl-dinner',
+    title: 'Dua Kumayl & Weekly Community Dinner',
+    subtitle: 'Congregational Supplication, Heartfelt Reflection, and Communal Dinner',
+    description: 'Join us every Thursday evening for congregational Maghrib prayer followed by the recitation of Dua Kumayl and a communal hot dinner. Free admission for all families, youth, and elders.',
+    category: 'community',
+    format: 'in-person',
+    coverImage: 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?auto=format&fit=crop&q=80&w=1200',
+    startDate: '2026-10-23T17:30:00Z',
+    endDate: '2026-10-23T20:30:00Z',
+    timeZone: 'PST (Pacific Standard Time)',
+    venueName: 'Balishira Resort & West Covina Sanctuary',
+    venueAddress: '1505 W Garvey Ave N, West Covina, CA 91790',
+    registrationDeadline: '2026-10-23T16:00:00Z',
+    capacity: 500,
+    registeredCount: 412,
+    waitlistCount: 0,
+    ageRestrictions: 'All ages welcome (Family-friendly)',
+    genderCategory: 'all',
+    languages: ['Arabic', 'English'],
+    speakers: [INITIAL_SPEAKERS[1]],
+    formId: 'form-summit-standard',
+    featured: true,
+    status: 'upcoming',
+    prayerTimes: {
+      fajr: '05:00 AM',
+      dhuhr: '01:30 PM',
+      asr: '04:30 PM',
+      maghrib: '06:00 PM',
+      isha: '08:00 PM',
+      nextPrayer: 'Maghrib',
+      timeRemaining: '25m'
+    },
+    schedule: [
+      {
+        id: 'sch-dk-1',
+        title: 'Congregational Maghrib & Isha Prayers',
+        startTime: '06:00 PM',
+        endTime: '06:40 PM',
+        location: 'Main Musalla'
+      },
+      {
+        id: 'sch-dk-2',
+        title: 'Recitation of Dua Kumayl & Spiritual Commentary',
+        speaker: 'Shaykh Ahmad Al-Mansoor',
+        startTime: '06:45 PM',
+        endTime: '07:45 PM',
+        location: 'Main Sanctuary'
+      },
+      {
+        id: 'sch-dk-3',
+        title: 'Community Dinner & Fellowship',
+        startTime: '07:45 PM',
+        endTime: '08:45 PM',
+        location: 'Community Hall'
+      }
+    ],
+    tickets: [
+      {
+        id: 'tkt-dk-free',
+        name: 'Free Community RSVP',
+        price: 0,
+        currency: 'USD',
+        description: 'Complimentary admission including dinner for individual or family.',
+        features: ['Full Program Access', 'Complimentary Halal Dinner', 'Free Parking'],
+        capacity: 500,
+        registeredCount: 412,
+        available: true
+      }
+    ]
+  },
+  {
+    id: 'evt-dua-tawwasul',
+    slug: 'weekly-dua-tawwasul-gathering',
+    title: 'Dua Tawwasul & Spiritual Halaqa',
+    subtitle: 'Mid-Week Spiritual Rejuvenation & Sacred Supplication Gathering',
+    description: 'Weekly mid-week gathering every Tuesday at 5:30 PM featuring sacred remembrance, melodic recitation of Dua Tawwasul, and a short practical lesson in Islamic spirituality.',
+    category: 'community',
+    format: 'in-person',
+    coverImage: 'https://images.unsplash.com/photo-1568084680786-a84f91d1153c?auto=format&fit=crop&q=80&w=1200',
+    startDate: '2026-10-21T17:30:00Z',
+    endDate: '2026-10-21T19:30:00Z',
+    timeZone: 'PST (Pacific Standard Time)',
+    venueName: 'Convention City Bashundhara • Main Hall',
+    venueAddress: 'Convention City, Bashundhara R/A, Dhaka',
+    registrationDeadline: '2026-10-21T16:00:00Z',
+    capacity: 400,
+    registeredCount: 320,
+    waitlistCount: 0,
+    ageRestrictions: 'All ages welcome',
+    genderCategory: 'all',
+    languages: ['Arabic', 'English'],
+    speakers: [INITIAL_SPEAKERS[0]],
+    formId: 'form-summit-standard',
+    featured: false,
+    status: 'upcoming',
+    prayerTimes: {
+      fajr: '05:00 AM',
+      dhuhr: '01:30 PM',
+      asr: '04:30 PM',
+      maghrib: '06:00 PM',
+      isha: '08:00 PM',
+      nextPrayer: 'Maghrib',
+      timeRemaining: '30m'
+    },
+    schedule: [
+      {
+        id: 'sch-dt-1',
+        title: 'Recitation of Dua Tawwasul & Ziyarat',
+        startTime: '05:30 PM',
+        endTime: '06:15 PM',
+        location: 'Main Hall'
+      }
+    ],
+    tickets: [
+      {
+        id: 'tkt-dt-free',
+        name: 'Open Attendance Pass',
+        price: 0,
+        currency: 'USD',
+        description: 'Free public entry for congregants and visitors.',
+        features: ['Full Session Access', 'Tea & Dates Station'],
+        capacity: 400,
+        registeredCount: 320,
+        available: true
+      }
+    ]
+  },
+  {
+    id: 'evt-jumuah-assembly',
+    slug: 'salat-al-jumuah-khutbah',
+    title: "Salat al-Jumu'a & Weekly Khutbah",
+    subtitle: 'Friday Congregational Assembly, Khutbah & Community Fellowship',
+    description: "Weekly Friday congregational assembly. First call to prayer at 1:15 PM, Khutbah at 1:30 PM, followed by communal prayer and community fellowship. Simultaneous English translation available.",
+    category: 'prayer',
+    format: 'in-person',
+    coverImage: 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=1200',
+    startDate: '2026-10-24T13:00:00Z',
+    endDate: '2026-10-24T14:30:00Z',
+    timeZone: 'PST (Pacific Standard Time)',
+    venueName: 'Convention City Bashundhara & West Covina Musalla',
+    venueAddress: 'Main Musalla & Sanctuary Courtyard',
+    registrationDeadline: '2026-10-24T12:00:00Z',
+    capacity: 1500,
+    registeredCount: 1280,
+    waitlistCount: 0,
+    ageRestrictions: 'Open to the entire family',
+    genderCategory: 'segregated-halls',
+    languages: ['Arabic', 'English'],
+    speakers: [INITIAL_SPEAKERS[0]],
+    formId: 'form-summit-standard',
+    featured: false,
+    status: 'upcoming',
+    prayerTimes: {
+      fajr: '05:00 AM',
+      dhuhr: '01:30 PM',
+      asr: '04:30 PM',
+      maghrib: '06:00 PM',
+      isha: '08:00 PM',
+      nextPrayer: 'Dhuhr',
+      timeRemaining: '15m'
+    },
+    schedule: [
+      {
+        id: 'sch-jum-1',
+        title: "First Adhan & Pre-Khutbah Bayan",
+        startTime: '01:15 PM',
+        endTime: '01:30 PM',
+        location: 'Main Sanctuary'
+      },
+      {
+        id: 'sch-jum-2',
+        title: "Arabic Khutbah & Congregational Salat",
+        startTime: '01:30 PM',
+        endTime: '02:00 PM',
+        location: 'Main Sanctuary'
+      }
+    ],
+    tickets: [
+      {
+        id: 'tkt-jum-free',
+        name: 'General Congregant RSVP',
+        price: 0,
+        currency: 'USD',
+        description: 'Complimentary admission for Jumu’ah prayer.',
+        features: ['Main Sanctuary Seating', 'Free Parking Assistance'],
+        capacity: 1500,
+        registeredCount: 1280,
+        available: true
+      }
+    ]
   }
 ];
 
