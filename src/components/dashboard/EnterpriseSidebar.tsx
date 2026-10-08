@@ -247,6 +247,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
                     <Link
                       key={item.id}
                       href={item.href}
+                      prefetch={true}
                       onClick={() => setMobileOpen(false)}
                       className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                         isActive

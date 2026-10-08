@@ -83,6 +83,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.label}
                   href={link.href}
+                  prefetch={true}
                   className={`text-sm font-medium transition-colors hover:text-[#135B3E] ${
                     isActive ? 'text-[#135B3E] font-semibold' : 'text-slate-600'
                   }`}
@@ -168,13 +169,14 @@ export const Navbar: React.FC = () => {
             {/* Portal destination link */}
             <Link
               href={portal.href}
+              prefetch={true}
               className="text-xs font-medium text-slate-600 hover:text-[#135B3E] transition-colors hidden lg:block"
             >
               {portal.label}
             </Link>
 
             {/* Exact "Get Involved" Pill Button from Dribbble */}
-            <Link href="/events">
+            <Link href="/events" prefetch={true}>
               <button className="px-5 py-2.5 rounded-full bg-[#135B3E] hover:bg-[#0f4931] text-white text-xs font-semibold tracking-wide transition-all shadow-sm hover:shadow-md cursor-pointer">
                 Get Involved
               </button>

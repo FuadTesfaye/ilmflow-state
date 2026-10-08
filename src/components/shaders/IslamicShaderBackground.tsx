@@ -1,7 +1,25 @@
 'use client';
 
-import React, { useEffect, useState, memo } from 'react';
-import { MeshGradient, GodRays, Waves, Warp } from '@paper-design/shaders-react';
+import React, { useEffect, useState, memo, useMemo } from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import heavy WebGL shader components without blocking SSR or initial FCP
+const MeshGradient = dynamic(
+  () => import('@paper-design/shaders-react').then((mod) => mod.MeshGradient),
+  { ssr: false }
+);
+const Warp = dynamic(
+  () => import('@paper-design/shaders-react').then((mod) => mod.Warp),
+  { ssr: false }
+);
+const GodRays = dynamic(
+  () => import('@paper-design/shaders-react').then((mod) => mod.GodRays),
+  { ssr: false }
+);
+const Waves = dynamic(
+  () => import('@paper-design/shaders-react').then((mod) => mod.Waves),
+  { ssr: false }
+);
 
 export type ShaderVariant = 'aurora' | 'emerald' | 'sage' | 'gold' | 'night' | 'ambient' | 'dawn';
 export type ShaderType = 'mesh' | 'godrays' | 'waves' | 'warp';
@@ -32,56 +50,70 @@ export const IslamicShaderBackground: React.FC<IslamicShaderBackgroundProps> = m
   isPageBackground = false
 }) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+
+    const checkCapabilities = () => {
+      const desktop = window.innerWidth >= 768;
+      const motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setIsDesktop(desktop);
+      setReducedMotion(motion);
+    };
+
+    checkCapabilities();
+    window.addEventListener('resize', checkCapabilities, { passive: true });
+    return () => window.removeEventListener('resize', checkCapabilities);
   }, []);
 
-  // Impressive, high-contrast, living Islamic color palettes:
-  // Designed so fluid motion, wave ripples, and organic light are VISIBLY STUNNING and clearly alive.
-  const colorMap: Record<ShaderVariant, string[]> = {
-    // 1. Serene Living Mint & Jade (Light, high-contrast, beautiful for page backgrounds — NEVER blank white!)
+  const colorMap: Record<ShaderVariant, string[]> = useMemo(() => ({
     ambient: ['#d5eedc', '#a6dec0', '#4dbd84', '#1d7348', '#e2cfab', '#eaf6ef'],
-    
-    // 2. Fresh Meadow & Olive Sage (Light, refreshing, organic)
     sage: ['#dcfce7', '#86efac', '#22c55e', '#166534', '#fef08a', '#bbf7d0'],
-    
-    // 3. Fajr Dawn Celestial Light (Light, warm amber and morning mint)
     dawn: ['#fef3c7', '#fde68a', '#6ee7b7', '#10b981', '#f59e0b', '#fffbeb'],
-
-    // 4. Majestic Living Islamic Aurora (Deep Emerald, Jade, Luminous Mint, Warm Amber Gold, Deep Forest)
     aurora: ['#062616', '#0d4a2b', '#16a34a', '#4ade80', '#d97706', '#042113'],
-    
-    // 5. Royal Deep Emerald Jewel (Mosque carpet & dome deep greens)
     emerald: ['#052314', '#0f5132', '#198754', '#20c997', '#0a3622'],
-    
-    // 6. Sacred Celestial Gold & Emerald (Warm illuminated amber)
     gold: ['#0f3d24', '#156b3e', '#d97706', '#f59e0b', '#78350f'],
-    
-    // 7. Midnight Sanctuary (Deep night prayer serenity)
     night: ['#02180f', '#063a22', '#0d5c38', '#10b981', '#010f0a']
-  };
+  }), []);
 
   const selectedColors = colorMap[variant] || colorMap.ambient;
   const isLightVariant = variant === 'ambient' || variant === 'sage' || variant === 'dawn';
   const isFixed = fixed || isPageBackground;
 
+  // On mobile screens (< 768px) or reduced-motion devices:
+  // Render an ultra-smooth, GPU-free CSS ambient mesh gradient for 120Hz scrolling
+  const renderWebGL = isMounted && isDesktop && !reducedMotion;
+
   return (
     <div
       className={`${isFixed ? 'fixed inset-0' : 'absolute inset-0'} overflow-hidden pointer-events-none select-none ${className}`}
-      style={{ opacity }}
+      style={{ opacity, willChange: 'opacity' }}
       aria-hidden="true"
     >
-      {/* High-speed CSS fallback gradient for instant render and zero blank flash */}
+      {/* High-speed CSS fallback gradient with hardware acceleration */}
       <div
-        className={`absolute inset-0 transition-opacity duration-700 ${
+        className={`absolute inset-0 transition-opacity duration-500 transform-gpu ${
           isLightVariant
             ? 'bg-gradient-to-br from-[#dff2e5] via-[#cfebd8] to-[#eaf5ee]'
             : 'bg-gradient-to-br from-[#072517] via-[#0d4528] to-[#041a10]'
         }`}
       />
 
-      {isMounted && (
+      {/* Mobile-optimized CSS radial glow accents */}
+      {!renderWebGL && (
+        <div
+          className={`absolute inset-0 transform-gpu ${
+            isLightVariant
+              ? 'bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.18),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(217,119,6,0.12),transparent_60%)]'
+              : 'bg-[radial-gradient(circle_at_30%_20%,rgba(52,211,153,0.15),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(245,158,11,0.1),transparent_60%)]'
+          }`}
+        />
+      )}
+
+      {/* Desktop WebGL Interactive Shader */}
+      {renderWebGL && (
         <div
           className={`absolute inset-0 w-full h-full transition-opacity duration-700 ${
             isLightVariant ? 'opacity-100' : 'mix-blend-screen opacity-95'
