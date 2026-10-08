@@ -22,7 +22,12 @@ import {
   Clock,
   ExternalLink,
   Building,
-  GraduationCap
+  GraduationCap,
+  Ticket,
+  Heart,
+  Bell,
+  X,
+  Sparkles
 } from 'lucide-react';
 
 interface EnterpriseSidebarProps {
@@ -42,7 +47,7 @@ interface SidebarNavItem {
   href?: string;
   badge?: string;
   count?: number;
-  countVariant?: 'urgent' | 'normal';
+  countVariant?: 'urgent' | 'normal' | 'gold';
 }
 
 interface SidebarNavGroup {
@@ -59,10 +64,12 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
   setMobileOpen
 }) => {
   const pathname = usePathname();
-  const { currentUser, manualSubmissions, registrations } = useApp();
+  const { currentUser, manualSubmissions, registrations, certificates, announcements } = useApp();
 
   const pendingGradingCount = manualSubmissions.filter((s) => s.status === 'pending_review').length;
   const activeRegistrationsCount = registrations.filter((r) => r.status === 'checked_in' || r.status === 'approved' || r.status === 'submitted').length;
+  const myRegistrationsCount = registrations.filter((r) => r.userId === currentUser.id || r.participantEmail === currentUser.email).length;
+  const myCertificatesCount = certificates.filter((c) => c.recipientEmail === currentUser.email || c.recipientName.toLowerCase().includes(currentUser.name.toLowerCase().split(' ')[0])).length;
 
   const navGroups: SidebarNavGroup[] = [
     {
@@ -83,7 +90,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
         },
         {
           id: 'registrations',
-          label: 'Attendees & Check-in',
+          label: 'Attendees & Gate',
           icon: Users,
           isTab: true,
           count: activeRegistrationsCount
@@ -120,10 +127,37 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           countVariant: pendingGradingCount > 0 ? 'urgent' : 'normal'
         },
         {
-          id: 'sanad',
-          label: 'Verifiable Diplomas',
+          id: 'certificates',
+          label: 'Sanad Diplomas',
           icon: FileCheck,
-          href: '/certificates/verify'
+          isTab: true,
+          count: myCertificatesCount > 0 ? myCertificatesCount : undefined,
+          countVariant: 'gold'
+        }
+      ]
+    },
+    {
+      group: 'Personal & Community',
+      items: [
+        {
+          id: 'passes',
+          label: 'My Passes & Lanyard',
+          icon: Ticket,
+          isTab: true,
+          count: myRegistrationsCount > 0 ? myRegistrationsCount : undefined
+        },
+        {
+          id: 'giving',
+          label: 'Waqf & Giving Hub',
+          icon: Heart,
+          isTab: true
+        },
+        {
+          id: 'announcements',
+          label: 'Announcements',
+          icon: Bell,
+          isTab: true,
+          count: announcements.length > 0 ? announcements.length : undefined
         }
       ]
     },
@@ -169,7 +203,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
     <div className="flex flex-col h-full bg-white border-r border-slate-200/90 text-slate-800 select-none">
       {/* Brand Header & Campus Pill */}
       <div className={`p-4 border-b border-slate-100 flex items-center justify-between ${isCollapsed ? 'flex-col gap-2' : ''}`}>
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group min-w-0">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/70 flex items-center justify-center text-[#135B3E] shrink-0 group-hover:scale-105 transition-transform">
             <IslamicStarEmblem size={22} className="text-[#135B3E]" />
           </div>
@@ -179,11 +213,20 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
                 HEJRAT FOUNDATION
               </span>
               <span className="text-[10px] font-semibold text-[#135B3E] uppercase tracking-widest truncate">
-                Masjid Al-Nabi • Admin
+                Command Center
               </span>
             </div>
           )}
         </Link>
+
+        {/* Mobile close button inside drawer */}
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg md:hidden hover:bg-slate-100 cursor-pointer"
+          aria-label="Close navigation drawer"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Navigation Group Items */}
@@ -243,6 +286,8 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
                             className={`px-1.5 py-0.5 text-[10px] font-bold rounded-full leading-none ${
                               item.countVariant === 'urgent'
                                 ? 'bg-amber-500 text-white animate-pulse'
+                                : item.countVariant === 'gold'
+                                ? 'bg-[#9E782F] text-white'
                                 : isActive
                                 ? 'bg-emerald-800 text-emerald-100'
                                 : 'bg-slate-200 text-slate-700'
@@ -263,27 +308,30 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
 
       {/* Footer Profile & Desktop Collapse Toggle */}
       <div className="p-3 border-t border-slate-100 space-y-2 bg-slate-50/60">
-        <Link
-          href="/portal"
-          className={`flex items-center gap-2.5 p-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-white hover:shadow-2xs transition-all ${
+        <button
+          onClick={() => {
+            if (onSelectTab) onSelectTab('passes');
+            setMobileOpen(false);
+          }}
+          className={`w-full flex items-center gap-2.5 p-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-white hover:shadow-2xs transition-all cursor-pointer ${
             isCollapsed ? 'justify-center' : ''
           }`}
-          title="Switch to Member Portal"
+          title="Active Member Credential"
         >
           <img
             src={currentUser.avatar}
             alt={currentUser.name}
-            className="w-7 h-7 rounded-full object-cover ring-1 ring-emerald-600/30"
+            className="w-7 h-7 rounded-full object-cover ring-1 ring-[#135B3E]/30 shrink-0"
           />
           {!isCollapsed && (
-            <div className="flex flex-col min-w-0 flex-1">
+            <div className="flex flex-col min-w-0 flex-1 text-left">
               <span className="text-xs font-bold text-slate-900 truncate">{currentUser.name}</span>
-              <span className="text-[10px] text-emerald-700 font-semibold truncate capitalize">
-                {currentUser.role} Console
+              <span className="text-[10px] text-[#135B3E] font-semibold truncate capitalize">
+                {currentUser.role} Session
               </span>
             </div>
           )}
-        </Link>
+        </button>
 
         {/* Desktop Collapse Trigger */}
         <div className="hidden md:flex items-center justify-between pt-1">
@@ -314,7 +362,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileOpen(false)}
           />
           <div className="relative w-72 max-w-[85vw] h-full shadow-2xl z-50">
