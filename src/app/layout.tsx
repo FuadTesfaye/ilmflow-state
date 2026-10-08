@@ -6,6 +6,7 @@ import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { RoleSwitcher } from '../components/common/RoleSwitcher';
 import { ToastContainer } from '../components/common/ToastContainer';
+import { RouteProgressBar } from '../components/layout/RouteProgressBar';
 
 const sansFont = Lexend({
   subsets: ['latin'],
@@ -42,6 +43,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-[#f4f8f5] text-slate-900 flex flex-col font-sans antialiased">
         <AppProvider>
+          <RouteProgressBar />
           <Navbar />
           <main className="flex-1 w-full">{children}</main>
           <Footer />

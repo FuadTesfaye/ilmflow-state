@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   EventItem,
   CompetitionItem,
@@ -146,7 +146,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
-  const addToast = (
+  const addToast = useCallback((
     toastOrTitle: Omit<ToastMessage, 'id'> | string,
     type: ToastMessage['type'] = 'info',
     description?: string
@@ -162,11 +162,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 4500);
-  };
+  }, []);
 
-  const removeToast = (id: string) => {
+  const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+  }, []);
 
   const switchRole = (role: Role) => {
     const matched = users.find((u) => u.role === role) || {
@@ -563,46 +563,64 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const contextValue = useMemo<AppContextType>(
+    () => ({
+      currentUser,
+      switchRole,
+      users,
+      events,
+      createEvent,
+      updateEvent,
+      getEventById,
+      competitions,
+      getCompetitionById,
+      updateCompetition,
+      questions,
+      addQuestion,
+      updateQuestion,
+      deleteQuestion,
+      forms,
+      saveForm,
+      getFormById,
+      registrations,
+      registerForEvent,
+      updateRegistrationStatus,
+      checkInAttendee,
+      quizAttempts,
+      recordQuizAttempt,
+      getAttempt,
+      manualSubmissions,
+      submitManualWork,
+      gradeSubmission,
+      certificates,
+      issueCertificate,
+      getCertificateByNumber,
+      announcements,
+      addAnnouncement,
+      toasts,
+      addToast,
+      removeToast
+    }),
+    [
+      currentUser,
+      users,
+      events,
+      competitions,
+      questions,
+      forms,
+      registrations,
+      quizAttempts,
+      manualSubmissions,
+      certificates,
+      announcements,
+      toasts,
+      addToast,
+      removeToast
+    ]
+  );
+
   return (
-    <AppContext.Provider
-      value={{
-        currentUser,
-        switchRole,
-        users,
-        events,
-        createEvent,
-        updateEvent,
-        getEventById,
-        competitions,
-        getCompetitionById,
-        updateCompetition,
-        questions,
-        addQuestion,
-        updateQuestion,
-        deleteQuestion,
-        forms,
-        saveForm,
-        getFormById,
-        registrations,
-        registerForEvent,
-        updateRegistrationStatus,
-        checkInAttendee,
-        quizAttempts,
-        recordQuizAttempt,
-        getAttempt,
-        manualSubmissions,
-        submitManualWork,
-        gradeSubmission,
-        certificates,
-        issueCertificate,
-        getCertificateByNumber,
-        announcements,
-        addAnnouncement,
-        toasts,
-        addToast,
-        removeToast
-      }}
-    >
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );
