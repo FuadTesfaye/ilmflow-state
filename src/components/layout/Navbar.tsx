@@ -39,19 +39,24 @@ export const Navbar: React.FC = () => {
   const getRoleDestination = () => {
     switch (currentUser.role) {
       case 'judge':
-        return { label: 'Judge Portal', href: '/judge' };
+        return { label: 'Judge Portal', href: '/dashboard' };
       case 'staff':
-        return { label: 'Staff Check-in', href: '/staff' };
+        return { label: 'Staff Check-in', href: '/dashboard' };
       case 'admin':
       case 'superadmin':
-        return { label: 'Admin Console', href: '/admin' };
+        return { label: 'Command Center', href: '/dashboard' };
       case 'participant':
       default:
-        return { label: 'My Dashboard', href: '/portal' };
+        return { label: 'My Dashboard', href: '/dashboard' };
     }
   };
 
   const portal = getRoleDestination();
+
+  // Suppress public marketing navbar on dedicated dashboard/admin routes to prevent duplicate headers
+  if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-emerald-900/[0.06] transition-all">

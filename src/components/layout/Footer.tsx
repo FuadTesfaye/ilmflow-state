@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
 import { ArabesqueCornerOrnament } from '../common/IslamicPattern';
 import {
@@ -12,9 +13,15 @@ import {
 } from 'lucide-react';
 
 export const Footer: React.FC = () => {
+  const pathname = usePathname();
   const { addToast } = useApp();
   const [quickMsg, setQuickMsg] = useState('');
   const [sending, setSending] = useState(false);
+
+  // Suppress public marketing footer on dashboard/admin console for full-height responsive canvas
+  if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
