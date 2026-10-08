@@ -2,8 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useApp } from '../context/AppContext';
-import { FlowRegistrationModal } from '../components/registration/FlowRegistrationModal';
+
+const FlowRegistrationModal = dynamic(
+  () => import('../components/registration/FlowRegistrationModal').then((mod) => mod.FlowRegistrationModal),
+  { ssr: false }
+);
+
 import { IslamicShaderBackground, ShaderVariant } from '../components/shaders/IslamicShaderBackground';
 import {
   ArabicCalligraphyGutter,
@@ -224,7 +230,7 @@ export default function HomePage() {
   const currentQuote = quotes[quoteSlide];
 
   return (
-    <div className="relative w-full overflow-hidden text-slate-800 font-sans min-h-screen">
+    <div className="page-enter relative w-full overflow-hidden text-slate-800 font-sans min-h-screen">
       {/* Skip to Main Content Link for Keyboard and Screen-Reader Accessibility */}
       <a
         href="#main-content"
