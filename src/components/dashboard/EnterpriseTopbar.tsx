@@ -6,6 +6,8 @@ import { useApp } from '../../context/AppContext';
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { PrayerTimeWidget } from './PrayerTimeWidget';
+import { IslamicStarEmblem } from '../common/IslamicPattern';
 import {
   Menu,
   Search,
@@ -21,7 +23,9 @@ import {
   Download,
   ExternalLink,
   Shield,
-  UserCheck
+  UserCheck,
+  ArrowLeft,
+  QrCode
 } from 'lucide-react';
 
 interface EnterpriseTopbarProps {
@@ -42,25 +46,37 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   const [notifOpen, setNotifOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-20 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
-      {/* Left: Mobile Toggle & Branch Switcher */}
-      <div className="flex items-center gap-3">
-        {/* Mobile Sidebar Trigger */}
+    <header className="sticky top-0 z-20 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 h-16 flex items-center justify-between px-3 sm:px-6 lg:px-8">
+      {/* Left: Mobile Drawer Trigger + Website Backlink + Branch Selector */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        {/* Mobile Sidebar Drawer Trigger */}
         <button
           onClick={onToggleMobileMenu}
-          className="p-2 text-slate-600 hover:text-slate-900 rounded-lg md:hidden hover:bg-slate-100"
+          className="p-2 text-slate-600 hover:text-slate-900 rounded-lg md:hidden hover:bg-slate-100 cursor-pointer shrink-0"
           aria-label="Toggle navigation drawer"
         >
           <Menu size={20} />
         </button>
 
+        {/* Return to Public Website link */}
+        <Link
+          href="/"
+          className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#135B3E] hover:bg-emerald-50/60 transition-colors shrink-0"
+          title="Return to public portal homepage"
+        >
+          <ArrowLeft size={13} />
+          <span>Website</span>
+        </Link>
+
+        <span className="hidden sm:inline text-slate-300">|</span>
+
         {/* Branch Selector Dropdown */}
         <DropdownMenu
           align="left"
           trigger={
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100/80 transition-all text-xs font-semibold text-slate-800">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100/80 transition-all text-xs font-semibold text-slate-800 shrink-0">
               <Building size={14} className="text-[#135B3E]" />
-              <span className="truncate max-w-[130px] sm:max-w-[180px]">{selectedBranch}</span>
+              <span className="truncate max-w-[110px] sm:max-w-[170px]">{selectedBranch}</span>
               <ChevronDown size={13} className="text-slate-400" />
             </div>
           }
@@ -78,36 +94,42 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           </DropdownMenuItem>
         </DropdownMenu>
 
-        {/* Active View Title for Desktop */}
-        <div className="hidden lg:flex items-center gap-2 text-xs font-medium text-slate-400 pl-2">
+        {/* Active Tab Breadcrumb */}
+        <div className="hidden lg:flex items-center gap-2 text-xs font-medium text-slate-400 pl-1 shrink-0">
           <span>/</span>
-          <span className="text-slate-700 font-semibold">{currentTabName}</span>
+          <span className="text-slate-800 font-semibold">{currentTabName}</span>
         </div>
       </div>
 
-      {/* Center: Command Palette Trigger (Search ⌘K) */}
-      <div className="flex-1 max-w-md mx-4 hidden sm:block">
+      {/* Center: Compact Prayer Ticker + Search ⌘K */}
+      <div className="flex items-center gap-3 flex-1 max-w-xl mx-2 sm:mx-4 justify-center sm:justify-end lg:justify-between">
+        {/* Compact Prayer Times Ticker (Visible on md+) */}
+        <div className="hidden xl:block">
+          <PrayerTimeWidget compact />
+        </div>
+
+        {/* Command Palette Trigger (Search ⌘K) */}
         <button
           onClick={onOpenCommandPalette}
-          className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-100 border border-slate-200/80 text-xs text-slate-500 hover:text-slate-800 transition-all cursor-pointer group shadow-2xs"
+          className="hidden sm:flex flex-1 max-w-xs items-center justify-between px-3 py-1.5 rounded-xl bg-slate-100/80 hover:bg-slate-100 border border-slate-200/80 text-xs text-slate-500 hover:text-slate-800 transition-all cursor-pointer group shadow-2xs"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 truncate">
             <Search size={14} className="text-slate-400 group-hover:text-[#135B3E]" />
-            <span>Search events, attendees, questions...</span>
+            <span className="truncate">Search commands, events, guests...</span>
           </div>
-          <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 rounded shadow-3xs">
+          <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 rounded shadow-3xs ml-1">
             ⌘K
           </kbd>
         </button>
       </div>
 
-      {/* Right: Quick Action Menu + Notifications + Profile */}
-      <div className="flex items-center gap-2.5 sm:gap-3">
-        {/* Mobile Search Icon Trigger */}
+      {/* Right: Actions, Notifications & User Role Profile */}
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        {/* Mobile Search Button */}
         <button
           onClick={onOpenCommandPalette}
-          className="sm:hidden p-2 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 cursor-pointer"
-          aria-label="Quick search"
+          className="sm:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 cursor-pointer"
+          aria-label="Search command palette"
         >
           <Search size={18} />
         </button>
@@ -115,7 +137,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
         {/* + Quick Action Menu */}
         <DropdownMenu
           trigger={
-            <Button size="sm" className="gap-1.5 bg-[#135B3E] hover:bg-[#0e4831] text-white rounded-xl shadow-xs">
+            <Button size="sm" className="gap-1.5 bg-[#135B3E] hover:bg-[#0c4427] text-white rounded-xl shadow-xs px-2.5 sm:px-3">
               <Plus size={15} />
               <span className="hidden sm:inline text-xs font-semibold">Action</span>
             </Button>
@@ -150,12 +172,12 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           >
             <Bell size={18} />
             {announcements.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-600 ring-2 ring-white" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#135B3E] ring-2 ring-white" />
             )}
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-white border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in-0 zoom-in-95 duration-100 text-left">
+            <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl bg-white border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in-0 zoom-in-95 duration-100 text-left">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="text-xs font-bold text-slate-800">Operational Alerts</span>
                 <button
@@ -181,55 +203,57 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
           )}
         </div>
 
-        {/* User Role Switcher Dropdown */}
+        {/* User Profile & Persona Switcher */}
         <DropdownMenu
           trigger={
             <div className="flex items-center gap-2 pl-1 cursor-pointer">
               <img
                 src={currentUser.avatar}
                 alt={currentUser.name}
-                className="w-8 h-8 rounded-full object-cover ring-2 ring-emerald-500/20"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-[#135B3E]/30"
               />
               <div className="hidden xl:flex flex-col text-left">
                 <span className="text-xs font-bold text-slate-900 leading-none">{currentUser.name}</span>
-                <span className="text-[10px] text-slate-400 capitalize mt-0.5">{currentUser.role}</span>
+                <span className="text-[10px] text-[#135B3E] font-semibold capitalize mt-0.5">
+                  {currentUser.role}
+                </span>
               </div>
             </div>
           }
         >
-          <DropdownMenuLabel>Simulation Role Switcher</DropdownMenuLabel>
+          <DropdownMenuLabel>Simulation Persona Switcher</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => switchRole('admin')}>
             <Shield size={14} className="text-emerald-700" />
             <div className="flex flex-col">
               <span className="font-semibold">Super Administrator</span>
-              <span className="text-[10px] text-slate-400">Full system &amp; financial access</span>
+              <span className="text-[10px] text-slate-400">Full operations &amp; settings</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => switchRole('judge')}>
-            <Award size={14} className="text-amber-600" />
+            <Award size={14} className="text-[#9E782F]" />
             <div className="flex flex-col">
               <span className="font-semibold">Scholar / Judge</span>
-              <span className="text-[10px] text-slate-400">Grading &amp; sanad evaluations</span>
+              <span className="text-[10px] text-slate-400">Grading rubric workstation</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => switchRole('staff')}>
-            <UserCheck size={14} className="text-blue-600" />
+            <QrCode size={14} className="text-blue-600" />
             <div className="flex flex-col">
-              <span className="font-semibold">Gate &amp; Event Staff</span>
-              <span className="text-[10px] text-slate-400">Barcode QR scanner check-in</span>
+              <span className="font-semibold">Gate &amp; Arrival Staff</span>
+              <span className="text-[10px] text-slate-400">Check-in barcode terminal</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => switchRole('participant')}>
             <Sparkles size={14} className="text-purple-600" />
             <div className="flex flex-col">
-              <span className="font-semibold">Community Member</span>
-              <span className="text-[10px] text-slate-400">Switch to Participant Portal</span>
+              <span className="font-semibold">Attendee / Contestant</span>
+              <span className="text-[10px] text-slate-400">Passes &amp; certificates hub</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <Link href="/portal" className="w-full flex items-center justify-between text-xs font-semibold text-[#135B3E]">
-              <span>Visit Member Portal</span>
+            <Link href="/" className="w-full flex items-center justify-between text-xs font-semibold text-[#135B3E]">
+              <span>Visit Public Website</span>
               <ExternalLink size={12} />
             </Link>
           </DropdownMenuItem>
