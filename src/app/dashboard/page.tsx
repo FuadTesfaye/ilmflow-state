@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
+import { AccessDeniedCard } from '../../components/common/PermissionGate';
 import {
   EventItem,
   RegistrationRecord,
@@ -77,6 +78,9 @@ import {
 export default function MasterDashboardPage() {
   const {
     currentUser,
+    can,
+    isTabPermitted,
+    currentRoleMeta,
     events,
     createEvent,
     competitions,
@@ -98,6 +102,13 @@ export default function MasterDashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  // Auto-switch to authorized homeTab if activeTab is not permitted for the active role
+  useEffect(() => {
+    if (!isTabPermitted(activeTab)) {
+      setActiveTab(currentRoleMeta.homeTab);
+    }
+  }, [currentUser.role, isTabPermitted, activeTab, currentRoleMeta.homeTab]);
 
   // Modals state
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
@@ -376,52 +387,84 @@ export default function MasterDashboardPage() {
 
         {/* Dynamic Canvas Container */}
         <main className="flex-1 p-3 sm:p-6 lg:p-8 space-y-6 max-w-7xl w-full mx-auto">
-          {/* ========================================================================= */}
-          {/* TAB 1: EXECUTIVE OVERVIEW                                                 */}
-          {/* ========================================================================= */}
-          {activeTab === 'overview' && (
-            <div className="space-y-6 animate-in fade-in-50 duration-150">
-              {/* Executive Header Banner */}
-              <div className="relative rounded-2xl bg-gradient-to-r from-[#0c4427] via-[#135b3e] to-[#0a3820] text-white p-5 sm:p-7 shadow-sanctuary border border-emerald-400/20 overflow-hidden">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-400/30 text-[10px] font-bold uppercase tracking-wider text-emerald-200">
-                        Hejrat Foundation • Masjid Al-Nabi
-                      </span>
-                      <span className="text-emerald-300/60 text-xs">•</span>
-                      <span className="text-emerald-200 text-xs font-arabic">١٤٤٨ هـ</span>
-                    </div>
-                    <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
-                      Executive Command Center
-                    </h1>
-                    <p className="text-xs sm:text-sm text-emerald-100/80 max-w-2xl">
-                      Real-time operational intelligence across Masjid Al-Nabi congregational summits, gate admissions, Quranic tournaments, and accredited diplomas.
-                    </p>
-                  </div>
+          {!isTabPermitted(activeTab) ? (
+            <AccessDeniedCard
+              title={`Access Restricted: ${tabLabels[activeTab] || activeTab}`}
+              description={`Your active persona '${currentUser.role}' (${currentRoleMeta.label}) does not have permission to access the ${tabLabels[activeTab] || activeTab} module.`}
+              onReturnHome={() => setActiveTab(currentRoleMeta.homeTab)}
+            />
+          ) : (
+            <>
+              {/* ========================================================================= */}
+              {/* TAB 1: EXECUTIVE OVERVIEW                                                 */}
+              {/* ========================================================================= */}
+              {activeTab === 'overview' && (
+                <div className="space-y-6 animate-in fade-in-50 duration-150">
+                  {/* Executive Header Banner */}
+                  <div className="relative rounded-2xl bg-gradient-to-r from-[#0c4427] via-[#135b3e] to-[#0a3820] text-white p-5 sm:p-7 shadow-sanctuary border border-emerald-400/20 overflow-hidden">
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
+                    <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-400/30 text-[10px] font-bold uppercase tracking-wider text-emerald-200">
+                            Hejrat Foundation • Masjid Al-Nabi
+                          </span>
+                          <span className="text-emerald-300/60 text-xs">•</span>
+                          <span className="text-emerald-200 text-xs font-arabic">١٤٤٨ هـ</span>
+                        </div>
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+                          Executive Command Center
+                        </h1>
+                        <p className="text-xs sm:text-sm text-emerald-100/80 max-w-2xl">
+                          Real-time operational intelligence across Masjid Al-Nabi congregational summits, gate admissions, Quranic tournaments, and accredited diplomas.
+                        </p>
+                      </div>
 
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <Button
-                      size="sm"
-                      onClick={() => setShowCreateEventModal(true)}
-                      className="bg-white text-[#135B3E] hover:bg-emerald-50 font-bold rounded-xl shadow-xs"
-                    >
-                      <Plus size={15} className="mr-1" />
-                      Create Program
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setActiveTab('passes')}
-                      className="text-white border-white/20 hover:bg-white/10 rounded-xl"
-                    >
-                      <Ticket size={15} className="mr-1" />
-                      My Delegate Pass
-                    </Button>
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        {can('event:create') && (
+                          <Button
+                            size="sm"
+                            onClick={() => setShowCreateEventModal(true)}
+                            className="bg-white text-[#135B3E] hover:bg-emerald-50 font-bold rounded-xl shadow-xs"
+                          >
+                            <Plus size={15} className="mr-1" />
+                            Create Program
+                          </Button>
+                        )}
+                        {can('attendance:scan') && (
+                          <Button
+                            size="sm"
+                            onClick={() => setActiveTab('registrations')}
+                            className="bg-emerald-800 text-white hover:bg-emerald-900 font-bold rounded-xl shadow-xs border border-emerald-400/30"
+                          >
+                            <QrCode size={15} className="mr-1" />
+                            Gate Scanner
+                          </Button>
+                        )}
+                        {can('submission:grade') && (
+                          <Button
+                            size="sm"
+                            onClick={() => setActiveTab('grading')}
+                            className="bg-amber-600 text-white hover:bg-amber-700 font-bold rounded-xl shadow-xs"
+                          >
+                            <Award size={15} className="mr-1" />
+                            Grading Queue
+                          </Button>
+                        )}
+                        {can('pass:view_own') && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setActiveTab('passes')}
+                            className="text-white border-white/20 hover:bg-white/10 rounded-xl"
+                          >
+                            <Ticket size={15} className="mr-1" />
+                            My Delegate Pass
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
               {/* 5-Column Responsive KPI Grid */}
               <ExecutiveKpiGrid onNavigateTab={(tab) => setActiveTab(tab)} />
@@ -574,13 +617,15 @@ export default function MasterDashboardPage() {
                     Manage congregational summits, youth intensives, and ticketing quotas.
                   </p>
                 </div>
-                <Button
-                  onClick={() => setShowCreateEventModal(true)}
-                  className="bg-[#135B3E] hover:bg-[#0c4427] text-white rounded-xl shadow-xs self-start sm:self-auto"
-                >
-                  <Plus size={16} className="mr-1.5" />
-                  Create New Event
-                </Button>
+                {can('event:create') && (
+                  <Button
+                    onClick={() => setShowCreateEventModal(true)}
+                    className="bg-[#135B3E] hover:bg-[#0c4427] text-white rounded-xl shadow-xs self-start sm:self-auto"
+                  >
+                    <Plus size={16} className="mr-1.5" />
+                    Create New Event
+                  </Button>
+                )}
               </div>
 
               {/* Filters */}
@@ -759,7 +804,7 @@ export default function MasterDashboardPage() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1.5">
-                              {reg.status !== 'checked_in' ? (
+                              {can('registration:checkin') && reg.status !== 'checked_in' && (
                                 <Button
                                   size="sm"
                                   onClick={() => {
@@ -770,7 +815,8 @@ export default function MasterDashboardPage() {
                                 >
                                   Check In
                                 </Button>
-                              ) : (
+                              )}
+                              {reg.status === 'checked_in' && (
                                 <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-bold px-2 py-1 bg-emerald-50 rounded-lg">
                                   <Check size={12} />
                                   Admitted
@@ -917,13 +963,19 @@ export default function MasterDashboardPage() {
                             </span>
                           </div>
                         )}
-                        <Button
-                          size="sm"
-                          onClick={() => setGradingSubmission(sub)}
-                          className="bg-[#135B3E] hover:bg-[#0c4427] text-white rounded-xl text-xs font-semibold"
-                        >
-                          {sub.status === 'pending_review' ? 'Audit & Score' : 'Edit Score'}
-                        </Button>
+                        {can('submission:grade') ? (
+                          <Button
+                            size="sm"
+                            onClick={() => setGradingSubmission(sub)}
+                            className="bg-[#135B3E] hover:bg-[#0c4427] text-white rounded-xl text-xs font-semibold"
+                          >
+                            {sub.status === 'pending_review' ? 'Audit & Score' : 'Edit Score'}
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-medium px-2 py-1 bg-slate-50 rounded-lg">
+                            Read-only
+                          </span>
+                        )}
                       </div>
                     </Card>
                   );
@@ -944,13 +996,15 @@ export default function MasterDashboardPage() {
                     Repository of vetted questions covering Tajweed, Hadith, Jurisprudence, and Seerah.
                   </p>
                 </div>
-                <Button
-                  onClick={() => setShowAddQuestionModal(true)}
-                  className="bg-[#135B3E] hover:bg-[#0c4427] text-white rounded-xl shadow-xs self-start sm:self-auto"
-                >
-                  <Plus size={16} className="mr-1.5" />
-                  Add Question
-                </Button>
+                {can('question:create') && (
+                  <Button
+                    onClick={() => setShowAddQuestionModal(true)}
+                    className="bg-[#135B3E] hover:bg-[#0c4427] text-white rounded-xl shadow-xs self-start sm:self-auto"
+                  >
+                    <Plus size={16} className="mr-1.5" />
+                    Add Question
+                  </Button>
+                )}
               </div>
 
               {/* Questions List */}
@@ -998,15 +1052,17 @@ export default function MasterDashboardPage() {
 
                     <div className="pt-2 text-[11px] text-slate-400 flex items-center justify-between">
                       <span>Source: <strong>{q.sourceReference}</strong></span>
-                      <button
-                        onClick={() => {
-                          deleteQuestion(q.id);
-                          addToast('Question removed from bank', 'info');
-                        }}
-                        className="text-rose-600 hover:text-rose-800 cursor-pointer"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      {can('question:delete') && (
+                        <button
+                          onClick={() => {
+                            deleteQuestion(q.id);
+                            addToast('Question removed from bank', 'info');
+                          }}
+                          className="text-rose-600 hover:text-rose-800 cursor-pointer"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </Card>
                 ))}
@@ -1249,6 +1305,8 @@ export default function MasterDashboardPage() {
               </div>
             </div>
           )}
+          </>
+        )}
         </main>
       </div>
 

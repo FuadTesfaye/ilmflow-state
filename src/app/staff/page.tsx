@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { AccessDeniedCard } from '../../components/common/PermissionGate';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -17,7 +18,19 @@ import {
 } from 'lucide-react';
 
 export default function StaffCheckInGatePage() {
-  const { registrations, checkInAttendee } = useApp();
+  const { registrations, checkInAttendee, hasRole } = useApp();
+
+  if (!hasRole(['staff', 'admin', 'superadmin'])) {
+    return (
+      <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center p-4">
+        <AccessDeniedCard
+          title="Gate & Attendee Check-In Terminal"
+          description="Access to the physical arrival gate scanner and attendee admissions register is restricted to event staff and operations marshals."
+          requiredRoles={['staff', 'admin', 'superadmin']}
+        />
+      </div>
+    );
+  }
 
   const [ticketInput, setTicketInput] = useState<string>('');
   const [lastScanResult, setLastScanResult] = useState<{

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { ManualSubmission, RubricCriterion } from '../../types';
 import { ManualGradingModal } from '../../components/competition/ManualGradingModal';
+import { AccessDeniedCard } from '../../components/common/PermissionGate';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -17,7 +18,19 @@ import {
 } from 'lucide-react';
 
 export default function JudgeDashboardPage() {
-  const { manualSubmissions, competitions, currentUser } = useApp();
+  const { manualSubmissions, competitions, currentUser, hasRole } = useApp();
+
+  if (!hasRole(['judge', 'admin', 'superadmin'])) {
+    return (
+      <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center p-4">
+        <AccessDeniedCard
+          title="Scholarly Adjudication Workstation"
+          description="Access to the official Quranic recitation and treatise scoring terminal is restricted to accredited judges and academic admins."
+          requiredRoles={['judge', 'admin', 'superadmin']}
+        />
+      </div>
+    );
+  }
 
   const [selectedSubmission, setSelectedSubmission] = useState<ManualSubmission | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'pending' | 'graded'>('all');
