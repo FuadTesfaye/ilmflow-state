@@ -6,7 +6,7 @@ import { Role } from '../../types';
 import { Card } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Shield, UserCheck, Award, QrCode, Eye, ChevronUp, ChevronDown } from 'lucide-react';
+import { Shield, UserCheck, Award, QrCode, Eye, ChevronUp, ChevronDown, ShieldAlert, Users } from 'lucide-react';
 
 const ROLES: {
   id: Role;
@@ -17,12 +17,20 @@ const ROLES: {
   desc: string;
 }[] = [
   {
-    id: 'participant',
-    label: 'Participant',
-    name: 'Zayd Al-Ansari',
-    icon: UserCheck,
-    badge: 'Attendee',
-    desc: 'Access delegate pass, launch online tests, submit entries, view certificates.'
+    id: 'superadmin',
+    label: 'Executive Superadmin',
+    name: 'Sheikh Tariq Al-Hashimi',
+    icon: ShieldAlert,
+    badge: 'Supreme Authority',
+    desc: 'Unrestricted governance: Security audit logs, user role assignments, and platform settings.'
+  },
+  {
+    id: 'admin',
+    label: 'Administrator',
+    name: 'Fatima Al-Zahra',
+    icon: Shield,
+    badge: 'Admin Console',
+    desc: 'Full administrative access: Form builder, question bank, and event management.'
   },
   {
     id: 'judge',
@@ -41,12 +49,20 @@ const ROLES: {
     desc: 'Operate optical barcode scanner, check-in attendees, and track capacity.'
   },
   {
-    id: 'admin',
-    label: 'Administrator',
-    name: 'Fatima Al-Zahra',
-    icon: Shield,
-    badge: 'Admin Console',
-    desc: 'Full administrative access: Form builder, question bank, and event management.'
+    id: 'participant',
+    label: 'Participant',
+    name: 'Zayd Al-Ansari',
+    icon: UserCheck,
+    badge: 'Attendee',
+    desc: 'Access delegate pass, launch online tests, submit entries, view certificates.'
+  },
+  {
+    id: 'parent',
+    label: 'Family Guardian',
+    name: 'Umm Maryam Al-Khatib',
+    icon: Users,
+    badge: 'Parent Portal',
+    desc: 'Family passes, dependent youth registrations, and Sanad diploma tracking.'
   },
   {
     id: 'visitor',

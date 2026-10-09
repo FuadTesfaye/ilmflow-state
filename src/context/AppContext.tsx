@@ -25,6 +25,14 @@ import {
   INITIAL_ANNOUNCEMENTS,
   INITIAL_MANUAL_SUBMISSIONS
 } from '../data/mockData';
+import {
+  Permission,
+  RoleMeta,
+  ROLE_METADATA,
+  hasPermission,
+  hasAnyPermission,
+  isTabAllowed
+} from '../lib/permissions/rbac';
 
 export interface ToastMessage {
   id: string;
@@ -37,6 +45,13 @@ interface AppContextType {
   currentUser: SystemUser;
   switchRole: (role: Role) => void;
   users: SystemUser[];
+  
+  // RBAC Engine
+  can: (permission: Permission) => boolean;
+  canAny: (permissions: Permission[]) => boolean;
+  hasRole: (roles: Role | Role[]) => boolean;
+  isTabPermitted: (tabId: string) => boolean;
+  currentRoleMeta: RoleMeta;
   
   // Events
   events: EventItem[];
@@ -108,7 +123,9 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<SystemUser>(INITIAL_USERS[2]); // Default to Participant Zayd Al-Ansari
+  const [currentUser, setCurrentUser] = useState<SystemUser>(
+    () => INITIAL_USERS.find((u) => u.role === 'participant') || INITIAL_USERS[0]
+  );
   const [users] = useState<SystemUser[]>(INITIAL_USERS);
   const [events, setEvents] = useState<EventItem[]>(INITIAL_EVENTS);
   const [competitions, setCompetitions] = useState<CompetitionItem[]>(INITIAL_COMPETITIONS);
@@ -183,6 +200,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       description: `Active Role: ${matched.role.toUpperCase()} with contextual permissions.`
     });
   };
+
+  // RBAC Engine Helpers
+  const can = useCallback(
+    (permission: Permission): boolean => {
+      return hasPermission(currentUser.role, permission);
+    },
+    [currentUser.role]
+  );
+
+  const canAny = useCallback(
+    (permissions: Permission[]): boolean => {
+      return hasAnyPermission(currentUser.role, permissions);
+    },
+    [currentUser.role]
+  );
+
+  const hasRole = useCallback(
+    (roles: Role | Role[]): boolean => {
+      if (Array.isArray(roles)) {
+        return roles.includes(currentUser.role);
+      }
+      return currentUser.role === roles;
+    },
+    [currentUser.role]
+  );
+
+  const isTabPermitted = useCallback(
+    (tabId: string): boolean => {
+      return isTabAllowed(currentUser.role, tabId);
+    },
+    [currentUser.role]
+  );
+
+  const currentRoleMeta = useMemo(() => {
+    return ROLE_METADATA[currentUser.role] || ROLE_METADATA.participant;
+  }, [currentUser.role]);
 
   // Events management
   const createEvent = (data: Omit<EventItem, 'id' | 'registeredCount' | 'waitlistCount'>) => {
@@ -568,6 +621,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       currentUser,
       switchRole,
       users,
+      can,
+      canAny,
+      hasRole,
+      isTabPermitted,
+      currentRoleMeta,
       events,
       createEvent,
       updateEvent,
@@ -604,6 +662,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     [
       currentUser,
       users,
+      can,
+      canAny,
+      hasRole,
+      isTabPermitted,
+      currentRoleMeta,
       events,
       competitions,
       questions,

@@ -12,6 +12,15 @@ import {
 
 export const INITIAL_USERS: SystemUser[] = [
   {
+    id: 'user-superadmin',
+    name: 'Sheikh Grand Mufti Tariq Al-Hashimi',
+    email: 'superadmin@ilmflow.org',
+    role: 'superadmin',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
+    title: 'Board Chairman & Chief Executive Trustee',
+    phone: '+971 4 999 0001'
+  },
+  {
     id: 'user-admin',
     name: 'Ustadha Fatima Al-Zahra',
     email: 'admin@ilmflow.org',
@@ -30,6 +39,15 @@ export const INITIAL_USERS: SystemUser[] = [
     phone: '+966 54 888 1234'
   },
   {
+    id: 'user-staff',
+    name: 'Bilal Qureshi',
+    email: 'bilal@ilmflow.org',
+    role: 'staff',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
+    title: 'Head Gate Marshal & Registration Staff',
+    phone: '+44 7700 900077'
+  },
+  {
     id: 'user-participant',
     name: 'Zayd Al-Ansari',
     email: 'zayd.ansari@gmail.com',
@@ -39,13 +57,14 @@ export const INITIAL_USERS: SystemUser[] = [
     phone: '+1 416 555 0192'
   },
   {
-    id: 'user-staff',
-    name: 'Bilal Qureshi',
-    email: 'bilal@ilmflow.org',
-    role: 'staff',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200',
-    title: 'Head Gate Marshal & Registration Staff',
-    phone: '+44 7700 900077'
+    id: 'user-parent',
+    name: 'Umm Maryam Al-Khatib',
+    email: 'parent@ilmflow.org',
+    role: 'parent',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
+    title: 'Family Guardian & Waqf Sponsor',
+    phone: '+1 647 555 0188',
+    guardianOf: ['user-participant']
   },
   {
     id: 'user-visitor',
