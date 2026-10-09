@@ -25,7 +25,11 @@ import {
   Shield,
   UserCheck,
   ArrowLeft,
-  QrCode
+  QrCode,
+  ShieldAlert,
+  Users,
+  Ticket,
+  Eye
 } from 'lucide-react';
 
 interface EnterpriseTopbarProps {
@@ -41,7 +45,7 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
   onQuickAction,
   currentTabName = 'Overview'
 }) => {
-  const { currentUser, switchRole, announcements } = useApp();
+  const { currentUser, switchRole, announcements, can, currentRoleMeta } = useApp();
   const [selectedBranch, setSelectedBranch] = useState<'West Covina Campus' | 'Madinah Virtual Hub'>('West Covina Campus');
   const [notifOpen, setNotifOpen] = useState(false);
 
@@ -143,24 +147,52 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
             </Button>
           }
         >
-          <DropdownMenuLabel>Create &amp; Dispatch</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => onQuickAction('create-event')}>
-            <Calendar size={14} className="text-emerald-700" />
-            <span>New Community Event</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onQuickAction('add-question')}>
-            <FileText size={14} className="text-emerald-700" />
-            <span>Add Question to Bank</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onQuickAction('new-announcement')}>
-            <Bell size={14} className="text-emerald-700" />
-            <span>Broadcast Announcement</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onQuickAction('export-csv')}>
-            <Download size={14} className="text-slate-600" />
-            <span>Export Attendees (CSV)</span>
-          </DropdownMenuItem>
+          <DropdownMenuLabel>Contextual Actions</DropdownMenuLabel>
+          {can('event:create') && (
+            <DropdownMenuItem onClick={() => onQuickAction('create-event')}>
+              <Calendar size={14} className="text-emerald-700" />
+              <span>New Community Event</span>
+            </DropdownMenuItem>
+          )}
+          {can('question:create') && (
+            <DropdownMenuItem onClick={() => onQuickAction('add-question')}>
+              <FileText size={14} className="text-emerald-700" />
+              <span>Add Question to Bank</span>
+            </DropdownMenuItem>
+          )}
+          {can('announcement:create') && (
+            <DropdownMenuItem onClick={() => onQuickAction('new-announcement')}>
+              <Bell size={14} className="text-emerald-700" />
+              <span>Broadcast Announcement</span>
+            </DropdownMenuItem>
+          )}
+          {can('submission:grade') && (
+            <DropdownMenuItem onClick={() => onQuickAction('grade-next')}>
+              <Award size={14} className="text-amber-600" />
+              <span>Grade Next Submission</span>
+            </DropdownMenuItem>
+          )}
+          {can('attendance:scan') && (
+            <DropdownMenuItem onClick={() => onQuickAction('scan-gate')}>
+              <QrCode size={14} className="text-blue-600" />
+              <span>Gate Optical Scanner</span>
+            </DropdownMenuItem>
+          )}
+          {can('pass:view_own') && (
+            <DropdownMenuItem onClick={() => onQuickAction('view-passes')}>
+              <Ticket size={14} className="text-purple-600" />
+              <span>My Delegate Pass</span>
+            </DropdownMenuItem>
+          )}
+          {can('registration:export') && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onQuickAction('export-csv')}>
+                <Download size={14} className="text-slate-600" />
+                <span>Export Attendees (CSV)</span>
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenu>
 
         {/* Notifications Popover */}
@@ -215,24 +247,31 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
               <div className="hidden xl:flex flex-col text-left">
                 <span className="text-xs font-bold text-slate-900 leading-none">{currentUser.name}</span>
                 <span className="text-[10px] text-[#135B3E] font-semibold capitalize mt-0.5">
-                  {currentUser.role}
+                  {currentUser.role} • {currentRoleMeta.badge}
                 </span>
               </div>
             </div>
           }
         >
-          <DropdownMenuLabel>Simulation Persona Switcher</DropdownMenuLabel>
+          <DropdownMenuLabel>Active Persona Switcher</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => switchRole('superadmin')}>
+            <ShieldAlert size={14} className="text-amber-700" />
+            <div className="flex flex-col">
+              <span className="font-semibold">Super Administrator</span>
+              <span className="text-[10px] text-slate-400">Supreme governance &amp; audit</span>
+            </div>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => switchRole('admin')}>
             <Shield size={14} className="text-emerald-700" />
             <div className="flex flex-col">
-              <span className="font-semibold">Super Administrator</span>
-              <span className="text-[10px] text-slate-400">Full operations &amp; settings</span>
+              <span className="font-semibold">Platform Administrator</span>
+              <span className="text-[10px] text-slate-400">Events, exams &amp; admissions</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => switchRole('judge')}>
             <Award size={14} className="text-[#9E782F]" />
             <div className="flex flex-col">
-              <span className="font-semibold">Scholar / Judge</span>
+              <span className="font-semibold">Scholar Adjudicator</span>
               <span className="text-[10px] text-slate-400">Grading rubric workstation</span>
             </div>
           </DropdownMenuItem>
@@ -244,10 +283,24 @@ export const EnterpriseTopbar: React.FC<EnterpriseTopbarProps> = ({
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => switchRole('participant')}>
-            <Sparkles size={14} className="text-purple-600" />
+            <UserCheck size={14} className="text-purple-600" />
             <div className="flex flex-col">
-              <span className="font-semibold">Attendee / Contestant</span>
+              <span className="font-semibold">Attendee / Competitor</span>
               <span className="text-[10px] text-slate-400">Passes &amp; certificates hub</span>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => switchRole('parent')}>
+            <Users size={14} className="text-indigo-600" />
+            <div className="flex flex-col">
+              <span className="font-semibold">Family Guardian</span>
+              <span className="text-[10px] text-slate-400">Dependent badges &amp; sanads</span>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => switchRole('visitor')}>
+            <Eye size={14} className="text-slate-600" />
+            <div className="flex flex-col">
+              <span className="font-semibold">Public Community Visitor</span>
+              <span className="text-[10px] text-slate-400">Public program catalog</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuSeparator />

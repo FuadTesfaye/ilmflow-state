@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useApp } from '../../context/AppContext';
+import { Role } from '../../types';
+import { Permission } from '../../lib/permissions/rbac';
 import { IslamicStarEmblem } from '../common/IslamicPattern';
 import {
   LayoutDashboard,
@@ -48,6 +50,8 @@ interface SidebarNavItem {
   badge?: string;
   count?: number;
   countVariant?: 'urgent' | 'normal' | 'gold';
+  permission?: Permission;
+  allowedRoles?: Role[];
 }
 
 interface SidebarNavGroup {
@@ -64,7 +68,16 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
   setMobileOpen
 }) => {
   const pathname = usePathname();
-  const { currentUser, manualSubmissions, registrations, certificates, announcements } = useApp();
+  const {
+    currentUser,
+    can,
+    isTabPermitted,
+    currentRoleMeta,
+    manualSubmissions,
+    registrations,
+    certificates,
+    announcements
+  } = useApp();
 
   const pendingGradingCount = manualSubmissions.filter((s) => s.status === 'pending_review').length;
   const activeRegistrationsCount = registrations.filter((r) => r.status === 'checked_in' || r.status === 'approved' || r.status === 'submitted').length;
@@ -93,6 +106,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           label: 'Attendees & Gate',
           icon: Users,
           isTab: true,
+          permission: 'attendance:view',
           count: activeRegistrationsCount
         },
         {
@@ -110,19 +124,22 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           id: 'competitions',
           label: 'Tournaments & Exams',
           icon: GraduationCap,
-          isTab: true
+          isTab: true,
+          allowedRoles: ['superadmin', 'admin', 'judge', 'participant', 'parent']
         },
         {
           id: 'questions',
           label: 'Question Bank',
           icon: BookOpen,
-          isTab: true
+          isTab: true,
+          permission: 'question:view'
         },
         {
           id: 'grading',
           label: 'Grading Queue',
           icon: Award,
           isTab: true,
+          permission: 'submission:grade',
           count: pendingGradingCount,
           countVariant: pendingGradingCount > 0 ? 'urgent' : 'normal'
         },
@@ -131,6 +148,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           label: 'Sanad Diplomas',
           icon: FileCheck,
           isTab: true,
+          allowedRoles: ['superadmin', 'admin', 'judge', 'participant', 'parent'],
           count: myCertificatesCount > 0 ? myCertificatesCount : undefined,
           countVariant: 'gold'
         }
@@ -144,6 +162,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           label: 'My Passes & Lanyard',
           icon: Ticket,
           isTab: true,
+          allowedRoles: ['superadmin', 'admin', 'judge', 'staff', 'participant', 'parent'],
           count: myRegistrationsCount > 0 ? myRegistrationsCount : undefined
         },
         {
@@ -168,29 +187,53 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           id: 'forms',
           label: 'Form Studio Builder',
           icon: FileText,
-          isTab: true
+          isTab: true,
+          permission: 'event:create'
         },
         {
           id: 'audit-logs',
           label: 'Audit Trail & Security',
           icon: ShieldCheck,
-          href: '/admin/audit-logs'
+          href: '/admin/audit-logs',
+          permission: 'audit:view'
         },
         {
           id: 'analytics',
           label: 'Psychometrics & Data',
           icon: BarChart3,
-          href: '/admin/analytics'
+          href: '/admin/analytics',
+          permission: 'analytics:view'
         },
         {
           id: 'settings',
           label: 'System Settings',
           icon: Settings,
-          isTab: true
+          isTab: true,
+          permission: 'settings:view'
         }
       ]
     }
   ];
+
+  const visibleNavGroups = useMemo(() => {
+    return navGroups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => {
+          if (item.allowedRoles && !item.allowedRoles.includes(currentUser.role)) {
+            return false;
+          }
+          if (item.permission && !can(item.permission)) {
+            return false;
+          }
+          if (item.isTab && !isTabPermitted(item.id)) {
+            return false;
+          }
+          return true;
+        })
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [navGroups, currentUser.role, can, isTabPermitted]);
 
   const handleItemClick = (item: any) => {
     if (item.isTab && onSelectTab) {
@@ -231,7 +274,7 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
 
       {/* Navigation Group Items */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        {navGroups.map((group, gIdx) => (
+        {visibleNavGroups.map((group, gIdx) => (
           <div key={gIdx} className="space-y-1">
             {!isCollapsed && (
               <h4 className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
@@ -327,8 +370,9 @@ export const EnterpriseSidebar: React.FC<EnterpriseSidebarProps> = ({
           {!isCollapsed && (
             <div className="flex flex-col min-w-0 flex-1 text-left">
               <span className="text-xs font-bold text-slate-900 truncate">{currentUser.name}</span>
-              <span className="text-[10px] text-[#135B3E] font-semibold truncate capitalize">
-                {currentUser.role} Session
+              <span className="text-[10px] text-[#135B3E] font-semibold truncate capitalize flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block shrink-0" />
+                <span className="truncate">{currentRoleMeta.label} ({currentRoleMeta.badge})</span>
               </span>
             </div>
           )}

@@ -9,7 +9,9 @@ import {
   QrCode,
   Award,
   Menu,
-  GraduationCap
+  GraduationCap,
+  FileCheck,
+  Heart
 } from 'lucide-react';
 
 interface MobileBottomNavProps {
@@ -23,63 +25,68 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onSelectTab,
   onOpenMenu
 }) => {
-  const { currentUser, manualSubmissions, registrations } = useApp();
+  const { currentUser, manualSubmissions, registrations, certificates } = useApp();
 
   const pendingGradingCount = manualSubmissions.filter((s) => s.status === 'pending_review').length;
-  const activeRegistrationsCount = registrations.filter((r) => r.status === 'checked_in').length;
+  const activeRegistrationsCount = registrations.filter((r) => r.status === 'checked_in' || r.status === 'approved').length;
+  const myCertificatesCount = certificates.filter(
+    (c) => c.recipientEmail === currentUser.email || c.recipientName.toLowerCase().includes(currentUser.name.toLowerCase().split(' ')[0])
+  ).length;
 
-  const getActionItem = () => {
-    if (currentUser.role === 'judge') {
-      return {
-        id: 'grading',
-        label: 'Adjudicate',
-        icon: Award,
-        badge: pendingGradingCount > 0 ? pendingGradingCount : undefined
-      };
+  const getNavItems = () => {
+    switch (currentUser.role) {
+      case 'judge':
+        return [
+          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+          { id: 'grading', label: 'Adjudicate', icon: Award, badge: pendingGradingCount > 0 ? pendingGradingCount : undefined },
+          { id: 'competitions', label: 'Exams', icon: GraduationCap },
+          { id: 'certificates', label: 'Sanads', icon: FileCheck }
+        ];
+
+      case 'staff':
+        return [
+          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+          { id: 'registrations', label: 'Gate Scan', icon: QrCode, badge: activeRegistrationsCount > 0 ? activeRegistrationsCount : undefined },
+          { id: 'events', label: 'Events', icon: Calendar },
+          { id: 'passes', label: 'Staff Pass', icon: Ticket }
+        ];
+
+      case 'participant':
+        return [
+          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+          { id: 'passes', label: 'My Passes', icon: Ticket },
+          { id: 'competitions', label: 'Exams', icon: GraduationCap },
+          { id: 'certificates', label: 'My Sanads', icon: FileCheck, badge: myCertificatesCount > 0 ? myCertificatesCount : undefined }
+        ];
+
+      case 'parent':
+        return [
+          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+          { id: 'passes', label: 'Family Pass', icon: Ticket },
+          { id: 'certificates', label: 'Sanads', icon: FileCheck },
+          { id: 'events', label: 'Events', icon: Calendar }
+        ];
+
+      case 'visitor':
+        return [
+          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+          { id: 'events', label: 'Events', icon: Calendar },
+          { id: 'giving', label: 'Waqf', icon: Heart }
+        ];
+
+      case 'admin':
+      case 'superadmin':
+      default:
+        return [
+          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+          { id: 'events', label: 'Events', icon: Calendar },
+          { id: 'registrations', label: 'Gate', icon: QrCode },
+          { id: 'grading', label: 'Grading', icon: Award, badge: pendingGradingCount > 0 ? pendingGradingCount : undefined }
+        ];
     }
-    if (currentUser.role === 'staff') {
-      return {
-        id: 'registrations',
-        label: 'Gate Scan',
-        icon: QrCode,
-        badge: activeRegistrationsCount > 0 ? activeRegistrationsCount : undefined
-      };
-    }
-    if (currentUser.role === 'admin' || currentUser.role === 'superadmin') {
-      return {
-        id: 'grading',
-        label: 'Grading',
-        icon: Award,
-        badge: pendingGradingCount > 0 ? pendingGradingCount : undefined
-      };
-    }
-    return {
-      id: 'passes',
-      label: 'My Passes',
-      icon: Ticket
-    };
   };
 
-  const actionItem = getActionItem();
-
-  const navItems = [
-    {
-      id: 'overview',
-      label: 'Overview',
-      icon: LayoutDashboard
-    },
-    {
-      id: 'events',
-      label: 'Events',
-      icon: Calendar
-    },
-    actionItem,
-    {
-      id: 'competitions',
-      label: 'Exams',
-      icon: GraduationCap
-    }
-  ];
+  const navItems = getNavItems();
 
   return (
     <nav
