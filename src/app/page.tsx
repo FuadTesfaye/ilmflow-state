@@ -352,7 +352,7 @@ export default function HomePage() {
             {/* 1. News/Blog */}
             <Link
               href="/#news"
-              className="group p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] focus-visible:ring-2"
+              className="group p-5 rounded-2xl bg-white/95 border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] focus-visible:ring-2"
             >
               <div className="w-11 h-11 rounded-xl bg-slate-50 group-hover:bg-emerald-50 flex items-center justify-center text-slate-700 group-hover:text-[#135B3E] transition-colors">
                 <FileText size={22} />
@@ -383,7 +383,7 @@ export default function HomePage() {
             {/* 3. Events */}
             <Link
               href="/events"
-              className="group p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] focus-visible:ring-2"
+              className="group p-5 rounded-2xl bg-white/95 border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] focus-visible:ring-2"
             >
               <div className="w-11 h-11 rounded-xl bg-slate-50 group-hover:bg-emerald-50 flex items-center justify-center text-slate-700 group-hover:text-[#135B3E] transition-colors">
                 <Calendar size={22} />
@@ -396,7 +396,7 @@ export default function HomePage() {
             {/* 4. Donate */}
             <button
               onClick={() => setIsDonateModalOpen(true)}
-              className="group p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] cursor-pointer focus-visible:ring-2"
+              className="group p-5 rounded-2xl bg-white/95 border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] cursor-pointer focus-visible:ring-2"
             >
               <div className="w-11 h-11 rounded-xl bg-slate-50 group-hover:bg-emerald-50 flex items-center justify-center text-slate-700 group-hover:text-[#135B3E] transition-colors">
                 <Heart size={22} />
@@ -409,7 +409,7 @@ export default function HomePage() {
             {/* 5. Services */}
             <Link
               href="/schedule"
-              className="group p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] focus-visible:ring-2"
+              className="group p-5 rounded-2xl bg-white/95 border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] focus-visible:ring-2"
             >
               <div className="w-11 h-11 rounded-xl bg-slate-50 group-hover:bg-emerald-50 flex items-center justify-center text-slate-700 group-hover:text-[#135B3E] transition-colors">
                 <Building size={22} />
@@ -422,7 +422,7 @@ export default function HomePage() {
             {/* 6. Get Involved */}
             <button
               onClick={() => setIsRegModalOpen(true)}
-              className="group p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] cursor-pointer focus-visible:ring-2"
+              className="group p-5 rounded-2xl bg-white/95 border border-slate-200/90 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col items-center justify-center text-center space-y-3 min-h-[145px] cursor-pointer focus-visible:ring-2"
             >
               <div className="w-11 h-11 rounded-xl bg-slate-50 group-hover:bg-emerald-50 flex items-center justify-center text-slate-700 group-hover:text-[#135B3E] transition-colors">
                 <Users size={22} />
@@ -437,7 +437,7 @@ export default function HomePage() {
         {/* 3. PRAYER TIMES WIDGET: EXACT CLONE */}
         <section
           id="prayer-times"
-          className="relative rounded-[24px] sm:rounded-[32px] bg-white/95 backdrop-blur-md border border-slate-200/90 p-6 sm:p-8 lg:p-10 overflow-hidden shadow-sm"
+          className="relative rounded-[24px] sm:rounded-[32px] bg-white/95 border border-slate-200/90 p-6 sm:p-8 lg:p-10 overflow-hidden shadow-sm"
         >
           {/* Top-Right Arabesque Corner Ornament */}
           <div className="absolute top-0 right-0 pointer-events-none opacity-30">
@@ -537,7 +537,7 @@ export default function HomePage() {
               {eventRows.map((event) => (
                 <div
                   key={event.id}
-                  className="p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 hover:border-emerald-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs"
+                  className="p-4 sm:p-5 rounded-2xl bg-white/95 border border-slate-200/90 hover:border-emerald-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs"
                 >
                   {/* Date badge */}
                   <div className="flex items-center gap-4">
@@ -582,7 +582,7 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Upcoming Lecture / Program Carousel Card */}
-            <div className="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-2xs space-y-4">
+            <div className="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-white/95 border border-slate-200/90 shadow-2xs space-y-4">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-800">
                   Upcoming Events
@@ -823,7 +823,7 @@ export default function HomePage() {
 
         {/* 8. SUBSCRIBE NOW FLOATING CARD: EXACT CLONE */}
         <div className="-mt-8 sm:-mt-12 relative z-20 max-w-3xl mx-auto">
-          <div className="rounded-[24px] sm:rounded-[30px] bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-[0_15px_35px_rgba(0,0,0,0.08)] p-6 sm:p-10 text-center space-y-4">
+          <div className="rounded-[24px] sm:rounded-[30px] bg-white/95 border border-slate-200/90 shadow-[0_15px_35px_rgba(0,0,0,0.08)] p-6 sm:p-10 text-center space-y-4">
             <div className="space-y-1">
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 Subscribe Now to Receive Updates!
@@ -859,7 +859,7 @@ export default function HomePage() {
       {/* FLOATING ACCESSIBLE QUICK-NAVIGATION DOCK WITH LIVE TRACKING & SHADER SWITCHER */}
       <nav
         aria-label="Quick section navigation"
-        className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-xl border border-emerald-900/10 shadow-[0_16px_50px_rgba(19,91,62,0.18)] px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full flex items-center gap-1 sm:gap-1.5 text-xs font-semibold text-slate-700 max-w-[94vw] overflow-x-auto scrollbar-none"
+        className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/95 border border-emerald-900/10 shadow-[0_16px_50px_rgba(19,91,62,0.18)] px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full flex items-center gap-1 sm:gap-1.5 text-xs font-semibold text-slate-700 max-w-[94vw] overflow-x-auto scrollbar-none"
       >
         {/* Interactive Ambiance Switcher */}
         <button
@@ -924,7 +924,7 @@ export default function HomePage() {
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 w-11 h-11 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg text-slate-700 hover:text-[#135B3E] hover:border-emerald-300 flex items-center justify-center transition-all cursor-pointer focus-visible:ring-2 animate-in fade-in-50 duration-200"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 w-11 h-11 rounded-full bg-white/95 border border-slate-200/90 shadow-lg text-slate-700 hover:text-[#135B3E] hover:border-emerald-300 flex items-center justify-center transition-all cursor-pointer focus-visible:ring-2 animate-in fade-in-50 duration-200"
           aria-label="Scroll back to top"
         >
           <ArrowUp size={18} />

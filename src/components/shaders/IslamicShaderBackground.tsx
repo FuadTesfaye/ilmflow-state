@@ -21,6 +21,14 @@ const Waves = dynamic(
   { ssr: false }
 );
 
+// The library defaults to rendering at >=2x device pixels (up to ~8.3M px per canvas).
+// These are soft, blurry gradients, so render at native density with a 720p pixel budget
+// and let the browser upscale — visually identical, a fraction of the GPU fill cost.
+const RENDER_QUALITY = {
+  minPixelRatio: 1,
+  maxPixelCount: 1280 * 720
+};
+
 export type ShaderVariant = 'aurora' | 'emerald' | 'sage' | 'gold' | 'night' | 'ambient' | 'dawn';
 export type ShaderType = 'mesh' | 'godrays' | 'waves' | 'warp';
 
@@ -127,6 +135,7 @@ export const IslamicShaderBackground: React.FC<IslamicShaderBackgroundProps> = m
               swirl={swirl}
               grainOverlay={0.03}
               grainMixer={0.04}
+              {...RENDER_QUALITY}
               style={{ width: '100%', height: '100%' }}
             />
           )}
@@ -141,6 +150,7 @@ export const IslamicShaderBackground: React.FC<IslamicShaderBackgroundProps> = m
               softness={0.9}
               shape="checks"
               shapeScale={0.12}
+              {...RENDER_QUALITY}
               style={{ width: '100%', height: '100%' }}
             />
           )}
@@ -154,6 +164,7 @@ export const IslamicShaderBackground: React.FC<IslamicShaderBackgroundProps> = m
               intensity={intensity}
               density={0.35}
               speed={speed}
+              {...RENDER_QUALITY}
               style={{ width: '100%', height: '100%' }}
             />
           )}
@@ -166,6 +177,7 @@ export const IslamicShaderBackground: React.FC<IslamicShaderBackgroundProps> = m
               amplitude={0.35}
               softness={0.7}
               shape={1}
+              {...RENDER_QUALITY}
               style={{ width: '100%', height: '100%' }}
             />
           )}
