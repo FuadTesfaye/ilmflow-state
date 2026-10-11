@@ -28,17 +28,25 @@ export default function DedicatedFormBuilderPage() {
   const params = useParams();
   const { forms, saveForm, addToast } = useApp();
 
-  const formId = (params?.id as string) || 'form-summit-standard';
-  const existingForm = forms.find((f) => f.id === formId) || forms[0];
+  const rawId = (params?.id as string) || 'new';
+  const isNew = rawId === 'new';
+  const existingForm = !isNew ? forms.find((f) => f.id === rawId) : undefined;
 
-  const [form, setForm] = useState<RegistrationForm>(
-    existingForm || {
-      id: formId,
-      title: 'New Registration Form',
-      description: 'Custom data collection schema',
-      fields: [{ id: 'f_name', label: 'Full Name', type: 'text', required: true, placeholder: 'Enter full name' }]
-    }
-  );
+  const [form, setForm] = useState<RegistrationForm>(() => {
+    if (existingForm) return existingForm;
+    const generatedId = isNew ? `form-custom-${Date.now()}` : rawId;
+    return {
+      id: generatedId,
+      title: isNew ? 'Custom Registration Form' : 'New Registration Form',
+      description: 'Custom data collection questionnaire for event attendees.',
+      createdAt: new Date().toISOString(),
+      fields: [
+        { id: 'f_name', label: 'Full Legal Name', type: 'text', required: true, placeholder: 'e.g. Abdullah bin Zayd' },
+        { id: 'f_email', label: 'Email Address', type: 'email', required: true, placeholder: 'e.g. attendee@example.com' },
+        { id: 'f_phone', label: 'Phone Number', type: 'phone', required: true, placeholder: 'e.g. +1 555 123 4567' }
+      ]
+    };
+  });
 
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(form.fields[0]?.id || null);
   const [activeTab, setActiveTab] = useState<'canvas' | 'preview' | 'json'>('canvas');
@@ -122,12 +130,24 @@ export default function DedicatedFormBuilderPage() {
                 <ArrowLeft size={16} />
               </Button>
             </Link>
-            <div>
+            <div className="flex-1 max-w-sm sm:max-w-md">
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-semibold text-stone-900">{form.title}</h1>
-                <Badge variant="secondary">v{currentVersion}</Badge>
+                <input
+                  type="text"
+                  value={form.title}
+                  onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
+                  className="text-base sm:text-lg font-bold text-stone-900 bg-transparent hover:bg-stone-100/70 focus:bg-white border border-transparent focus:border-emerald-600 outline-none px-1.5 py-0.5 rounded-lg transition-all w-full"
+                  placeholder="Form Title..."
+                />
+                <Badge variant="secondary" className="shrink-0 text-xs">v{currentVersion}</Badge>
               </div>
-              <p className="text-xs text-stone-500 mt-0.5">{form.fields.length} dynamic fields configured</p>
+              <input
+                type="text"
+                value={form.description}
+                onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+                className="text-xs text-stone-500 bg-transparent hover:bg-stone-100/70 focus:bg-white border border-transparent focus:border-emerald-600 outline-none px-1.5 py-0.5 rounded-lg transition-all w-full mt-0.5"
+                placeholder="Form Description..."
+              />
             </div>
           </div>
 
