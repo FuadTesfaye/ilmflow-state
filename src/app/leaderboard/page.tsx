@@ -8,16 +8,34 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '.
 import { Trophy, Clock, Medal } from 'lucide-react';
 
 export default function LeaderboardPage() {
-  const { competitions } = useApp();
+  const { competitions, quizAttempts } = useApp();
   const [selectedCompId, setSelectedCompId] = useState(competitions[0]?.id || '');
 
   const mockLeaderboard = [
-    { rank: 1, name: 'Zayd Al-Ansari', country: 'Canada', score: 95, time: '08m 14s', badge: '1st Place' },
-    { rank: 2, name: 'Bilal Ibn Rabah Al-Habashi', country: 'Saudi Arabia', score: 94, time: '09m 22s', badge: '2nd Place' },
-    { rank: 3, name: 'Tariq ibn Ziyad', country: 'Morocco', score: 90, time: '10m 05s', badge: '3rd Place' },
-    { rank: 4, name: 'Amina Al-Fassi', country: 'United Kingdom', score: 88, time: '11m 40s', badge: 'Finalist' },
-    { rank: 5, name: 'Ibrahim Al-Dimashqi', country: 'Turkey', score: 85, time: '12m 10s', badge: 'Finalist' }
+    { name: 'Zayd Al-Ansari', country: 'Canada', score: 95, time: '08m 14s', badge: '1st Place' },
+    { name: 'Bilal Ibn Rabah Al-Habashi', country: 'Saudi Arabia', score: 94, time: '09m 22s', badge: '2nd Place' },
+    { name: 'Tariq ibn Ziyad', country: 'Morocco', score: 90, time: '10m 05s', badge: '3rd Place' },
+    { name: 'Amina Al-Fassi', country: 'United Kingdom', score: 88, time: '11m 40s', badge: 'Finalist' },
+    { name: 'Ibrahim Al-Dimashqi', country: 'Turkey', score: 85, time: '12m 10s', badge: 'Finalist' }
   ];
+
+  const liveAttempts = quizAttempts
+    .filter((a) => a.competitionId === selectedCompId && a.status === 'submitted')
+    .map((a) => ({
+      name: a.participantName,
+      country: 'United States',
+      score: a.percentage,
+      time: `${Math.floor(a.timeSpentSeconds / 60)}m ${a.timeSpentSeconds % 60}s`,
+      badge: a.percentage >= 90 ? 'Gold Distinction' : a.percentage >= 70 ? 'Sanad Pass' : 'Completed'
+    }));
+
+  const combinedLeaderboard = [...liveAttempts, ...mockLeaderboard]
+    .sort((a, b) => b.score - a.score)
+    .map((item, idx) => ({
+      ...item,
+      rank: idx + 1,
+      badge: idx === 0 ? '1st Place' : idx === 1 ? '2nd Place' : idx === 2 ? '3rd Place' : item.badge
+    }));
 
   return (
     <div className="page-enter min-h-screen py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 sm:space-y-10 text-slate-900">
@@ -64,12 +82,12 @@ export default function LeaderboardPage() {
             2nd Place Silver
           </Badge>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">{mockLeaderboard[1].name}</h3>
-            <p className="text-xs text-slate-500 mt-0.5">{mockLeaderboard[1].country}</p>
+            <h3 className="text-sm sm:text-base font-bold text-slate-900">{combinedLeaderboard[1]?.name || 'Finalist'}</h3>
+            <p className="text-xs text-slate-500 mt-0.5">{combinedLeaderboard[1]?.country || 'Regional'}</p>
           </div>
           <div className="pt-2 border-t border-slate-100 flex justify-between text-xs font-semibold">
             <span className="text-slate-400">Score</span>
-            <span className="text-slate-800 font-mono text-sm">{mockLeaderboard[1].score} pts</span>
+            <span className="text-slate-800 font-mono text-sm">{combinedLeaderboard[1]?.score ?? 0} pts</span>
           </div>
         </Card>
 
@@ -85,12 +103,12 @@ export default function LeaderboardPage() {
             1
           </div>
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900">{mockLeaderboard[0].name}</h3>
-            <p className="text-xs text-[#135B3E] font-semibold mt-0.5">{mockLeaderboard[0].country}</p>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900">{combinedLeaderboard[0]?.name || 'Top Competitor'}</h3>
+            <p className="text-xs text-[#135B3E] font-semibold mt-0.5">{combinedLeaderboard[0]?.country || 'National'}</p>
           </div>
           <div className="pt-3 border-t border-emerald-100 flex justify-between text-xs font-bold">
             <span className="text-slate-500">Score</span>
-            <span className="text-[#135B3E] font-mono text-base">{mockLeaderboard[0].score} pts</span>
+            <span className="text-[#135B3E] font-mono text-base">{combinedLeaderboard[0]?.score ?? 0} pts</span>
           </div>
         </Card>
 
@@ -103,12 +121,12 @@ export default function LeaderboardPage() {
             3rd Place Bronze
           </Badge>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">{mockLeaderboard[2].name}</h3>
-            <p className="text-xs text-slate-500 mt-0.5">{mockLeaderboard[2].country}</p>
+            <h3 className="text-sm sm:text-base font-bold text-slate-900">{combinedLeaderboard[2]?.name || 'Bronze Honoree'}</h3>
+            <p className="text-xs text-slate-500 mt-0.5">{combinedLeaderboard[2]?.country || 'Regional'}</p>
           </div>
           <div className="pt-2 border-t border-slate-100 flex justify-between text-xs font-semibold">
             <span className="text-slate-400">Score</span>
-            <span className="text-amber-900 font-mono text-sm">{mockLeaderboard[2].score} pts</span>
+            <span className="text-amber-900 font-mono text-sm">{combinedLeaderboard[2]?.score ?? 0} pts</span>
           </div>
         </Card>
       </div>
@@ -128,7 +146,7 @@ export default function LeaderboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody className="divide-y divide-slate-100 text-xs">
-              {mockLeaderboard.map((entry) => (
+              {combinedLeaderboard.map((entry) => (
                 <TableRow key={entry.rank} className="hover:bg-slate-50/60">
                   <TableCell className="font-mono font-bold">#{entry.rank}</TableCell>
                   <TableCell className="font-semibold text-slate-900">{entry.name}</TableCell>

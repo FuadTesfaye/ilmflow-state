@@ -181,6 +181,72 @@ export default function CompetitionDetailPage() {
         </Card>
       </div>
 
+      {/* Tournament Rounds & Examination Structure */}
+      <Card className="p-6 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <Award size={18} className="text-[#135B3E]" />
+            <h3 className="text-base font-bold text-slate-900">Tournament Stages &amp; Examination Rounds</h3>
+          </div>
+          <Badge variant="outline" className="text-xs">
+            {comp.rounds.length} Stage{comp.rounds.length > 1 ? 's' : ''}
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {comp.rounds.map((round) => {
+            const roundQuestionsCount = round.questionIds?.length || 0;
+            return (
+              <div
+                key={round.id}
+                className="p-5 rounded-2xl border border-slate-200/90 bg-linear-to-b from-white to-slate-50/50 flex flex-col justify-between space-y-3 shadow-2xs hover:border-emerald-300 transition-all"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      Round {round.roundNumber} • {round.type.replace('_', ' ')}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-500">
+                      Passing: {round.passingScore}%
+                    </span>
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-900">{round.title}</h4>
+                  <div className="flex items-center gap-3 text-xs text-slate-500 pt-1">
+                    {round.timeLimitMinutes && (
+                      <span>⏱ {round.timeLimitMinutes} Mins</span>
+                    )}
+                    {round.type === 'quiz' && (
+                      <span>📝 {roundQuestionsCount > 0 ? `${roundQuestionsCount} Questions Linked` : 'Central Bank Questions'}</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100">
+                  {round.type === 'quiz' ? (
+                    <Link href={`/test/${comp.id}`}>
+                      <Button size="sm" className="w-full text-xs gap-1.5 bg-[#135B3E] hover:bg-[#0e4831]">
+                        <Play size={13} fill="currentColor" />
+                        <span>Launch Examination Round</span>
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowSubmitModal(true)}
+                      className="w-full text-xs gap-1.5"
+                    >
+                      <Volume2 size={14} />
+                      <span>Upload Round Entry</span>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
       {/* Submission Modal Dialog */}
       {showSubmitModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
