@@ -66,7 +66,7 @@ interface AppContextType {
   
   // Question Bank
   questions: CompetitionQuestion[];
-  addQuestion: (q: Omit<CompetitionQuestion, 'id'>) => void;
+  addQuestion: (q: Omit<CompetitionQuestion, 'id'> & { id?: string }) => CompetitionQuestion;
   updateQuestion: (id: string, updates: Partial<CompetitionQuestion>) => void;
   deleteQuestion: (id: string) => void;
   
@@ -277,10 +277,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   // Questions
-  const addQuestion = (q: Omit<CompetitionQuestion, 'id'>) => {
+  const addQuestion = (q: Omit<CompetitionQuestion, 'id'> & { id?: string }): CompetitionQuestion => {
     const newQ: CompetitionQuestion = {
       ...q,
-      id: 'q-' + Date.now()
+      id: q.id || 'q-' + Date.now()
     };
     setQuestions((prev) => [newQ, ...prev]);
     addToast({
@@ -288,6 +288,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       title: 'Question Added to Question Bank',
       description: `New question in category: ${q.category}`
     });
+    return newQ;
   };
 
   const updateQuestion = (id: string, updates: Partial<CompetitionQuestion>) => {

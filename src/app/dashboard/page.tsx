@@ -21,6 +21,7 @@ import { PrayerTimeWidget } from '../../components/dashboard/PrayerTimeWidget';
 import { CommandPaletteModal } from '../../components/dashboard/CommandPaletteModal';
 import { ManualGradingModal } from '../../components/competition/ManualGradingModal';
 import { FlowRegistrationModal } from '../../components/registration/FlowRegistrationModal';
+import { QuestionBuilderModal } from '../../components/forms/QuestionBuilderModal';
 import { CertificateView } from '../../components/certificates/CertificateView';
 import { IslamicStarEmblem } from '../../components/common/IslamicPattern';
 
@@ -61,6 +62,7 @@ import {
   Sparkles,
   BarChart3,
   Trash2,
+  Edit,
   Eye,
   Heart,
   Volume2,
@@ -84,8 +86,10 @@ export default function MasterDashboardPage() {
     events,
     createEvent,
     competitions,
+    updateCompetition,
     questions,
     addQuestion,
+    updateQuestion,
     deleteQuestion,
     registrations,
     updateRegistrationStatus,
@@ -113,6 +117,7 @@ export default function MasterDashboardPage() {
   // Modals state
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<CompetitionQuestion | null>(null);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [selectedEventForRegister, setSelectedEventForRegister] = useState<EventItem | null>(null);
   const [gradingSubmission, setGradingSubmission] = useState<ManualSubmission | null>(null);
@@ -273,34 +278,31 @@ export default function MasterDashboardPage() {
     addToast('New event created and published to calendar', 'success');
   };
 
-  const handleAddQuestionSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newQText.trim()) return;
-
-    addQuestion({
-      questionText: newQText,
-      arabicText: newQArabic || undefined,
-      type: 'multiple-choice',
-      marks: Number(newQMarks),
-      negativeMarks: 1,
-      category: newQCategory,
-      difficulty: 'intermediate',
-      explanation: newQExplanation || 'Verified against authentic source commentaries.',
-      sourceReference: newQSource || 'Sahih al-Bukhari & Muslim',
-      options: [
-        { id: 'opt_1', text: 'Primary authentic opinion (Mu’tamad)', arabicText: 'القول المعتمد' },
-        { id: 'opt_2', text: 'Secondary variant opinion', arabicText: 'وجه آخر' },
-        { id: 'opt_3', text: 'Grammatical distinction', arabicText: 'وجه إعرابي' }
-      ],
-      correctAnswer: 'opt_1'
-    });
-
+  const handleSaveQuestion = (
+    newQ: Omit<CompetitionQuestion, 'id'>,
+    targetCompId?: string,
+    targetRoundId?: string
+  ) => {
+    if (editingQuestion) {
+      updateQuestion(editingQuestion.id, newQ);
+      addToast('Question updated in repository successfully', 'success');
+      setEditingQuestion(null);
+    } else {
+      const created = addQuestion(newQ);
+      if (targetCompId && targetRoundId) {
+        const comp = competitions.find((c) => c.id === targetCompId);
+        if (comp) {
+          const updatedRounds = comp.rounds.map((r) =>
+            r.id === targetRoundId
+              ? { ...r, questionIds: [...(r.questionIds || []), created.id] }
+              : r
+          );
+          updateCompetition(targetCompId, { rounds: updatedRounds });
+          addToast(`Question assigned to ${comp.title}`, 'info');
+        }
+      }
+    }
     setShowAddQuestionModal(false);
-    setNewQText('');
-    setNewQArabic('');
-    setNewQExplanation('');
-    setNewQSource('');
-    addToast('Question successfully added to Islamic question repository', 'success');
   };
 
   const handlePostAnnouncement = (e: React.FormEvent) => {
@@ -1052,17 +1054,32 @@ export default function MasterDashboardPage() {
 
                     <div className="pt-2 text-[11px] text-slate-400 flex items-center justify-between">
                       <span>Source: <strong>{q.sourceReference}</strong></span>
-                      {can('question:delete') && (
-                        <button
-                          onClick={() => {
-                            deleteQuestion(q.id);
-                            addToast('Question removed from bank', 'info');
-                          }}
-                          className="text-rose-600 hover:text-rose-800 cursor-pointer"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {can('question:update') && (
+                          <button
+                            onClick={() => {
+                              setEditingQuestion(q);
+                              setShowAddQuestionModal(true);
+                            }}
+                            className="text-emerald-700 hover:text-emerald-900 cursor-pointer p-0.5"
+                            title="Edit question & choices"
+                          >
+                            <Edit size={14} />
+                          </button>
+                        )}
+                        {can('question:delete') && (
+                          <button
+                            onClick={() => {
+                              deleteQuestion(q.id);
+                              addToast('Question removed from bank', 'info');
+                            }}
+                            className="text-rose-600 hover:text-rose-800 cursor-pointer p-0.5"
+                            title="Delete question"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </Card>
                 ))}
@@ -1376,69 +1393,17 @@ export default function MasterDashboardPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal 2: Add Question */}
-      <Dialog open={showAddQuestionModal} onOpenChange={setShowAddQuestionModal}>
-        <DialogContent className="sm:max-w-lg bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-slate-900">Add Question to Islamic Bank</DialogTitle>
-            <DialogDescription className="text-xs text-slate-500">
-              Seed a vetted question into the competition engine.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleAddQuestionSubmit} className="space-y-3 pt-2">
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">Question Text (English)</label>
-              <Input
-                value={newQText}
-                onChange={(e) => setNewQText(e.target.value)}
-                placeholder="e.g. What is the primary articulation point for the letter Qaf?"
-                required
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">Arabic Text (Optional)</label>
-              <Input
-                value={newQArabic}
-                onChange={(e) => setNewQArabic(e.target.value)}
-                placeholder="النص العربي"
-                dir="rtl"
-                className="font-arabic"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">Category</label>
-                <select
-                  value={newQCategory}
-                  onChange={(e) => setNewQCategory(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-700 bg-white"
-                >
-                  <option value="hadith-mastery">Hadith Mastery</option>
-                  <option value="quran-recitation">Quran &amp; Tajweed</option>
-                  <option value="seerah-knowledge">Seerah Knowledge</option>
-                  <option value="islamic-quiz">Islamic Jurisprudence</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">Source Citation</label>
-                <Input
-                  value={newQSource}
-                  onChange={(e) => setNewQSource(e.target.value)}
-                  placeholder="e.g. Sahih al-Bukhari #1"
-                />
-              </div>
-            </div>
-            <DialogFooter className="pt-3">
-              <Button type="button" variant="ghost" onClick={() => setShowAddQuestionModal(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-[#135B3E] text-white">
-                Save Question
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {/* Modal 2: Interactive Question & Choices Builder */}
+      <QuestionBuilderModal
+        isOpen={showAddQuestionModal}
+        onClose={() => {
+          setShowAddQuestionModal(false);
+          setEditingQuestion(null);
+        }}
+        onSave={handleSaveQuestion}
+        initialQuestion={editingQuestion}
+        competitions={competitions}
+      />
 
       {/* Modal 3: Post Announcement */}
       <Dialog open={showAnnouncementModal} onOpenChange={setShowAnnouncementModal}>

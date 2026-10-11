@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '../../context/AppContext';
 import { FormBuilder } from '../../components/forms/FormBuilder';
+import { QuestionBuilderModal } from '../../components/forms/QuestionBuilderModal';
+import { CompetitionQuestion } from '../../types';
 import { EnterpriseSidebar } from '../../components/dashboard/EnterpriseSidebar';
 import { EnterpriseTopbar } from '../../components/dashboard/EnterpriseTopbar';
 import { CommandPaletteModal } from '../../components/dashboard/CommandPaletteModal';
@@ -59,8 +61,10 @@ export default function AdminDashboardPage() {
     events,
     createEvent,
     competitions,
+    updateCompetition,
     questions,
     addQuestion,
+    updateQuestion,
     deleteQuestion,
     forms,
     saveForm,
@@ -97,6 +101,8 @@ export default function AdminDashboardPage() {
   // Modals state
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<CompetitionQuestion | null>(null);
+  const [preselectedCompId, setPreselectedCompId] = useState<string>('bank');
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [inspectedRegistration, setInspectedRegistration] = useState<any>(null);
 
@@ -246,34 +252,31 @@ export default function AdminDashboardPage() {
     addToast('New event created and published to calendar', 'success');
   };
 
-  const handleAddQuestionSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newQText.trim()) return;
-
-    addQuestion({
-      questionText: newQText,
-      arabicText: newQArabic || undefined,
-      type: 'multiple-choice',
-      marks: Number(newQMarks),
-      negativeMarks: 1,
-      category: newQCategory,
-      difficulty: 'intermediate',
-      explanation: newQExplanation || 'Verified against authentic source materials and canonical commentaries.',
-      sourceReference: newQSource || 'Sahih al-Bukhari & Muslim',
-      options: [
-        { id: 'opt_1', text: 'Primary authentic opinion (Majuur)', arabicText: 'القول المعتمد الصحيح' },
-        { id: 'opt_2', text: 'Variant scholarly position', arabicText: 'قول مرجوح' },
-        { id: 'opt_3', text: 'Historical grammatical distinction', arabicText: 'وجه إعرابي آخر' }
-      ],
-      correctAnswer: 'opt_1'
-    });
-
+  const handleSaveQuestion = (
+    newQ: Omit<CompetitionQuestion, 'id'>,
+    targetCompId?: string,
+    targetRoundId?: string
+  ) => {
+    if (editingQuestion) {
+      updateQuestion(editingQuestion.id, newQ);
+      addToast('Question updated in bank successfully', 'success');
+      setEditingQuestion(null);
+    } else {
+      const created = addQuestion(newQ);
+      if (targetCompId && targetRoundId) {
+        const comp = competitions.find((c) => c.id === targetCompId);
+        if (comp) {
+          const updatedRounds = comp.rounds.map((r) =>
+            r.id === targetRoundId
+              ? { ...r, questionIds: [...(r.questionIds || []), created.id] }
+              : r
+          );
+          updateCompetition(targetCompId, { rounds: updatedRounds });
+          addToast(`Question assigned to ${comp.title}`, 'info');
+        }
+      }
+    }
     setShowAddQuestionModal(false);
-    setNewQText('');
-    setNewQArabic('');
-    setNewQExplanation('');
-    setNewQSource('');
-    addToast('New question saved to central competition bank', 'success');
   };
 
   const handlePublishAnnouncement = (e: React.FormEvent) => {
@@ -1102,10 +1105,30 @@ export default function AdminDashboardPage() {
 
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
                       <span>{comp.enrolledCount} Candidates</span>
-                      <span>Prize: {comp.prizes?.[0]?.award || 'Sanad Diploma'}</span>
+                      <span className="text-emerald-700 font-semibold">
+                        {
+                          questions.filter(
+                            (q) => comp.rounds[0]?.questionIds?.includes(q.id) || q.category === comp.category
+                          ).length
+                        }{' '}
+                        Questions Linked
+                      </span>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between gap-2">
+                    <div className="pt-2 grid grid-cols-2 gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          setPreselectedCompId(comp.id);
+                          setEditingQuestion(null);
+                          setShowAddQuestionModal(true);
+                        }}
+                        className="text-xs gap-1 cursor-pointer bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200"
+                      >
+                        <Plus size={13} />
+                        <span>Add Question</span>
+                      </Button>
                       <Link href={`/test/${comp.id}`} className="w-full">
                         <Button variant="outline" size="sm" className="w-full text-xs gap-1.5">
                           <span>Launch Exam</span>
@@ -1150,26 +1173,81 @@ export default function AdminDashboardPage() {
                         <Badge variant="outline" className="text-[10px] uppercase font-bold text-emerald-800">
                           {q.category}
                         </Badge>
+                        <Badge variant="secondary" className="text-[10px] uppercase">
+                          {q.type}
+                        </Badge>
                         <span className="text-xs font-semibold text-slate-500 capitalize">{q.difficulty}</span>
                         <span className="text-xs text-slate-400">• {q.marks} Marks</span>
                       </div>
-                      <button
-                        onClick={() => {
-                          deleteQuestion(q.id);
-                          addToast('Question removed from bank', 'info');
-                        }}
-                        className="text-slate-400 hover:text-red-600 transition-colors p-1 cursor-pointer"
-                        title="Delete question"
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => {
+                            setEditingQuestion(q);
+                            setShowAddQuestionModal(true);
+                          }}
+                          className="text-slate-400 hover:text-emerald-700 transition-colors p-1 cursor-pointer"
+                          title="Edit question & choices"
+                        >
+                          <Edit size={15} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            deleteQuestion(q.id);
+                            addToast('Question removed from bank', 'info');
+                          }}
+                          className="text-slate-400 hover:text-red-600 transition-colors p-1 cursor-pointer"
+                          title="Delete question"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </div>
 
                     <h4 className="text-sm font-bold text-slate-900">{q.questionText}</h4>
                     {q.arabicText && (
-                      <p className="text-base text-right text-emerald-950 font-arabic leading-relaxed bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100">
+                      <p className="text-base text-right text-emerald-950 font-arabic leading-relaxed bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100" dir="rtl">
                         {q.arabicText}
                       </p>
+                    )}
+
+                    {/* Choices Preview */}
+                    {q.options && q.options.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                        {q.options.map((opt, optIdx) => {
+                          const isCorrect = Array.isArray(q.correctAnswer)
+                            ? q.correctAnswer.includes(opt.id)
+                            : q.correctAnswer === opt.id;
+                          return (
+                            <div
+                              key={opt.id}
+                              className={`p-2 rounded-lg border text-xs flex items-center justify-between gap-2 ${
+                                isCorrect
+                                  ? 'bg-emerald-50/80 border-emerald-400 text-emerald-950 font-semibold'
+                                  : 'bg-slate-50/60 border-slate-200 text-slate-700'
+                              }`}
+                            >
+                              <div className="flex items-center gap-1.5 truncate">
+                                <span className={`w-4 h-4 rounded text-[10px] flex items-center justify-center shrink-0 ${isCorrect ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                                  {String.fromCharCode(65 + optIdx)}
+                                </span>
+                                <span className="truncate">{opt.text}</span>
+                              </div>
+                              {isCorrect && (
+                                <Badge variant="success" className="text-[9px] py-0 px-1 shrink-0">
+                                  Answer
+                                </Badge>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {q.type === 'fill-blank' && (
+                      <div className="p-2 rounded-lg bg-emerald-50/60 border border-emerald-200 text-xs text-emerald-950">
+                        <span className="font-semibold text-emerald-800">Accepted Answer: </span>
+                        <span>{String(q.correctAnswer)}</span>
+                      </div>
                     )}
 
                     <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
@@ -1398,84 +1476,20 @@ export default function AdminDashboardPage() {
       </Dialog>
 
       {/* ========================================================================= */}
-      {/* MODAL: ADD QUESTION TO BANK DIALOG                                        */}
+      {/* MODAL: INTERACTIVE QUESTION & CHOICES BUILDER                             */}
       {/* ========================================================================= */}
-      <Dialog open={showAddQuestionModal} onOpenChange={setShowAddQuestionModal}>
-        <DialogContent onClose={() => setShowAddQuestionModal(false)}>
-          <DialogHeader>
-            <DialogTitle>Add Test Item to Question Bank</DialogTitle>
-            <DialogDescription>
-              Create a multiple choice or essay prompt with canonical references.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleAddQuestionSubmit} className="space-y-3.5 py-2">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">English Question Prompt</label>
-              <Input
-                placeholder="e.g. Which companion transmitted the Hadith of Jibreel explaining Islam, Iman, and Ihsan?"
-                value={newQText}
-                onChange={(e) => setNewQText(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Arabic Matn (Optional)</label>
-              <Input
-                placeholder="نص السؤال باللغة العربية"
-                value={newQArabic}
-                onChange={(e) => setNewQArabic(e.target.value)}
-                className="text-right font-arabic"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Category</label>
-                <Select
-                  value={newQCategory}
-                  onChange={(e: any) => setNewQCategory(e.target.value)}
-                >
-                  <option value="hadith-mastery">Hadith Mastery</option>
-                  <option value="quranic-studies">Quranic Studies</option>
-                  <option value="fiqh-jurisprudence">Fiqh / Jurisprudence</option>
-                  <option value="seerah">Prophetic Seerah</option>
-                </Select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Source Reference</label>
-                <Input
-                  placeholder="e.g. Sahih Muslim (Book 1)"
-                  value={newQSource}
-                  onChange={(e) => setNewQSource(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-slate-700">Explanation &amp; Commentary</label>
-              <textarea
-                rows={2}
-                placeholder="Scholarly commentary and proof for the correct option..."
-                value={newQExplanation}
-                onChange={(e) => setNewQExplanation(e.target.value)}
-                className="w-full p-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 outline-none focus:border-[#135B3E]"
-              />
-            </div>
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setShowAddQuestionModal(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-[#135B3E] hover:bg-[#0e4831]">
-                Save to Bank
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <QuestionBuilderModal
+        isOpen={showAddQuestionModal}
+        onClose={() => {
+          setShowAddQuestionModal(false);
+          setEditingQuestion(null);
+          setPreselectedCompId('bank');
+        }}
+        onSave={handleSaveQuestion}
+        initialQuestion={editingQuestion}
+        competitions={competitions}
+        defaultCompetitionId={preselectedCompId}
+      />
 
       {/* ========================================================================= */}
       {/* MODAL: BROADCAST ANNOUNCEMENT DIALOG                                      */}
