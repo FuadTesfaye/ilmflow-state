@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Progress } from '../ui/progress';
+import { Input } from '../ui/input';
 
 interface QuizEngineProps {
   competition: CompetitionItem;
@@ -27,7 +28,7 @@ interface QuizEngineProps {
 }
 
 export const QuizEngine: React.FC<QuizEngineProps> = ({ competition, questions, onFinish }) => {
-  const { currentUser, recordQuizAttempt } = useApp();
+  const { currentUser, recordQuizAttempt, issueCertificate } = useApp();
 
   const initialTimeSeconds = (competition.rounds[0]?.timeLimitMinutes || 15) * 60;
   const [timeLeft, setTimeLeft] = useState<number>(initialTimeSeconds);
@@ -112,6 +113,8 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ competition, questions, 
         const uArr = Array.isArray(userAns) ? userAns.sort() : [userAns];
         const cArr = [...q.correctAnswer].sort();
         isCorrect = JSON.stringify(uArr) === JSON.stringify(cArr);
+      } else if (typeof q.correctAnswer === 'string' && typeof userAns === 'string') {
+        isCorrect = userAns.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase();
       } else {
         isCorrect = userAns === q.correctAnswer;
       }
@@ -167,6 +170,18 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ competition, questions, 
           origin: { y: 0.6 }
         });
       } catch {}
+
+      issueCertificate({
+        certificateNumber: `SANAD-${Date.now().toString(36).toUpperCase()}`,
+        recipientName: currentUser.name,
+        recipientEmail: currentUser.email,
+        eventOrCompetitionTitle: competition.title,
+        type: percentage >= 90 ? 'excellence' : 'winner',
+        score: percentage,
+        issuerTitle: 'Academic Sanad Committee & Senior Adjudicator',
+        issuerSignatureName: 'Shaykh Ahmad Al-Madani',
+        organizationName: 'Masjid Al-Nabi Academic Department'
+      });
     }
   };
 
@@ -264,49 +279,70 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ competition, questions, 
                   </h4>
                 </div>
 
-                {/* Multiple Choice Options */}
-                <div className="space-y-3">
-                  {activeQuestion?.options?.map((option, optIdx) => {
-                    const isMulti = activeQuestion.type === 'multiple-select';
-                    const isSelected = isMulti
-                      ? ((answers[activeQuestion.id] as string[]) || []).includes(option.id)
-                      : answers[activeQuestion.id] === option.id;
+                {/* Question Response: Fill Blank vs Options */}
+                {activeQuestion?.type === 'fill-blank' ? (
+                  <div className="space-y-3 p-5 rounded-xl border border-stone-200 bg-stone-50/60">
+                    <label className="text-xs font-bold uppercase tracking-wider text-stone-600 block">
+                      Type Your Response Below:
+                    </label>
+                    <Input
+                      type="text"
+                      disabled={isSubmitted}
+                      value={(answers[activeQuestion.id] as string) || ''}
+                      onChange={(e) =>
+                        setAnswers((prev) => ({ ...prev, [activeQuestion.id]: e.target.value }))
+                      }
+                      placeholder="Type your answer here..."
+                      className="bg-white text-base py-3 h-12 border-stone-300 focus:border-emerald-600 focus:ring-emerald-600/20"
+                    />
+                    <span className="text-xs text-stone-500 block">
+                      Answers will be evaluated against canonical references with standard case-insensitivity.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {activeQuestion?.options?.map((option, optIdx) => {
+                      const isMulti = activeQuestion.type === 'multiple-select';
+                      const isSelected = isMulti
+                        ? ((answers[activeQuestion.id] as string[]) || []).includes(option.id)
+                        : answers[activeQuestion.id] === option.id;
 
-                    const letters = ['A', 'B', 'C', 'D', 'E'];
+                      const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 
-                    return (
-                      <div
-                        key={option.id}
-                        onClick={() => handleSelectOption(activeQuestion.id, option.id, isMulti)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                          isSelected
-                            ? 'bg-emerald-50/50 border-emerald-600 ring-2 ring-emerald-500/20 shadow-sm'
-                            : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center shrink-0 border ${
-                              isSelected
-                                ? 'bg-emerald-700 text-white border-emerald-700'
-                                : 'bg-stone-100 text-stone-600 border-stone-200'
-                            }`}
-                          >
-                            {letters[optIdx] || optIdx + 1}
-                          </span>
-                          <span className={`text-sm font-medium ${isSelected ? 'text-stone-900' : 'text-stone-700'}`}>
-                            {option.text}
-                          </span>
+                      return (
+                        <div
+                          key={option.id}
+                          onClick={() => handleSelectOption(activeQuestion.id, option.id, isMulti)}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                            isSelected
+                              ? 'bg-emerald-50/50 border-emerald-600 ring-2 ring-emerald-500/20 shadow-sm'
+                              : 'bg-white border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={`w-7 h-7 rounded-lg text-xs font-semibold flex items-center justify-center shrink-0 border ${
+                                isSelected
+                                  ? 'bg-emerald-700 text-white border-emerald-700'
+                                  : 'bg-stone-100 text-stone-600 border-stone-200'
+                              }`}
+                            >
+                              {letters[optIdx] || optIdx + 1}
+                            </span>
+                            <span className={`text-sm font-medium ${isSelected ? 'text-stone-900' : 'text-stone-700'}`}>
+                              {option.text}
+                            </span>
+                          </div>
+                          {option.arabicText && (
+                            <span className="font-arabic text-lg text-stone-800 shrink-0" dir="rtl">
+                              {option.arabicText}
+                            </span>
+                          )}
                         </div>
-                        {option.arabicText && (
-                          <span className="font-arabic text-lg text-stone-800 shrink-0" dir="rtl">
-                            {option.arabicText}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
 
               <CardFooter className="flex items-center justify-between border-t border-stone-100 pt-4">
@@ -471,6 +507,8 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ competition, questions, 
                 const uArr = Array.isArray(userAns) ? userAns.sort() : [userAns];
                 const cArr = [...q.correctAnswer].sort();
                 isCorrect = JSON.stringify(uArr) === JSON.stringify(cArr);
+              } else if (typeof q.correctAnswer === 'string' && typeof userAns === 'string') {
+                isCorrect = userAns.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase();
               } else {
                 isCorrect = userAns === q.correctAnswer;
               }
@@ -495,6 +533,26 @@ export const QuizEngine: React.FC<QuizEngineProps> = ({ competition, questions, 
                     <p className="text-base font-medium text-stone-900">
                       {q.questionText}
                     </p>
+
+                    {/* User Answer vs Key Display */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      <div className="p-2.5 rounded-lg bg-stone-100/70 border border-stone-200">
+                        <span className="text-[10px] text-stone-500 font-semibold block uppercase">Your Response:</span>
+                        <span className="font-medium text-stone-800">
+                          {Array.isArray(userAns)
+                            ? userAns.map(id => q.options?.find(o => o.id === id)?.text || id).join(', ')
+                            : (q.options?.find(o => o.id === userAns)?.text || String(userAns || 'Unanswered'))}
+                        </span>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-950">
+                        <span className="text-[10px] text-emerald-700 font-semibold block uppercase">Canonical Key:</span>
+                        <span className="font-medium text-emerald-900">
+                          {Array.isArray(q.correctAnswer)
+                            ? q.correctAnswer.map(id => q.options?.find(o => o.id === id)?.text || id).join(', ')
+                            : (q.options?.find(o => o.id === q.correctAnswer)?.text || String(q.correctAnswer))}
+                        </span>
+                      </div>
+                    </div>
 
                     <div className="p-3.5 rounded-lg bg-stone-50 border border-stone-200 text-sm space-y-1.5">
                       <span className="font-semibold text-stone-900 block text-xs uppercase tracking-wide">

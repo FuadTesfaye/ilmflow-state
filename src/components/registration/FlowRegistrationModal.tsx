@@ -29,7 +29,8 @@ export const FlowRegistrationModal: React.FC<FlowRegistrationModalProps> = ({
   onClose,
   preselectedTicketId
 }) => {
-  const { registerForEvent, currentUser } = useApp();
+  const { registerForEvent, currentUser, getFormById } = useApp();
+  const formSchema = event.formId ? getFormById(event.formId) : undefined;
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [selectedTicketId, setSelectedTicketId] = useState<string>(
@@ -291,10 +292,10 @@ export const FlowRegistrationModal: React.FC<FlowRegistrationModalProps> = ({
             <div className="space-y-6">
               <div className="border-b border-stone-200 pb-4">
                 <h4 className="text-lg font-semibold text-stone-900">
-                  Step 2: Additional Details
+                  {formSchema?.title || 'Step 2: Additional Details'}
                 </h4>
                 <p className="text-sm text-stone-500 mt-1">
-                  Please provide dietary preferences and other needs.
+                  {formSchema?.description || 'Please provide attendee requirements and special instructions.'}
                 </p>
               </div>
 
@@ -302,7 +303,7 @@ export const FlowRegistrationModal: React.FC<FlowRegistrationModalProps> = ({
                 <div className="p-4 rounded-lg bg-amber-50 border border-amber-200 space-y-4">
                   <div className="flex items-center gap-2 text-sm font-semibold text-amber-800">
                     <Shield size={16} />
-                    <span>Guardian Consent (Under 18)</span>
+                    <span>Guardian Consent (Required for Under 18)</span>
                   </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -310,7 +311,7 @@ export const FlowRegistrationModal: React.FC<FlowRegistrationModalProps> = ({
                       <label className="block text-sm font-medium text-amber-900 mb-1.5">Guardian Name *</label>
                       <input
                         type="text"
-                        value={formData.guardian_name as string}
+                        value={(formData.guardian_name as string) || ''}
                         onChange={(e) => handleInputChange('guardian_name', e.target.value)}
                         className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 bg-white"
                       />
@@ -319,7 +320,7 @@ export const FlowRegistrationModal: React.FC<FlowRegistrationModalProps> = ({
                       <label className="block text-sm font-medium text-amber-900 mb-1.5">Guardian Phone *</label>
                       <input
                         type="tel"
-                        value={formData.guardian_phone as string}
+                        value={(formData.guardian_phone as string) || ''}
                         onChange={(e) => handleInputChange('guardian_phone', e.target.value)}
                         className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 bg-white"
                       />
@@ -333,41 +334,122 @@ export const FlowRegistrationModal: React.FC<FlowRegistrationModalProps> = ({
                       onChange={(e) => handleInputChange('guardian_agreed', e.target.checked)}
                       className="text-amber-600 focus:ring-amber-500 rounded"
                     />
-                    <span>I confirm parent/guardian approval for participation.</span>
+                    <span>I confirm parent/guardian approval for delegate participation.</span>
                   </label>
                 </div>
               )}
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1.5">
-                    Dietary Requirements
-                  </label>
-                  <select
-                    value={formData.f_dietary as string}
-                    onChange={(e) => handleInputChange('f_dietary', e.target.value)}
-                    className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 bg-white"
-                  >
-                    <option value="standard">Standard Halal</option>
-                    <option value="vegan">Vegetarian / Vegan</option>
-                    <option value="gluten-free">Gluten-Free</option>
-                    <option value="nut-free">Nut Allergy Safe</option>
-                  </select>
+              {/* Dynamic Schema Fields if configured */}
+              {formSchema && formSchema.fields.length > 0 ? (
+                <div className="space-y-4">
+                  {formSchema.fields
+                    .filter((f) => !['f_name', 'f_email', 'f_phone'].includes(f.id))
+                    .map((field) => (
+                      <div key={field.id} className="space-y-1.5">
+                        <label className="block text-sm font-medium text-stone-700">
+                          {field.label} {field.required && <span className="text-red-500">*</span>}
+                        </label>
+                        {field.type === 'textarea' ? (
+                          <textarea
+                            rows={3}
+                            placeholder={field.placeholder}
+                            value={(formData[field.id] as string) || ''}
+                            onChange={(e) => handleInputChange(field.id, e.target.value)}
+                            className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10"
+                          />
+                        ) : field.type === 'dropdown' ? (
+                          <select
+                            value={(formData[field.id] as string) || ''}
+                            onChange={(e) => handleInputChange(field.id, e.target.value)}
+                            className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 bg-white"
+                          >
+                            <option value="">Select option...</option>
+                            {field.options?.map((opt) => (
+                              <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                        ) : field.type === 'radio' ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            {field.options?.map((opt) => (
+                              <label
+                                key={opt.value}
+                                className={`p-2.5 rounded-lg border text-xs flex items-center gap-2 cursor-pointer ${
+                                  formData[field.id] === opt.value
+                                    ? 'bg-stone-50 border-stone-900 text-stone-900 font-semibold'
+                                    : 'border-stone-200 text-stone-700'
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={field.id}
+                                  checked={formData[field.id] === opt.value}
+                                  onChange={() => handleInputChange(field.id, opt.value)}
+                                  className="accent-stone-900"
+                                />
+                                <span>{opt.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                        ) : field.type === 'checkbox' ? (
+                          <label className="flex items-center gap-2 text-sm text-stone-700 cursor-pointer pt-1">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(formData[field.id])}
+                              onChange={(e) => handleInputChange(field.id, e.target.checked)}
+                              className="accent-stone-900 rounded"
+                            />
+                            <span>{field.placeholder || 'Yes, I acknowledge and confirm.'}</span>
+                          </label>
+                        ) : (
+                          <input
+                            type={field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'}
+                            placeholder={field.placeholder}
+                            value={(formData[field.id] as string) || ''}
+                            onChange={(e) => handleInputChange(field.id, e.target.value)}
+                            className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10"
+                          />
+                        )}
+                        {field.helpText && (
+                          <p className="text-xs text-stone-400">{field.helpText}</p>
+                        )}
+                      </div>
+                    ))}
                 </div>
+              ) : (
+                /* Fallback standard fields */
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-stone-700 mb-1.5">
+                      Dietary Requirements
+                    </label>
+                    <select
+                      value={(formData.f_dietary as string) || 'standard'}
+                      onChange={(e) => handleInputChange('f_dietary', e.target.value)}
+                      className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10 bg-white"
+                    >
+                      <option value="standard">Standard Halal</option>
+                      <option value="vegan">Vegetarian / Vegan</option>
+                      <option value="gluten-free">Gluten-Free</option>
+                      <option value="nut-free">Nut Allergy Safe</option>
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1.5">
-                    Accessibility Needs
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={(formData.f_special_needs as string) || ''}
-                    onChange={(e) => handleInputChange('f_special_needs', e.target.value)}
-                    placeholder="Any special accommodations required..."
-                    className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10"
-                  />
+                  <div>
+                    <label className="block text-sm font-medium text-stone-700 mb-1.5">
+                      Accessibility Needs
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={(formData.f_special_needs as string) || ''}
+                      onChange={(e) => handleInputChange('f_special_needs', e.target.value)}
+                      placeholder="Any special accommodations required..."
+                      className="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-stone-900/10"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
